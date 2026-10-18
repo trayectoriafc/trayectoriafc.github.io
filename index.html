@@ -3379,9 +3379,13 @@ function start(){const [kind,variant,L]=lastArgs;if(cur){if(cur.cleanup)cur.clea
  cur=kind==='chance'?sceneChance(L,L.play):kind==='pass'?scenePass(L):kind==='penplay'?scenePenPlay(L,L.play):kind==='gala'?sceneGala(L):kind==='penal'?scenePenal(L,variant):kind==='fk'?sceneFK(L,variant):sceneTrain(L,variant);clock=0;capTxt='#';cap('');size();
  if(!raf){last=performance.now();raf=requestAnimationFrame(loop)}}
 const setPause=v=>{paused=v};
-ov.querySelector('[data-a=rep]').onclick=()=>{setPause(false);start()};ov.querySelector('[data-a=skip]').onclick=close;
+// entrenamientos: como máximo 3 repeticiones
+const MAXREP=3;let reps=0;const isTrain=()=>lastArgs&&(lastArgs[0]==='train'||lastArgs[0]==='pass');
+function updRep(){const b=ov.querySelector('[data-a=rep]');if(!b)return;if(!b.dataset.t)b.dataset.t=b.textContent;const left=MAXREP-reps,lock=isTrain()&&left<=0;
+  b.textContent=isTrain()?`${b.dataset.t} (${Math.max(0,left)})`:b.dataset.t;b.disabled=lock;b.style.opacity=lock?.4:'';b.title=lock?'Ya repetiste este entrenamiento 3 veces':''}
+ov.querySelector('[data-a=rep]').onclick=()=>{if(isTrain()){if(reps>=MAXREP)return;reps++;updRep()}setPause(false);start()};ov.querySelector('[data-a=skip]').onclick=close;
 addEventListener('keydown',e=>{if(!ov.hidden&&e.key==='Escape'){const b3=ov.querySelector('.a3d-bar');if(b3&&b3.style.visibility==='hidden')return;close()}});
-return{play(kind,variant,L){setPause(false);lastArgs=[kind,variant,L];ov.hidden=false;document.documentElement.style.overflow='hidden';requestAnimationFrame(()=>{start();ov.querySelector('[data-a=skip]').focus()})}}}
+return{play(kind,variant,L){setPause(false);lastArgs=[kind,variant,L];reps=0;updRep();ov.hidden=false;document.documentElement.style.overflow='hidden';requestAnimationFrame(()=>{start();ov.querySelector('[data-a=skip]').focus()})}}}
 function boot(d){if(d&&d.S){S=d.S;restoreClubs()}migrate();render()}
 window.claude?.hot?.snapshot?.(()=>({S}));
 window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});
