@@ -536,8 +536,9 @@ function fx(d){const p=S.p,chips=[];
 /* ---------- eventos ---------- */
 const EVENTS=[
 {id:'ocasion',w:()=>false,t:'¡Ocasión de gol!',x:p=>`Minuto 78, 0-0. Te llega el balón dentro del área, de espaldas al defensor. Tienes un segundo para definir.`,
- o:[{l:'🎮 Jugarla tú (jugable)',d:'WASD moverte · E tirar · Q pasar al compañero',f:()=>({play:{kind:'chance'},prob:.45,done:(g,why)=>g?[why==='golcompa'?'¡Asistencia perfecta! Le diste el pase a tu compañero y la metió. Ganaron 1-0.':'¡GOLAZO! Definiste tú y ganaron 1-0.',fx(why==='golcompa'?{rep:4,morale:8,coach:7}:{rep:6,morale:10,coach:5})]:[{atajada:'El arquero te achicó y la tapó.',atajadacompa:'Le diste el pase pero el arquero le tapó el remate a tu compañero.',palo:'¡Al palo! Por centímetros.',fuera:'Le pegaste mal y se fue afuera.',robo:'Te quedaste con el balón y el defensa te lo quitó.',corte:'El defensa cortó tu pase.',tiempo:'Dudaste demasiado y se perdió la ocasión.'}[why]||'Se perdió la ocasión.',fx({morale:-5,coach:-2})]})},
+ o:[{l:'🎮 Jugarla tú (jugable)',d:'WASD moverte · E/B tirar · Q/A pase · R/X centro (o pídele el centro a tu compa)',f:()=>({play:{kind:'chance'},prob:.45,done:(g,why)=>g?[why==='golcompa'?'¡Asistencia perfecta! Le diste el pase a tu compañero y la metió. Ganaron 1-0.':'¡GOLAZO! Definiste tú y ganaron 1-0.',fx(why==='golcompa'?{rep:4,morale:8,coach:7}:{rep:6,morale:10,coach:5})]:[{atajada:'El arquero te achicó y la tapó.',atajadacompa:'Le diste el pase pero el arquero le tapó el remate a tu compañero.',palo:'¡Al palo! Por centímetros.',fuera:'Le pegaste mal y se fue afuera.',robo:'Te quedaste con el balón y el defensa te lo quitó.',corte:'El defensa cortó tu pase.',despeje:'El defensa se anticipó y despejó el centro.',tiempo:'Dudaste demasiado y se perdió la ocasión.'}[why]||'Se perdió la ocasión.',fx({morale:-5,coach:-2})]})},
   {l:'Rematar de primera (rápido)',d:'40% gol',f:()=>R()<.4?['¡De primera y al ángulo! Ganaron 1-0.',fx({rep:5,morale:9,coach:4})]:['Remataste de primera y salió desviado.',fx({morale:-4})]},
+  {l:'Centro al área (rápido)',d:'35% gol de cabeza',f:()=>R()<.35?['Tiraste el centro y tu compañero la clavó de cabeza. Ganaron 1-0.',fx({rep:4,morale:7,coach:6})]:['Tiraste el centro pero el defensa la despejó.',fx({morale:-3})]},
   {l:'Pasarla al compañero (rápido)',d:'30% gol de tu compañero, +confianza del DT',f:()=>R()<.3?['Asistencia perfecta: tu compañero solo tuvo que empujarla.',fx({coach:6,morale:5,rep:2})]:['Le diste el pase pero el defensor la cortó.',fx({coach:2,morale:-2})]}]},
 {id:'jugadapeligrosa',w:()=>false,t:'¡Jugada peligrosa!',x:p=>`Contragolpe del rival: el 9 se escapó, entró al área y queda mano a mano contigo. Todo depende de ti.`,
  o:[{l:'🧤 Atajarla tú (jugable)',d:'A/D moverte · W/S alto/bajo · ESPACIO tirarte',f:()=>({play:{keeper:true,danger:true,title:'¡Jugada peligrosa! · Mano a mano'},prob:.4,done:(sv,why)=>sv?[why==='atajaste'?'¡ATAJADÓN! Le ganaste el mano a mano y el estadio coreó tu nombre.':'¡Afuera! Lo achicaste bien y no encontró el arco.',fx({rep:5,morale:9,coach:5,ovr:why==='atajaste'?1:0})]:['Te definió bien. Gol del rival.',fx({morale:-5,coach:-2})]})},
@@ -2089,7 +2090,7 @@ function scenePenPlay(L,opt){
   let padPrev=false;
   function input(dt){let x=(keys.a||keys.arrowleft?1:0)-(keys.d||keys.arrowright?1:0),y=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);
     const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(g=>g&&g.connected);
-    if(gp){const ax=gp.axes||[],bt=i=>gp.buttons[i]&&(gp.buttons[i].pressed||gp.buttons[i].value>.5);let gx=ax[0]||0,gy=ax[1]||0;if(Math.hypot(gx,gy)<.15)gx=gy=0;if(bt(12))gy=-1;if(bt(13))gy=1;if(bt(14))gx=-1;if(bt(15))gx=1;if(gx||gy){x=-gx;y=-gy}const a=bt(0);if(a&&!padPrev)fire=true;padPrev=a;const xb=bt(2)||bt(3);if(xb&&!A.padX)setFx(!A.fx);A.padX=xb}
+    if(gp){const ax=gp.axes||[],bt=i=>gp.buttons[i]&&(gp.buttons[i].pressed||gp.buttons[i].value>.5);let gx=ax[0]||0,gy=ax[1]||0;if(Math.hypot(gx,gy)<.15)gx=gy=0;if(bt(12))gy=-1;if(bt(13))gy=1;if(bt(14))gx=-1;if(bt(15))gx=1;if(gx||gy){x=-gx;y=-gy}const a=bt(1)||bt(0);if(a&&!padPrev)fire=true;padPrev=a;const xb=bt(3);if(xb&&!A.padX)setFx(!A.fx);A.padX=xb}
     if(A.ph==='aim'){A.x+=x*4.2*dt;A.y+=y*3*dt}A.x=Math.max(-4.6,Math.min(4.6,A.x));A.y=Math.max(.12,Math.min(3.2,A.y))}
   // ---- cálculo del tiro ----
   const gauss=()=>{let u=0;for(let i=0;i<4;i++)u+=Math.random();return(u-2)/.58};
@@ -2173,7 +2174,7 @@ function scenePenPlay(L,opt){
     // ---- entrada ----
     let mx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),my=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);
     const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(g=>g&&g.connected);
-    if(gp){const ax=gp.axes||[];if(Math.abs(ax[0]||0)>.3)mx=Math.sign(ax[0]);if(Math.abs(ax[1]||0)>.3)my=-Math.sign(ax[1]);const a=gp.buttons[0]&&gp.buttons[0].pressed;if(a&&!K.padA)fire=true;K.padA=a}
+    if(gp){const ax=gp.axes||[];if(Math.abs(ax[0]||0)>.3)mx=Math.sign(ax[0]);if(Math.abs(ax[1]||0)>.3)my=-Math.sign(ax[1]);const a=gp.buttons[0]&&gp.buttons[0].pressed||gp.buttons[1]&&gp.buttons[1].pressed;if(a&&!K.padA)fire=true;K.padA=a}
     if(fire&&!K.dive&&A.ph!=='done'){fire=false;const tp=K.tap;K.tap=null;const d=tp?tp.d:mx,h=tp?tp.h:my;K.dive={d,h};K.diveT=t;
       const H=h>0?2.05:h<0?.35:1.2;const Lh=2.15,air=H>1.7?.45:H<.6?.05:.25,Tx=K.x+d*2.65;K.th=d?Math.acos(Math.max(-.2,Math.min(.97,(H-air)/Lh))):0;K.rx=d?Tx-d*Lh*Math.sin(K.th):K.x;K.H=H;K.air=air}
     fire=false;
@@ -2217,7 +2218,7 @@ function scenePenPlay(L,opt){
     // ---- fases ----
     if(A.ph==='aim'||A.ph==='power'){const pr=(FK?1.35:1)*(A.ph==='power'?1.6:1)*(1+Math.min(1,A.aimT/5)*.6);A.wob=(Math.sin(t*1.7)*.16+Math.sin(t*2.9+1)*.09)*pr}
     if(A.ph==='aim'){A.aimT+=dt;const left=Math.max(0,AIM_LIMIT-A.aimT);uTime.textContent='⏱ '+left.toFixed(1);uTime.classList.toggle('hot',left<2.5);
-      uHelp.innerHTML='<b>1.</b> Apunta y presiona para patear'+(FK?' · <b>Q</b>/<b>X</b>: tipo de tiro':OC?'':' · <b>Q</b>/<b>X</b>: paradinha');uPw.style.opacity=.35;uPwI.style.width='0%';
+      uHelp.innerHTML='<b>1.</b> Apunta y presiona para patear'+' · Mando: <b>B</b> patear'+(FK?' · <b>Q</b>/<b>Y</b>: tipo de tiro':OC?'':' · <b>Q</b>/<b>Y</b>: paradinha');uPw.style.opacity=.35;uPwI.style.width='0%';
       if(fire||left<=0){fire=false;A.ph='power';A.pwT=0}}
     else if(A.ph==='power'){A.pwT+=dt;const k=(A.pwT*1.45)%2;A.pw=k<1?k:2-k;uPw.style.opacity=1;uPwI.style.width=(A.pw*100).toFixed(0)+'%';uPwI.className=A.pw>.86?'over':A.pw>=.66?'ok':'';
       const left=Math.max(0,PW_LIMIT-A.pwT);uTime.textContent='⏱ '+left.toFixed(1);uHelp.innerHTML='<b>2.</b> ¡Presiona en la zona verde!';
@@ -2315,22 +2316,22 @@ function sceneChance(L,opt){opt=opt||{};
   const C={pos:V(sg*5.5,0,-6),h:0,vel:V(0,0,0),ph:0,owner:'me',bp:V(0,.11,0),bv:V(0,0,0),kick:-1,kind:null,
     mpos:V(-sg*4.5,0,-2.5),mh:0,mph:0,dpos:V(sg*1.5,0,0),dh:Math.PI,dph:0,gx:0,steal:0,time:10,done:false,res:null,shot:null,react:0,mshoot:-1};
   // ---- entrada ----
-  const keys={};let shootReq=false,passReq=false,tx=0,ty=0;
-  const kd=e=>{const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[k]=true;if(!e.repeat){if(k==='e'||k===' ')shootReq=true;if(k==='q')passReq=true}};
+  const keys={};let shootReq=false,passReq=false,crossReq=false,tx=0,ty=0;
+  const kd=e=>{const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[k]=true;if(!e.repeat){if(k==='e'||k===' ')shootReq=true;if(k==='q')passReq=true;if(k==='r')crossReq=true}};
   const ku=e=>{keys[e.key.toLowerCase()]=false};addEventListener('keydown',kd);addEventListener('keyup',ku);window.__padGame=true;
   const ui=document.createElement('div');ui.className='pg-ui';
-  ui.innerHTML='<div class="pg-joy"><i></i></div><button type="button" class="pg-pass">TIRAR</button><button type="button" class="pg-cross">PASE</button><div class="pg-help">Mover: <b>WASD</b> · Tirar: <b>E</b> · Pasar: <b>Q</b> &nbsp;|&nbsp; Mando: <b>stick</b> · <b>A</b> tirar · <b>X</b> pasar</div><div class="pp-top" style="top:44px"><span></span><span class="pp-time"></span></div>';
+  ui.innerHTML='<div class="pg-joy"><i></i></div><button type="button" class="pg-pass">TIRAR</button><button type="button" class="pg-cross">PASE</button><button type="button" class="pg-cross pg-cent" style="right:204px;background:#e08a00">CENTRO</button><div class="pg-help"><b>WASD</b> mover · <b>E</b>/<b>B</b> tirar · <b>Q</b>/<b>A</b> pase · <b>R</b>/<b>X</b> centro</div><div class="pp-top" style="top:44px"><span></span><span class="pp-time"></span></div>';
   stageEl.appendChild(ui);const joy=ui.querySelector('.pg-joy'),knob=joy.querySelector('i'),uTime=ui.querySelector('.pp-time');
-  ui.querySelector('.pg-pass').addEventListener('pointerdown',e=>{e.preventDefault();shootReq=true});ui.querySelector('.pg-cross').addEventListener('pointerdown',e=>{e.preventDefault();passReq=true});
+  ui.querySelector('.pg-pass').addEventListener('pointerdown',e=>{e.preventDefault();shootReq=true});ui.querySelector('.pg-cross').addEventListener('pointerdown',e=>{e.preventDefault();passReq=true});ui.querySelector('.pg-cent').addEventListener('pointerdown',e=>{e.preventDefault();crossReq=true});
   let jid=null;const jmove=e=>{const r=joy.getBoundingClientRect();let dx=(e.clientX-r.left-r.width/2)/(r.width/2),dy=(e.clientY-r.top-r.height/2)/(r.height/2);const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}tx=dx;ty=dy;knob.style.transform=`translate(${dx*30}px,${dy*30}px)`};
   joy.addEventListener('pointerdown',e=>{jid=e.pointerId;joy.setPointerCapture(jid);jmove(e)});joy.addEventListener('pointermove',e=>{if(e.pointerId===jid)jmove(e)});
   const jend=()=>{jid=null;tx=ty=0;knob.style.transform=''};joy.addEventListener('pointerup',jend);joy.addEventListener('pointercancel',jend);
-  let pA=false,pX=false;
+  let pA=false,pB=false,pX=false;
   function input(){ // cámara detrás mirando al arco (+z): W = hacia el arco
     let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),y=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);if(tx||ty){x=tx;y=-ty}
     const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(g=>g&&g.connected);
     if(gp){const ax=gp.axes||[],bt=i=>gp.buttons[i]&&(gp.buttons[i].pressed||gp.buttons[i].value>.5);let gx=ax[0]||0,gy=ax[1]||0;if(Math.hypot(gx,gy)<.18)gx=gy=0;if(gx||gy){x=gx;y=-gy}
-      if(bt(0)&&!pA)shootReq=true;pA=bt(0);if(bt(2)&&!pX)passReq=true;pX=bt(2)}
+      if(bt(1)&&!pB)shootReq=true;pB=bt(1);if(bt(0)&&!pA)passReq=true;pA=bt(0);if(bt(2)&&!pX)crossReq=true;pX=bt(2)}
     const l=Math.hypot(x,y);if(l>1){x/=l;y/=l}return[-x,y]} // -x: la cámara mira hacia +z, la derecha de pantalla es -x
   // ---- tiro: resultado según distancia, ángulo, posición del arquero ----
   const gauss=()=>{let u=0;for(let i=0;i<4;i++)u+=Math.random();return(u-2)/.58};
@@ -2340,16 +2341,22 @@ function sceneChance(L,opt){opt=opt||{};
     const T=Math.max(.32,dist/22);let res='gol';if(Math.abs(P.x)>3.66||P.y>2.44)res=(Math.abs(Math.abs(P.x)-3.66)<.15||Math.abs(P.y-2.44)<.12)?'palo':'fuera';
     const reach=Math.min(3.2,1.05+5.6*Math.max(0,T-.18));const save=res==='gol'&&Math.abs(P.x-C.gx)<reach*(P.y>1.9?.8:1)&&Math.random()<.85;if(save)res='atajada';
     return{from:from.clone().setY(.11),P,T,t:0,res,dive:Math.sign(P.x-C.gx)||1}}
+  // centro: balón por el aire hacia el punto de caída; quien lo recibe salta y cabecea
+  function cross(from,land,who){const D=from.distanceTo(land);C.cr={from:from.setY(.11),to:land.clone().setY(2.05),t:0,T:Math.max(.85,D/13),hgt:3.2+D*.08,who,bonus:0};
+    // ¿el defensa llega antes al punto de caída?
+    const dd=C.dpos.distanceTo(land);C.cr.clear=dd<1.6&&Math.random()<(who==='me'?.3:.38);C.owner='cross'}
+  function header(){const R2=C.cr,who=R2.who,pos=who==='me'?C.pos:C.mpos;const S1=shot(pos.clone().add(V(0,0,.25)),who==='me'?-.1+R2.bonus:-.5);
+    S1.from.y=2.05;S1.head=true;S1.T*=1.25;S1.mate=who!=='me';C.shot=S1;C.owner='shot';C.hd={who,t:0}}
   function finish(res){if(C.done)return;C.done=true;C.res=res;C.doneT=performance.now()/1000;
-    const say={gol:['¡GOOOL! ⚽',true],golcompa:['¡GOL DE TU COMPAÑERO! Asistencia tuya',true],atajada:['¡LA ATAJÓ EL ARQUERO!',false],fuera:['AFUERA…',false],palo:['¡AL PALO!',false],robo:['TE LA QUITÓ EL DEFENSA',false],corte:['EL DEFENSA CORTÓ EL PASE',false],tiempo:['SE ACABÓ EL TIEMPO',false],atajadacompa:['El arquero le tapó el remate a tu compañero',false]}[res];
+    const say={gol:['¡GOOOL! ⚽',true],golcompa:['¡GOL DE TU COMPAÑERO! Asistencia tuya',true],atajada:['¡LA ATAJÓ EL ARQUERO!',false],fuera:['AFUERA…',false],palo:['¡AL PALO!',false],robo:['TE LA QUITÓ EL DEFENSA',false],corte:['EL DEFENSA CORTÓ EL PASE',false],tiempo:['SE ACABÓ EL TIEMPO',false],atajadacompa:['El arquero le tapó el remate a tu compañero',false],despeje:['EL DEFENSA DESPEJÓ EL CENTRO',false]}[res];if(C.shot&&C.shot.head&&say[1])say[0]=res==='golcompa'?'¡GOL DE CABEZA DE TU COMPAÑERO!':'¡GOOOL DE CABEZA! ⚽';
     cap(say[0],say[1]);if(say[1]&&CR.jump)C.cj=true;ui.querySelector('.pg-joy').style.display='none';
     setTimeout(()=>{if(opt.onDone)opt.onDone(res==='gol'||res==='golcompa',res)},1400)}
   const camPos=V(sg*5.5,4.2,-12),look=V(0,1,5);
   function update(t,dt){
-    const [ix,iz]=C.done||C.owner!=='me'&&C.owner!=='free'?[0,0]:input();
+    const [ix,iz]=C.done||C.owner!=='me'&&C.owner!=='free'?(C.owner==='mate'||C.owner==='cross'?(input(),[0,0]):[0,0]):input();
     if(!C.done){C.time-=dt;uTime.textContent='⏱ '+Math.max(0,C.time).toFixed(1);if(C.time<=0&&C.owner==='me')finish('tiempo')}
     // ---- tú ----
-    const want=V(ix,0,iz).multiplyScalar(5);C.vel.lerp(want,Math.min(1,dt*9));if(C.kick<0)C.pos.addScaledVector(C.vel,dt);C.pos.x=Math.max(-18,Math.min(18,C.pos.x));C.pos.z=Math.max(-14,Math.min(10.2,C.pos.z));
+    let want=V(ix,0,iz).multiplyScalar(5);if(C.owner==='cross'&&C.cr.who==='me'){const d=C.cr.to.clone().setY(0).add(V(0,0,-.3)).sub(C.pos);const dl=d.length();want=dl>.15?d.multiplyScalar(Math.min(6,dl*3)/dl):V(0,0,0)}C.vel.lerp(want,Math.min(1,dt*9));if(C.kick<0)C.pos.addScaledVector(C.vel,dt);C.pos.x=Math.max(-18,Math.min(18,C.pos.x));C.pos.z=Math.max(-14,Math.min(10.2,C.pos.z));
     const spd=C.vel.length();if(spd>.3&&C.kick<0)C.h=angLerp(C.h,Math.atan2(C.vel.x,C.vel.z),Math.min(1,dt*10));
     rest(me);me.root.position.copy(C.pos);me.root.rotation.y=C.h;
     if(C.kick>=0){C.kick+=dt/.42;if(C.kind==='tiro')kickPose(me,Math.min(1,C.kick));else passPose(me,Math.min(1,C.kick));if(C.kick>=1)C.kick=-1}
@@ -2361,28 +2368,41 @@ function sceneChance(L,opt){opt=opt||{};
         // ¿el defensa está en la línea del pase?
         const ab=to.clone().sub(from),l2=ab.lengthSq(),u=Math.max(0,Math.min(1,C.dpos.clone().sub(from).dot(ab)/l2)),dd=from.clone().addScaledVector(ab,u).distanceTo(C.dpos);
         C.pass={from:from.setY(.11),to:to.setY(.11),t:0,T:Math.max(.45,Math.sqrt(l2)/11),cut:dd<.5&&u>.15&&Math.random()<.7?u:null};C.owner='pass'},190)}
-    shootReq=passReq=false;
+    if(crossReq&&C.owner==='me'&&C.kick<0&&!C.done){crossReq=false;C.kick=0;C.kind='pase';const land=V(-sg*2.2+(Math.random()-.5)*1.4,0,6.6+Math.random()*1.2);const d=land.clone().sub(C.pos);C.h=Math.atan2(d.x,d.z);
+      setTimeout(()=>{if(C.done)return;cross(C.pos.clone().add(V(Math.sin(C.h),0,Math.cos(C.h)).multiplyScalar(.4)),land,'mate')},190)}
+    // tu compañero te tira el centro (lo pides con X/R mientras él la tiene)
+    if(crossReq&&C.owner==='mate'&&C.mshoot===-1&&!C.done){crossReq=false;C.mshoot=-3;C.mck=0;const land=V(C.pos.x*.6+(Math.random()-.5)*.8,0,Math.max(5.5,Math.min(8,C.pos.z+1.5)));
+      C.mh=Math.atan2(land.x-C.mpos.x,land.z-C.mpos.z);setTimeout(()=>{if(C.done)return;cross(C.mpos.clone().add(V(Math.sin(C.mh),0,Math.cos(C.mh)).multiplyScalar(.4)),land,'me')},190)}
+    if(C.mck!=null&&C.mck>=0){C.mck+=dt/.42;passPose(mate,Math.min(1,C.mck));if(C.mck>=1)C.mck=null}
+    shootReq=passReq=crossReq=false;
     // ---- compañero: se desmarca hacia el área y define si recibe ----
-    rest(mate);if(C.owner!=='mate'&&C.owner!=='mshot'){const tgt=V(-sg*3.2+Math.sin(t*.7)*1.2,0,Math.min(7.5,C.pos.z+3.5));const d=tgt.clone().sub(C.mpos);d.y=0;const dl=d.length();
+    rest(mate);if(C.owner!=='mate'&&C.owner!=='mshot'){const tgt=C.owner==='cross'&&C.cr.who==='mate'?C.cr.to.clone().setY(0).add(V(0,0,-.3)):V(-sg*3.2+Math.sin(t*.7)*1.2,0,Math.min(7.5,C.pos.z+3.5));const d=tgt.clone().sub(C.mpos);d.y=0;const dl=d.length();
       if(dl>.2){const sp=Math.min(4.2,dl*2.2);C.mpos.addScaledVector(d.normalize(),sp*dt);C.mh=angLerp(C.mh,Math.atan2(d.x,d.z),Math.min(1,dt*8));C.mph+=dt*sp*2.6;cycle(mate,C.mph,Math.min(1,sp/4))}else{C.mh=angLerp(C.mh,Math.atan2(C.pos.x-C.mpos.x,C.pos.z-C.mpos.z),dt*5);idle(mate,t)}}
     mate.root.position.copy(C.mpos);mate.root.rotation.y=C.mh;
-    if(C.owner==='mate'){C.mhold-=dt;C.mh=angLerp(C.mh,Math.atan2(-C.mpos.x,11-C.mpos.z),dt*10);if(C.mhold<=.35&&C.mshoot<0)C.mshoot=0;if(C.mhold<=0){C.shot=shot(C.mpos.clone().add(V(Math.sin(C.mh),0,Math.cos(C.mh)).multiplyScalar(.4)),-.25);C.shot.mate=true;C.owner='shot'}}
+    if(C.owner==='mate'&&C.mshoot!==-3){C.mhold-=dt;C.mh=angLerp(C.mh,Math.atan2(-C.mpos.x,11-C.mpos.z),dt*10);if(C.mhold<=.35&&C.mshoot<0)C.mshoot=0;if(C.mhold<=0){C.shot=shot(C.mpos.clone().add(V(Math.sin(C.mh),0,Math.cos(C.mh)).multiplyScalar(.4)),-.25);C.shot.mate=true;C.owner='shot'}}
     if(C.mshoot>=0){C.mshoot+=dt/.42;kickPose(mate,Math.min(1,C.mshoot));if(C.mshoot>=1)C.mshoot=-2}
     else if(C.mshoot===-1&&C.owner==='mate')receivePose(mate,1-Math.max(0,C.mhold-.35)/.5);
+    const jump=(P,who)=>{let j=0;if(C.owner==='cross'&&C.cr.who===who){const u=C.cr.t/C.cr.T;if(u>.72)j=Math.sin(Math.min(1,(u-.72)/.5)*Math.PI)}else if(C.hd&&C.hd.who===who){C.hd.t+=dt;j=C.hd.t<.22?Math.sin((.56+C.hd.t*2)*Math.PI):0}
+      if(j>0){P.root.position.y+=j*.55;legA(P,0,.3*j,1.1*j);legA(P,1,-.1*j,.9*j);armA(P,0,1.3*j,.5,.5*j);armA(P,1,1.3*j,.5,.5*j);P.spine.rotation.x=(C.hd&&C.hd.who===who?.45:-.3)*j;P.head.rotation.x=(C.hd&&C.hd.who===who?.5:-.35)*j}};
+    jump(mate,'mate');
     if(C.done&&C.res==='golcompa'&&C.mshoot===-2){mate.root.position.copy(C.mpos);celebPose(mate,t,'cielo')}
     // ---- defensa: te presiona y trata de robarte ----
-    rest(def);{const target=C.owner==='me'?C.pos.clone().add(V(Math.sin(C.h),0,Math.cos(C.h)).multiplyScalar(.7)):C.owner==='mate'?C.mpos.clone():C.dpos.clone();
+    rest(def);{const target=C.owner==='cross'?C.cr.to.clone().setY(0).add(V(0,0,-2.4)):C.owner==='me'?C.pos.clone().add(V(Math.sin(C.h),0,Math.cos(C.h)).multiplyScalar(.7)):C.owner==='mate'?C.mpos.clone():C.dpos.clone();
       const goalSide=V(target.x*.85,0,target.z+.9);const d=goalSide.sub(C.dpos);d.y=0;const dl=d.length(),sp=Math.min(4.75,dl*3);
       if(dl>.15&&!C.done){C.dpos.addScaledVector(d.normalize(),sp*dt);C.dph+=dt*sp*2.6;cycle(def,C.dph,Math.min(1,sp/4))}else idle(def,t);
       C.dh=angLerp(C.dh,Math.atan2(C.pos.x-C.dpos.x,C.pos.z-C.dpos.z),dt*8);def.root.position.copy(C.dpos);def.root.rotation.y=C.dh;def.spine.rotation.x+=.15}
+    jump(me,'me');
     // robo
     if(C.owner==='me'&&!C.done&&C.kick<0){const dd=C.dpos.distanceTo(V(C.bp.x,0,C.bp.z));if(dd<.55)C.steal+=dt;else C.steal=Math.max(0,C.steal-dt*.5);if(C.steal>.32){C.owner='def';finish('robo')}}
     // ---- balón ----
     if(C.owner==='me'){const fw=V(Math.sin(C.h),0,Math.cos(C.h));C.bp.lerp(C.pos.clone().addScaledVector(fw,.42+.06*Math.sin(C.ph*.5)*Math.min(1,spd)).setY(.11),Math.min(1,dt*14));ball.rotation.x+=spd*dt*4}
     else if(C.owner==='pass'){const Pp=C.pass;Pp.t+=dt;const u=Math.min(1,Pp.t/Pp.T);C.bp.copy(Pp.from).lerp(Pp.to,u);ball.rotation.x+=dt*14;
-      if(Pp.cut!=null&&u>=Pp.cut){C.owner='def';finish('corte')}else if(u>=1){C.owner='mate';C.mhold=.85}}
+      if(Pp.cut!=null&&u>=Pp.cut){C.owner='def';finish('corte')}else if(u>=1){C.owner='mate';C.mhold=1.35}}
+    else if(C.owner==='cross'){const R2=C.cr;R2.t+=dt;const u=Math.min(1,R2.t/R2.T);C.bp.copy(R2.from).lerp(R2.to,u);C.bp.y=lerp(.11,2.05,u)+R2.hgt*4*u*(1-u)*(u<.5?1:1-(u-.5)*.3);ball.rotation.x+=dt*12;
+      if(R2.who==='me'&&shootReq&&u>.35&&!R2.bonus){R2.bonus=Math.max(0,.3-Math.abs(u-.85)*.6)+.05}
+      if(R2.clear&&u>=.9){C.owner='def';finish('despeje')}else if(u>=1)header()}
     else if(C.owner==='mate'){const fw=V(Math.sin(C.mh),0,Math.cos(C.mh));C.bp.lerp(C.mpos.clone().addScaledVector(fw,.4).setY(.11),Math.min(1,dt*12))}
-    else if(C.owner==='shot'){const S1=C.shot;S1.t+=dt;const u=Math.min(1,S1.t/S1.T);C.bp.copy(S1.from).lerp(S1.P,u);C.bp.y=lerp(.11,S1.P.y,u)+.3*4*u*(1-u);ball.rotation.x+=dt*20;
+    else if(C.owner==='shot'){const S1=C.shot;S1.t+=dt;const u=Math.min(1,S1.t/S1.T);C.bp.copy(S1.from).lerp(S1.P,u);C.bp.y=lerp(S1.from.y,S1.P.y,u)+(S1.head?.15:.3)*4*u*(1-u);ball.rotation.x+=dt*20;
       if(u>=1&&!C.done){const r=S1.res;finish(r==='gol'?(S1.mate?'golcompa':'gol'):r==='atajada'&&S1.mate?'atajadacompa':r);C.endT=S1.t}
       if(C.done&&C.endT!=null){const t2=S1.t-C.endT,P=S1.P;if(S1.res==='gol')C.bp.set(P.x,Math.max(.11,P.y-t2*1.6),11+.9*(1-Math.exp(-t2*7)));else if(S1.res==='atajada')C.bp.set(P.x-S1.dive*t2*2,Math.max(.11,P.y+t2*2-t2*t2*6),11-t2*4);else if(S1.res==='palo')C.bp.set(P.x-Math.sign(P.x)*t2*2,Math.max(.11,P.y+t2-t2*t2*6),11-t2*5);else C.bp.set(P.x,P.y+t2*.5,11+t2*12)}}
     else if(C.owner==='def'){C.bp.lerp(C.dpos.clone().add(V(0,.11,-.5)),Math.min(1,dt*8))}
@@ -2395,9 +2415,9 @@ function sceneChance(L,opt){opt=opt||{};
         else{gk.root.position.set(lerp(C.gx,want,e),0,10.5);armA(gk,0,lerp(.5,2.2,e),.4,.6);armA(gk,1,lerp(.5,2.2,e),.4,.6)}}}
     else{C.gx=lerp(C.gx,bx,Math.min(1,dt*3));gk.root.position.set(C.gx,0,10.5);gkReady(gk,t,0)}
     groundSnap(gk,false);gk.root.position.y+=gAir;
-    if(!C.done&&C.owner==='me')cap(C.time>8.5?'¡Ocasión! Muévete y define':'',false);
+    if(!C.done&&C.owner==='me')cap(C.time>8.5?'¡Ocasión! Muévete y define':'',false);else if(!C.done&&C.owner==='mate'&&C.mshoot===-1)cap('¡Pídele el centro! (X / R)',false);else if(!C.done&&C.owner==='cross')cap(C.cr.who==='me'?'¡Cabecea! (B / E)':'¡Centro al área!',false);else if(!C.done&&C.owner==='shot')cap('',false);
     // ---- cámara ----
-    const foc=C.owner==='shot'||C.owner==='pass'?C.bp.clone().setY(0):C.owner==='mate'?C.mpos.clone():C.pos.clone();
+    const foc=C.owner==='shot'||C.owner==='pass'||C.owner==='cross'?C.bp.clone().setY(0):C.owner==='mate'?C.mpos.clone():C.pos.clone();
     const cp=foc.clone().add(V(foc.x*.15,4.6,-7.5)),lk=foc.clone().lerp(V(0,0,11),.45).add(V(0,.6,0));camPos.lerp(cp,Math.min(1,dt*3));look.lerp(lk,Math.min(1,dt*3.5));cam.position.copy(camPos);cam.lookAt(look)}
   camPos.set(C.pos.x*1.15,4.6,C.pos.z-7.5);look.set(C.pos.x*.55,.6,(C.pos.z+11)*.45);window.__oc=C;
   return{scene:sc,cam,update,dur:99999,tag:'Ocasión de gol',interactive:true,
@@ -2715,6 +2735,64 @@ function sceneTrain(L,variant){
       const r=me.root.position;let cp,lk;if(t<7.4){cp=V(2.6,1.9,3.2);lk=V(0,1,0)}else{cp=V(r.x+5.2,2.6,r.z+1.5);lk=V(r.x,.9,r.z)}return[cp,lk]};
     return finish(26,13.2,'Pretemporada · Físico');
   }
+  if(variant==='tecnica'&&L.play)return dribblePlay();
+  // ===== regate jugable: te mueves tú entre los conos y rematas =====
+  function dribblePlay(){
+    const cz=[0,2,4,6,8],sides=cz.map((_,i)=>i%2?-1:1),cones=cz.map(z=>cone(0,z));goal(sc,15.5,3,1.6,1);
+    // marca azul del lado por el que tienes que pasar cada cono
+    const marks=cz.map((z,i)=>{const m=mesh(new T.CircleGeometry(.28,18),M('#2e86ff',{transparent:true,opacity:.75}));m.rotation.x=-Math.PI/2;m.position.set(sides[i]*.75,.02,z);sc.add(m);return m});
+    const ball=ballMesh();sc.add(ball);
+    const D={pos:V(0,0,-2.6),vel:V(0,0,0),h:0,ph:0,bp:V(0,.11,-2.2),res:cz.map(()=>null),shot:null,kick:-1,time:15,done:false,sent:false,hit:cz.map(()=>0)};
+    const keys={};let shootReq=false,tx=0,ty=0,pB=false,pA=false;
+    const kd=e=>{const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[k]=true;if(!e.repeat&&(k==='e'||k===' '))shootReq=true};
+    const ku=e=>{keys[e.key.toLowerCase()]=false};addEventListener('keydown',kd);addEventListener('keyup',ku);window.__padGame=true;
+    const ui=document.createElement('div');ui.className='pg-ui';
+    ui.innerHTML='<div class="pg-joy"><i></i></div><button type="button" class="pg-pass">TIRAR</button><div class="pg-help"><b>WASD</b> mover · pasa cada cono por el lado <b style="color:#5aa8ff">azul</b> · <b>E</b>/<b>B</b> rematar</div><div class="pp-top" style="top:44px"><span class="dr-dots"></span><span class="pp-time"></span></div>';
+    stageEl.appendChild(ui);const joy=ui.querySelector('.pg-joy'),knob=joy.querySelector('i'),uTime=ui.querySelector('.pp-time'),uDots=ui.querySelector('.dr-dots');
+    const bar3d=document.querySelector('.a3d .a3d-bar');if(bar3d)bar3d.style.visibility='hidden';
+    ui.querySelector('.pg-pass').addEventListener('pointerdown',e=>{e.preventDefault();shootReq=true});
+    let jid=null;const jmove=e=>{const r=joy.getBoundingClientRect();let dx=(e.clientX-r.left-r.width/2)/(r.width/2),dy=(e.clientY-r.top-r.height/2)/(r.height/2);const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}tx=dx;ty=dy;knob.style.transform=`translate(${dx*30}px,${dy*30}px)`};
+    joy.addEventListener('pointerdown',e=>{jid=e.pointerId;joy.setPointerCapture(jid);jmove(e)});joy.addEventListener('pointermove',e=>{if(e.pointerId===jid)jmove(e)});
+    const jend=()=>{jid=null;tx=ty=0;knob.style.transform=''};joy.addEventListener('pointerup',jend);joy.addEventListener('pointercancel',jend);
+    function input(){let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),y=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);if(tx||ty){x=tx;y=-ty}
+      const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(g=>g&&g.connected);
+      if(gp){const ax=gp.axes||[],bt=i=>gp.buttons[i]&&(gp.buttons[i].pressed||gp.buttons[i].value>.5);let gx=ax[0]||0,gy=ax[1]||0;if(Math.hypot(gx,gy)<.18)gx=gy=0;if(bt(12))gy=-1;if(bt(13))gy=1;if(bt(14))gx=-1;if(bt(15))gx=1;if(gx||gy){x=gx;y=-gy}
+        if(bt(1)&&!pB)shootReq=true;pB=bt(1);if(bt(0)&&!pA)shootReq=true;pA=bt(0)}
+      const l=Math.hypot(x,y);if(l>1){x/=l;y/=l}return[-x,y]} // la cámara mira hacia +z: derecha de pantalla = -x
+    const draw=()=>{uDots.textContent=D.res.map(r=>r==null?'⬜':r?'✅':'❌').join('')+' '+(D.shot?D.shot.ok?'⚽':'❌':'⚽?')};draw();
+    function end(){if(D.done)return;D.done=true;const n=cz.length+1,h=D.res.filter(Boolean).length+(D.shot&&D.shot.ok?1:0);D.hits=h;
+      cap(h===n?'¡Entrenamiento perfecto!':h*2>=n?'Buen entrenamiento '+h+'/'+n:'Te costó: '+h+'/'+n,h*2>=n);ui.querySelector('.pg-joy').style.display='none';
+      setTimeout(()=>{if(bar3d)bar3d.style.visibility='';if(!D.sent){D.sent=true;L.onDone&&L.onDone(h,n)}},1500)}
+    const camPos=V(0,3.2,-8),look=V(0,.8,2);window.__dr=D;
+    function update(t,dt){
+      const [ix,iz]=D.done||D.shot?[0,0]:input();
+      if(!D.done){D.time-=dt;uTime.textContent='⏱ '+Math.max(0,D.time).toFixed(1);if(D.time<=0&&!D.shot){D.res=D.res.map(r=>r==null?false:r);draw();end()}}
+      const want=V(ix,0,iz).multiplyScalar(4.6);D.vel.lerp(want,Math.min(1,dt*8));if(D.kick<0)D.pos.addScaledVector(D.vel,dt);D.pos.x=Math.max(-4,Math.min(4,D.pos.x));D.pos.z=Math.max(-4,Math.min(12.5,D.pos.z));
+      const spd=D.vel.length();if(spd>.3&&D.kick<0)D.h=angLerp(D.h,Math.atan2(D.vel.x,D.vel.z),Math.min(1,dt*10));
+      // conos: cuenta al cruzarlos, tocar uno lo tira
+      cz.forEach((z,i)=>{const c=cones[i];const bd=Math.hypot(D.bp.x,D.bp.z-z),pd=Math.hypot(D.pos.x,D.pos.z-z);
+        if((bd<.3||pd<.34)&&!D.hit[i]){D.hit[i]=1;if(D.res[i]==null){D.res[i]=false;draw();cap('¡Tocaste el cono!',false)}}
+        if(D.hit[i]&&D.hit[i]<1.4){D.hit[i]=Math.min(1.4,D.hit[i]+dt*5);c.rotation.z=(D.hit[i]-1)*4;c.position.y=.19-(D.hit[i]-1)*.3}
+        if(D.res[i]==null&&D.pos.z>z){const ok=Math.sign(D.pos.x)===sides[i]&&Math.abs(D.pos.x)<2.2;D.res[i]=ok;draw();marks[i].material.color.set(ok?'#2ecc71':'#e74c3c');cap(ok?'¡Bien!':'¡Lado equivocado!',ok)}});
+      // remate
+      if(shootReq&&!D.shot&&!D.done&&D.kick<0){D.kick=0;D.h=Math.atan2(-D.pos.x,15.5-D.pos.z);D.res=D.res.map(r=>r==null?false:r);draw();
+        const dist=15.5-D.pos.z,err=.25+Math.max(0,dist-5)*.09+spd*.05,P=V(Math.max(-2.2,Math.min(2.2,D.pos.x*.25+(Math.random()-.5)*2*err*1.6)),.2+Math.random()*1.2,15.5);
+        D.shot={from:D.bp.clone(),P,t:-.19,T:Math.max(.35,dist/18),ok:Math.abs(P.x)<1.42&&P.y<1.5&&dist<11}}
+      shootReq=false;
+      rest(me);me.root.position.copy(D.pos);me.root.rotation.y=D.h;
+      if(D.kick>=0){D.kick+=dt/.42;kickPose(me,Math.min(1,D.kick));if(D.kick>=1)D.kick=-2}
+      else if(D.done&&D.hits*2>=cz.length+1)celebPose(me,t,'salto');else if(spd>.4){D.ph+=dt*spd*2.6;cycle(me,D.ph,Math.min(1,spd/4.6))}else idle(me,t);
+      if(D.shot){const S1=D.shot;S1.t+=dt;if(S1.t>0){const u=Math.min(1,S1.t/S1.T);D.bp.copy(S1.from).lerp(S1.P,u);D.bp.y=lerp(.11,S1.P.y,u)+.25*4*u*(1-u);ball.rotation.x+=dt*18;
+          if(u>=1&&!S1.fin){S1.fin=true;draw();cap(S1.ok?'¡GOL!':'Se fue afuera',S1.ok);setTimeout(end,500)}
+          if(S1.fin){const t2=S1.t-S1.T;D.bp.set(S1.P.x,Math.max(.11,S1.P.y-t2*1.5),15.5+(S1.ok?.8*(1-Math.exp(-t2*7)):t2*6))}}}
+      else{const fw=V(Math.sin(D.h),0,Math.cos(D.h));D.bp.lerp(D.pos.clone().addScaledVector(fw,.42+.06*Math.sin(D.ph*.5)*Math.min(1,spd)).setY(.11),Math.min(1,dt*14));ball.rotation.x+=spd*dt*4}
+      ball.position.copy(D.bp);
+      if(!D.done&&!D.shot&&D.pos.z<-1.5&&D.time>13)cap('¡Regatea!',false);
+      const foc=D.shot?D.bp.clone().setY(0):D.pos.clone();const cp=foc.clone().add(V(foc.x*.2+1.2,4.6,-5.2)),lk=foc.clone().add(V(0,.3,4.5));
+      camPos.lerp(cp,Math.min(1,dt*3));look.lerp(lk,Math.min(1,dt*3.5));cam.position.copy(camPos);cam.lookAt(look)}
+    return{scene:sc,cam,update,dur:99999,tag:'Entrenamiento · Regate',interactive:true,
+      cleanup(){removeEventListener('keydown',kd);removeEventListener('keyup',ku);ui.remove();window.__padGame=false;if(bar3d)bar3d.style.visibility='';if(!D.sent){D.sent=true;L.onDone&&L.onDone(D.hits||0,cz.length+1)}}}
+  }
   if(variant==='tecnica'){
     const cz=[0,2,4,6,8];cz.forEach(z=>cone(0,z));goal(sc,15.5,3,1.6,1);
     const ball=ballMesh();sc.add(ball);
@@ -2890,7 +2968,7 @@ function sceneTrain(L,variant){
     const pd=e=>{if(e.target.closest('.a3d-bar'))return;const r=stageEl.getBoundingClientRect(),u=(e.clientX-r.left)/r.width;if(Q.dirs)dir=u<.5?-1:1;press()};stageEl.addEventListener('pointerdown',pd);
     let padA=false;
     function qUpd(t){if(t<prevT-1)loop++;prevT=t;curT=t;window.__qT=t;
-      const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(g=>g&&g.connected);if(gp){const ax=gp.axes||[];if(Math.abs(ax[0]||0)>.4)dir=Math.sign(ax[0]);const a=gp.buttons[0]&&gp.buttons[0].pressed;if(a&&!padA)press();padA=a}
+      const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(g=>g&&g.connected);if(gp){const ax=gp.axes||[];if(Math.abs(ax[0]||0)>.4)dir=Math.sign(ax[0]);const a=gp.buttons[0]&&gp.buttons[0].pressed||gp.buttons[1]&&gp.buttons[1].pressed;if(a&&!padA)press();padA=a}
       if(loop===0){Q.keys.forEach((k,i)=>{if(res[i]==null&&t>k+Q.win+.05){res[i]=false;draw();say('¡Tarde!',false)}});
         const nk=Q.keys.find((k,i)=>res[i]==null);if(nk!=null){const d=nk-t,v=Math.max(0,Math.min(1,1-d/1.2));uI.style.width=(v*100)+'%';uBar.classList.toggle('hot',Math.abs(d)<=Q.win);uBar.style.opacity=d<1.4?1:.35}else uBar.style.opacity=0}
       if(performance.now()-fb>900)uFb.classList.remove('show');
@@ -3065,7 +3143,7 @@ window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?
     else if(i===9){const g=document.getElementById('gear');if(g&&!o&&!modal())g.click()}}
   function loop(now){const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(g=>g&&g.connected);
     const dt=Math.min(.05,(now-(last||now))/1000);last=now;
-    if(gp&&window.__padGame){const p1=gp.buttons[1]&&gp.buttons[1].pressed;if(p1&&!prev[1])press(1);prev[1]=p1;prev[0]=gp.buttons[0]&&gp.buttons[0].pressed;if(shown)show(false);requestAnimationFrame(loop);return}
+    if(gp&&window.__padGame){const p9=gp.buttons[9]&&gp.buttons[9].pressed;if(p9&&!prev[9])press(1);prev[9]=p9;prev[1]=gp.buttons[1]&&gp.buttons[1].pressed;prev[0]=gp.buttons[0]&&gp.buttons[0].pressed;if(shown)show(false);requestAnimationFrame(loop);return}
     if(gp){const ax=gp.axes||[],b=i=>gp.buttons[i]&&(gp.buttons[i].pressed||gp.buttons[i].value>.5);
       let lx=ax[0]||0,ly=ax[1]||0;const dz=.15;lx=Math.abs(lx)<dz?0:(lx-Math.sign(lx)*dz)/(1-dz);ly=Math.abs(ly)<dz?0:(ly-Math.sign(ly)*dz)/(1-dz);
       if(b(12))ly=-.6;if(b(13))ly=.6;if(b(14))lx=-.6;if(b(15))lx=.6;
