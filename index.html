@@ -127,6 +127,13 @@ input,select{background:var(--bg);border:2px solid var(--line);border-radius:8px
 .cant .cn{font-family:var(--f-display);font-weight:800;font-size:30px;line-height:1;text-wrap:balance}
 .cant ul{margin:0;padding-left:18px;font-size:15px;display:flex;flex-direction:column;gap:4px}
 .startbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.wiz{max-width:980px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.wiz-prog{display:flex;gap:6px}.wiz-prog i{flex:1;height:7px;border-radius:4px;background:var(--line);transition:background .25s}.wiz-prog i.on{background:var(--pitch)}
+.wstep .sec-h{font-size:clamp(26px,5vw,40px)}
+.wstep:not([data-s="5"]){max-width:640px;width:100%;margin:0 auto}
+.numgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:10px;margin-top:16px}
+.numb{font-family:var(--f-display);font-size:22px;font-weight:800;padding:12px 0;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:inherit;cursor:pointer}
+.numb[aria-pressed="true"]{background:var(--pitch);border-color:var(--pitch);color:#fff}
 
 /* juego */
 .game{display:grid;grid-template-columns:340px minmax(0,1fr);gap:24px;align-items:start}
@@ -1545,23 +1552,24 @@ function rollCanteras(nat){const cl=CLUBS.filter(c=>L[BASE_L[c.n]].c===nat).sort
  if(nat==='Colombia'&&R()<.5)low=CL['Llaneros'];
  const fo=Object.values(CL).filter(x=>['ESP','ENG','ITA','GER','FRA'].includes(x.l)&&L[x.l].c!==nat).sort((a,b)=>b.s-a.s).slice(3,40);const ext=fo[ri(0,fo.length-1)];
  CANT={nat,list:[top.n,mid.n,low.n,ext.n],sel:CANT.nat===nat?CANT.sel:2}}
+let WIZ=0;
 function startView(){if(!CANT.list.length)rollCanteras('Colombia');
- return `<div style="display:flex;flex-direction:column;gap:24px"><div class="start"><section class="panel"><h2>Crea a tu jugador</h2><p class="note">Tienes 15 años y firmas tu primer contrato profesional.</p>
- <form class="form" id="f">
-  <label class="full">Usuario para el ranking en línea<input id="rkuser" placeholder="Ej. agusblox (siempre el mismo)" maxlength="20" autocomplete="off"></label>
-  <label class="full">Nombre<input id="name" value="" placeholder="Escribe el nombre de tu jugador" maxlength="28" autocomplete="off"><span id="name-err" class="err" hidden>Ponle un nombre a tu jugador para empezar.</span></label>
-  <label>País<select id="nat">${Object.keys(NAT).map(n=>`<option${n===CANT.nat?' selected':''}>${n}</option>`).join('')}</select></label>
+ const step=(i,k,t,sub,body)=>`<section class="panel wstep" data-s="${i}"${i===WIZ?'':' hidden'}><span class="kicker">${k}</span><h2 class="sec-h" style="margin-top:12px">${t}</h2>${sub?`<p class="note" style="margin:0">${sub}</p>`:''}${body}</section>`;
+ const NUMS=[1,2,3,4,5,6,7,8,9,10,11,14,17,19,20,21,22,23,27,30];
+ return `<div style="display:flex;flex-direction:column;gap:24px"><div class="wiz"><div class="wiz-prog" id="wiz-prog"></div>
+ <form class="wizf" id="f">
+ ${step(0,'Usuario','¿Cuál es tu usuario?','Con este nombre apareces en el ranking en línea. Usa siempre el mismo.',`<div class="form"><label class="full">Usuario del ranking<input id="rkuser" placeholder="Ej. agusblox" maxlength="20" autocomplete="off"></label></div>`)}
+ ${step(1,'Tu jugador','¿Cómo se llama tu jugador?','Tienes 15 años y firmas tu primer contrato profesional.',`<div class="form"><label class="full">Nombre<input id="name" value="" placeholder="Escribe el nombre de tu jugador" maxlength="28" autocomplete="off"><span id="name-err" class="err" hidden>Ponle un nombre a tu jugador para seguir.</span></label>
   <label>Posición<select id="pos">${Object.entries(POS).map(([k,v])=>`<option value="${k}"${k==='DC'?' selected':''}>${k} · ${v.n}</option>`).join('')}</select></label>
-  <label id="latbox" class="full" hidden>Rol de lateral<select id="lat">${Object.entries(LATR).map(([k,v])=>`<option value="${k}">${v.n}: ${v.d}</option>`).join('')}</select></label>
   <label>Pie hábil<select id="foot"><option>Derecho</option><option>Zurdo</option><option>Ambidiestro</option></select></label>
-  <label>Dorsal<input id="num" type="number" min="1" max="99" value="9"></label>
-  <label class="full">Dificultad<select id="diff">${DIFFS.map((d,i)=>`<option value="${i}"${i===DIFF_START?' selected':''}>${d.n}: ${d.d}</option>`).join('')}</select></label>
-  <label class="full">Perfil<select id="prof">${Object.entries(PROFILES).map(([k,v])=>`<option value="${k}">${v.n}: ${v.d}</option>`).join('')}</select></label>
- </form><div id="flagbox" style="margin-top:18px"></div>
- <p class="note" style="margin-top:10px">Niveles de clubes aproximados a 2026. Juego de fans sin relación con los clubes.</p></section></div>
- <section class="panel"><div class="cants-head"><div><h2 class="sec-h">Elige tu cantera</h2><p class="note" style="margin:0">Tres clubes de ${esc(CANT.nat)} quieren ficharte, y uno de otro país apuesta por ti.</p></div><button class="btn ghost small" type="button" id="reroll">Ver otras canteras</button></div>
- <div class="cants" id="cants" style="margin-top:16px"></div></section>
- <div class="startbar"><button class="btn" id="go">Empezar carrera</button>${load()&&load().p&&!load().retired?'<button class="btn ghost" type="button" id="resume">Seguir carrera guardada</button>':''}</div>${histHTML()}</div>`}
+  <label id="latbox" class="full" hidden>Rol de lateral<select id="lat">${Object.entries(LATR).map(([k,v])=>`<option value="${k}">${v.n}: ${v.d}</option>`).join('')}</select></label></div>`)}
+ ${step(2,'Dorsal','Elige tu número','Toca un número o escribe cualquiera del 1 al 99.',`<div class="numgrid" id="numgrid">${NUMS.map(n=>`<button type="button" class="numb" data-n="${n}">${n}</button>`).join('')}</div><div class="form"><label>Otro número<input id="num" type="number" min="1" max="99" value="9"></label></div>`)}
+ ${step(3,'País','¿De dónde eres?','Tu país decide en qué canteras empiezas y con qué selección juegas.',`<div class="form"><label class="full">País<select id="nat">${Object.keys(NAT).map(n=>`<option${n===CANT.nat?' selected':''}>${n}</option>`).join('')}</select></label></div><div id="flagbox" style="margin-top:18px"></div>`)}
+ ${step(4,'Carrera','Dificultad y perfil','',`<div class="form"><label class="full">Dificultad<select id="diff">${DIFFS.map((d,i)=>`<option value="${i}"${i===DIFF_START?' selected':''}>${d.n}: ${d.d}</option>`).join('')}</select></label>
+  <label class="full">Perfil<select id="prof">${Object.entries(PROFILES).map(([k,v])=>`<option value="${k}">${v.n}: ${v.d}</option>`).join('')}</select></label></div>`)}
+ ${step(5,'Cantera','Elige tu cantera',`Tres clubes de ${esc(CANT.nat)} quieren ficharte, y uno de otro país apuesta por ti.`,`<div style="margin-top:12px"><button class="btn ghost small" type="button" id="reroll">Ver otras canteras</button></div><div class="cants" id="cants" style="margin-top:16px"></div><p class="note" style="margin-top:14px">Niveles de clubes aproximados a 2026. Juego de fans sin relación con los clubes.</p>`)}
+ </form>
+ <div class="startbar"><button class="btn ghost" type="button" id="wiz-back">← Atrás</button><button class="btn" type="button" id="wiz-next">Siguiente →</button><button class="btn" id="go" hidden>Empezar carrera</button>${load()&&load().p&&!load().retired?'<button class="btn ghost" type="button" id="resume">Seguir carrera guardada</button>':''}</div></div>${histHTML()}</div>`}
 function cantsHTML(){const pr=PROFILES[document.getElementById('prof').value];
  return CANT.list.map((n,i)=>{const c=CL[n],T=TIERS[i];const rk=roleKey({ovr:pr.ovr,age:15,coach:50,morale:60+T.mor,ctier:i,cantera:n},c);
   return `<button type="button" class="cant t${i}" data-c="${i}" aria-pressed="${CANT.sel===i}"><div class="top"><span>${T.k}</span><b>${c.s}</b></div>
@@ -1646,13 +1654,27 @@ function render(){
   const up=()=>{box.innerHTML=cantsHTML();fb.innerHTML=flagHTML(CANT.nat);box.querySelectorAll('.cant').forEach(b=>b.onclick=()=>{CANT.sel=+b.dataset.c;up()})};up();
   document.getElementById('prof').addEventListener('change',up);
   document.getElementById('diff').addEventListener('change',e=>{DIFF_START=+e.target.value;up()});
-  document.getElementById('nat').addEventListener('change',e=>{rollCanteras(e.target.value);document.querySelector('.cants-head .note').textContent=`Tres clubes de ${CANT.nat} quieren ficharte.`;up()});
+  document.getElementById('nat').addEventListener('change',e=>{rollCanteras(e.target.value);document.querySelector('.wstep[data-s="5"] .note').textContent=`Tres clubes de ${CANT.nat} quieren ficharte, y uno de otro país apuesta por ti.`;up()});
   document.getElementById('reroll').onclick=()=>{rollCanteras(CANT.nat);up()};
   const latSync=()=>{document.getElementById('latbox').hidden=!['LD','LI'].includes(document.getElementById('pos').value)};latSync();document.getElementById('pos').addEventListener('change',latSync);
-  document.getElementById('pos').addEventListener('change',e=>{document.getElementById('num').value={POR:1,DFC:4,LD:2,LI:3,MCD:5,MC:8,MCO:10,ED:7,EI:11,DC:9}[e.target.value]});
+  document.getElementById('pos').addEventListener('change',e=>{document.getElementById('num').value={POR:1,DFC:4,LD:2,LI:3,MCD:5,MC:8,MCO:10,ED:7,EI:11,DC:9}[e.target.value];numSync()});
+  // ---- asistente por pasos (estilo copero) ----
+  const numIn=document.getElementById('num'),numSync=()=>app.querySelectorAll('.numb').forEach(b=>b.setAttribute('aria-pressed',b.dataset.n===String(+numIn.value)));
+  app.querySelectorAll('.numb').forEach(b=>b.onclick=()=>{numIn.value=b.dataset.n;numSync()});numIn.addEventListener('input',numSync);numSync();
+  const steps=[...app.querySelectorAll('.wstep')].filter(x=>!(x.dataset.s==='0'&&!FB_URL));const NS=steps.length;
+  const show=()=>{WIZ=Math.max(0,Math.min(NS-1,WIZ));steps.forEach((x,i)=>x.hidden=i!==WIZ);app.querySelectorAll('.wstep').forEach(x=>{if(!steps.includes(x))x.hidden=true});
+    steps.forEach((x,i)=>{const k=x.querySelector('.kicker');k.textContent=`Paso ${i+1} de ${NS} · ${k.dataset.k||(k.dataset.k=k.textContent)}`});
+    document.getElementById('wiz-prog').innerHTML=steps.map((_,i)=>`<i class="${i<=WIZ?'on':''}"></i>`).join('');
+    document.getElementById('wiz-back').hidden=WIZ===0;document.getElementById('wiz-next').hidden=WIZ===NS-1;document.getElementById('go').hidden=WIZ!==NS-1;
+    const f=steps[WIZ].querySelector('input,select');if(f&&matchMedia('(pointer:fine)').matches)setTimeout(()=>f.focus(),0)};
+  const nameOk=()=>{const n=document.getElementById('name');if(n.value.trim())return true;document.getElementById('name-err').hidden=false;n.focus();return false};
+  document.getElementById('wiz-next').onclick=()=>{if(steps[WIZ].dataset.s==='1'&&!nameOk())return;if(steps[WIZ].dataset.s==='2'){const v=Math.max(1,Math.min(99,Math.round(+numIn.value||9)));numIn.value=v;numSync()}WIZ++;show();window.scrollTo({top:0,behavior:'smooth'})};
+  document.getElementById('wiz-back').onclick=()=>{WIZ--;show()};
+  app.querySelectorAll('.wstep input').forEach(x=>x.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById(WIZ===NS-1?'go':'wiz-next').click()}}));
+  show();
   document.getElementById('f').addEventListener('submit',e=>e.preventDefault());
   app.querySelectorAll('[data-hdel]').forEach(bt=>bt.onclick=()=>{const id=bt.dataset.hdel;try{localStorage.setItem(HKEY,JSON.stringify(loadHist().filter(x=>x.id!==id)))}catch(e){}render()});
-  document.getElementById('go').onclick=()=>{const n=document.getElementById('name');if(!n.value.trim()){document.getElementById('name-err').hidden=false;n.focus();n.scrollIntoView({block:'center'});return}newGame()};
+  document.getElementById('go').onclick=()=>{const n=document.getElementById('name');if(!n.value.trim()){WIZ=steps.findIndex(x=>x.dataset.s==='1');show();nameOk();return}newGame()};
   document.getElementById('name').addEventListener('input',()=>{document.getElementById('name-err').hidden=true});
   const rs=document.getElementById('resume');if(rs)rs.onclick=()=>{S=load();restoreClubs();migrate();render();if(pendingOrder)applyOrder(pendingOrder)};return}
  syncClubs();galaxy(S.p.ovr>=170);godMode(S.p.ovr>=150);
