@@ -2377,10 +2377,10 @@ function sceneChance(L,opt){opt=opt||{};
     mpos:V(-sg*4.5,0,-2.5),mh:0,mph:0,dpos:V(sg*1.5,0,0),dh:Math.PI,dph:0,gx:0,steal:0,time:10,done:false,res:null,shot:null,react:0,mshoot:-1};
   // ---- entrada ----
   const keys={};let shootReq=false,passReq=false,crossReq=false,dribReq=false,tx=0,ty=0,pRT=false;
-  const kd=e=>{const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[k]=true;if(!e.repeat){if(k==='e'||k===' ')shootReq=true;if(k==='q')passReq=true;if(k==='r')crossReq=true;if(k==='z')dribReq=true}};
+  const kd=e=>{const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[k]=true;if(!e.repeat){if(k==='e')shootReq=true;if(k==='q')passReq=true;if(k==='r')crossReq=true;if(k===' ')dribReq=true}};
   const ku=e=>{keys[e.key.toLowerCase()]=false};addEventListener('keydown',kd);addEventListener('keyup',ku);window.__padGame=true;
   const ui=document.createElement('div');ui.className='pg-ui';
-  ui.innerHTML='<div class="pg-joy"><i></i></div><button type="button" class="pg-pass">TIRAR</button><button type="button" class="pg-cross">PASE</button><button type="button" class="pg-cross pg-cent" style="right:204px;background:#e08a00">CENTRO</button><div class="pg-help"><b>WASD</b> mover · <b>E</b>/<b>B</b> tirar · <b>Q</b>/<b>A</b> pase · <b>R</b>/<b>X</b> centro · <b>Z</b>/<b>RT</b> regate</div><div class="pp-top" style="top:44px"><span></span><span class="pp-time"></span></div>';
+  ui.innerHTML='<div class="pg-joy"><i></i></div><button type="button" class="pg-pass">TIRAR</button><button type="button" class="pg-cross">PASE</button><button type="button" class="pg-cross pg-cent" style="right:204px;background:#e08a00">CENTRO</button><div class="pg-help"><b>WASD</b> mover · <b>E</b>/<b>B</b> tirar · <b>Q</b>/<b>A</b> pase · <b>R</b>/<b>X</b> centro · <b>Espacio</b>/<b>RT</b> regate</div><div class="pp-top" style="top:44px"><span></span><span class="pp-time"></span></div>';
   stageEl.appendChild(ui);const joy=ui.querySelector('.pg-joy'),knob=joy.querySelector('i'),uTime=ui.querySelector('.pp-time');
   ui.querySelector('.pg-pass').addEventListener('pointerdown',e=>{e.preventDefault();shootReq=true});ui.querySelector('.pg-cross').addEventListener('pointerdown',e=>{e.preventDefault();passReq=true});ui.querySelector('.pg-cent').addEventListener('pointerdown',e=>{e.preventDefault();crossReq=true});
   let jid=null;const jmove=e=>{const r=joy.getBoundingClientRect();let dx=(e.clientX-r.left-r.width/2)/(r.width/2),dy=(e.clientY-r.top-r.height/2)/(r.height/2);const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}tx=dx;ty=dy;knob.style.transform=`translate(${dx*30}px,${dy*30}px)`};
@@ -3015,10 +3015,10 @@ function sceneTrain(L,variant){
     const ball=ballMesh();sc.add(ball);
     const D={pos:V(0,0,-2.6),vel:V(0,0,0),h:0,ph:0,bp:V(0,.11,-2.2),res:cz.map(()=>null),shot:null,kick:-1,time:15,done:false,sent:false,hit:cz.map(()=>0)};
     const keys={};let shootReq=false,dribReq=false,tx=0,ty=0,pB=false,pA=false,pRT=false;
-    const kd=e=>{const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[k]=true;if(!e.repeat&&(k==='e'||k===' '))shootReq=true;if(!e.repeat&&k==='z')dribReq=true};
+    const kd=e=>{const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[k]=true;if(!e.repeat&&k==='e')shootReq=true;if(!e.repeat&&k===' ')dribReq=true};
     const ku=e=>{keys[e.key.toLowerCase()]=false};addEventListener('keydown',kd);addEventListener('keyup',ku);window.__padGame=true;
     const ui=document.createElement('div');ui.className='pg-ui';
-    ui.innerHTML='<div class="pg-joy"><i></i></div><button type="button" class="pg-pass">TIRAR</button><div class="pg-help"><b>WASD</b> mover · pasa cada cono por el lado <b style="color:#5aa8ff">azul</b> · <b>Z</b>/<b>RT</b> regate · <b>E</b>/<b>B</b> rematar</div><div class="pp-top" style="top:44px"><span class="dr-dots"></span><span class="pp-time"></span></div>';
+    ui.innerHTML='<div class="pg-joy"><i></i></div><button type="button" class="pg-pass">TIRAR</button><div class="pg-help"><b>WASD</b> mover · pasa cada cono por el lado <b style="color:#5aa8ff">azul</b> · <b>Espacio</b>/<b>RT</b> regate · <b>E</b>/<b>B</b> rematar</div><div class="pp-top" style="top:44px"><span class="dr-dots"></span><span class="pp-time"></span></div>';
     stageEl.appendChild(ui);const joy=ui.querySelector('.pg-joy'),knob=joy.querySelector('i'),uTime=ui.querySelector('.pp-time'),uDots=ui.querySelector('.dr-dots');
     const bar3d=document.querySelector('.a3d .a3d-bar');if(bar3d)bar3d.style.visibility='hidden';
     ui.querySelector('.pg-pass').addEventListener('pointerdown',e=>{e.preventDefault();shootReq=true});
