@@ -3374,18 +3374,22 @@ function trophyMesh(gold){const D=TROPHY_DATA,k=.0019,pos=new Float32Array(D.p.l
  const part=(idx,mat)=>{const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();const m=new T.Mesh(g,mat);m.castShadow=true;return m};
  const grp=new T.Group();grp.add(part(D.o,gold));{const c=D.sc,sm=gold.clone();sm.flatShading=false;const b=new T.Mesh(new T.SphereGeometry(c[3]*k*.97,40,28),sm);b.position.set(c[0]*k,c[1]*k,c[2]*k);b.castShadow=true;grp.add(b);if(D.sl){const lp=new Float32Array(D.sl.length);for(let i=0;i<D.sl.length;i++)lp[i]=D.sl[i]*k;const lg=new T.BufferGeometry();lg.setAttribute('position',new T.BufferAttribute(lp,3));grp.add(new T.LineSegments(lg,new T.LineBasicMaterial({color:new T.Color('#5a3b06').convertSRGBToLinear()})))}}grp.add(part(D.b,new T.MeshStandardMaterial({color:new T.Color('#b07a1e').convertSRGBToLinear(),metalness:.85,roughness:.3,flatShading:true})));grp.add(part(D.s,gold));return grp}
 function disposeScene(s){s.traverse(o=>{if(o.geometry&&!o.geometry.userData.keep)o.geometry.dispose();if(o.material){[].concat(o.material).forEach(m=>{if(m.map)m.map.dispose();m.dispose()})}})}
-function close(){ov.hidden=true;cancelAnimationFrame(raf);raf=0;if(cur){if(cur.cleanup)cur.cleanup();disposeScene(cur.scene);cur=null}document.documentElement.style.overflow=''}
+function close(){ov.hidden=true;cancelAnimationFrame(raf);raf=0;if(cur){if(cur.cleanup)cur.cleanup();disposeScene(cur.scene);cur=null}document.documentElement.style.overflow='';
+  // entrenamientos: solo cuenta el último intento (se entrega al cerrar)
+  if(trDone){const f=trDone,a=trPend;trDone=trPend=null;if(a)f(...a)}}
 function start(){const [kind,variant,L]=lastArgs;if(cur){if(cur.cleanup)cur.cleanup();disposeScene(cur.scene)}
  cur=kind==='chance'?sceneChance(L,L.play):kind==='pass'?scenePass(L):kind==='penplay'?scenePenPlay(L,L.play):kind==='gala'?sceneGala(L):kind==='penal'?scenePenal(L,variant):kind==='fk'?sceneFK(L,variant):sceneTrain(L,variant);clock=0;capTxt='#';cap('');size();
  if(!raf){last=performance.now();raf=requestAnimationFrame(loop)}}
 const setPause=v=>{paused=v};
 // entrenamientos: como máximo 3 repeticiones
-const MAXREP=3;let reps=0;const isTrain=()=>lastArgs&&(lastArgs[0]==='train'||lastArgs[0]==='pass');
+const MAXREP=3;let reps=0,trDone=null,trPend=null;const isTrain=()=>lastArgs&&(lastArgs[0]==='train'||lastArgs[0]==='pass');
 function updRep(){const b=ov.querySelector('[data-a=rep]');if(!b)return;if(!b.dataset.t)b.dataset.t=b.textContent;const left=MAXREP-reps,lock=isTrain()&&left<=0;
   b.textContent=isTrain()?`${b.dataset.t} (${Math.max(0,left)})`:b.dataset.t;b.disabled=lock;b.style.opacity=lock?.4:'';b.title=lock?'Ya repetiste este entrenamiento 3 veces':''}
 ov.querySelector('[data-a=rep]').onclick=()=>{if(isTrain()){if(reps>=MAXREP)return;reps++;updRep()}setPause(false);start()};ov.querySelector('[data-a=skip]').onclick=close;
 addEventListener('keydown',e=>{if(!ov.hidden&&e.key==='Escape'){const b3=ov.querySelector('.a3d-bar');if(b3&&b3.style.visibility==='hidden')return;close()}});
-return{play(kind,variant,L){setPause(false);lastArgs=[kind,variant,L];reps=0;updRep();ov.hidden=false;document.documentElement.style.overflow='hidden';requestAnimationFrame(()=>{start();ov.querySelector('[data-a=skip]').focus()})}}}
+return{play(kind,variant,L){setPause(false);if(trDone){const f=trDone,a=trPend;trDone=trPend=null;if(a)f(...a)}
+  if((kind==='train'||kind==='pass')&&L&&typeof L.onDone==='function'){trDone=L.onDone;trPend=null;L=Object.assign({},L,{onDone:(...a)=>{trPend=a}})}
+  lastArgs=[kind,variant,L];reps=0;updRep();ov.hidden=false;document.documentElement.style.overflow='hidden';requestAnimationFrame(()=>{start();ov.querySelector('[data-a=skip]').focus()})}}}
 function boot(d){if(d&&d.S){S=d.S;restoreClubs()}migrate();render()}
 window.claude?.hot?.snapshot?.(()=>({S}));
 window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});
