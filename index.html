@@ -2086,6 +2086,9 @@ function scenePenPlay(L,opt){
       if(r<.2){P.set(sg*(3.05+Math.random()*.3),1.85+Math.random()*.35,11);res='efecto';g=-sg;th=1.15;rx=-sg*1.2}
       else if(r<.5){P.set(sg*(3.85+Math.random()*.7),.6+Math.random()*2,11);res='fuera'}
       else if(res==='barrera'){const wz=9.15/B0.distanceTo(V(P.x,0,11));const wx=lerp(B0.x,P.x,wz)+curve*4*wz*(1-wz);const wc=wall[0].root.position.clone().add(wall[4].root.position).multiplyScalar(.5);if(Math.abs(wx-wc.x)>=1.45)res='gol'}}
+    if(FK&&res!=='barrera'&&wall.length){const wc=wall[0].root.position.clone().add(wall[4].root.position).multiplyScalar(.5),wz=9.15/B0.distanceTo(V(P.x,0,11)),a0=arc*(A.knuck?.75:1);
+      const wx=lerp(B0.x,P.x,wz)+curve*4*wz*(1-wz),hAt=lerp(.11,P.y,wz)+a0*4*wz*(1-wz);
+      if(Math.abs(wx-wc.x)<1.6&&hAt<2.25)arc+=(2.3-hAt)/(4*wz*(1-wz))/(A.knuck?.75:1)}
     // la atajada NO se decide aquí: se decide con el hitbox real del arquero cuando pasa el balón
     Object.assign(A,{P,T,res,dive:g,th,rx,react:A.para?(res==='paragol'?-.35:.25):(A.knuck?.1:0)+.05+Math.random()*.1,arc:A.knuck?arc*.75:arc,curve,prevB:B0.clone()})}
   // hitbox del arquero: esferas en manos, codos, cabeza, torso, cadera, rodillas y pies (posición real de la animación)
@@ -2108,11 +2111,19 @@ function scenePenPlay(L,opt){
   const K={x:0,dive:null,diveT:0,kickAt:1.4+Math.random()*1.4,tap:null,started:false};window.__ppK=K;
   if(KP){ret.visible=false;uPw.style.display='none';uFx.hidden=true;uFire.textContent='TIRARSE';uHelp.innerHTML='<b>A/D</b> moverte · <b>W/S</b> alto/bajo · <b>ESPACIO</b> tirarte · mando: stick + A';
     // el rival elige a dónde patea
-    const r=Math.random(),sg=Math.random()<.5?-1:1;let res='tegol',P;
-    if(FK&&r<.22){res='barrera';P=V(sg*1.5,1.0,11)}else if(r<(FK?.36:.1)){res='fuera';P=V(sg*(3.9+Math.random()*.6),.5+Math.random()*1.8,11)}
-    else if(r<(FK?.42:.16)){res='palo';P=V(sg*3.6,.4+Math.random()*1.9,11)}
-    else{const corner=Math.random()<.55;P=V(sg*(corner?2.5+Math.random()*.9:.6+Math.random()*1.8),corner?(Math.random()<.5?.35+Math.random()*.4:1.7+Math.random()*.55):.3+Math.random()*1.9,11)}
-    Object.assign(A,{P,res,T:FK?.95:.6,arc:FK?1.1:0,curve:FK?-sg*.6:0,ph:'aim'})}
+    const r=Math.random(),sg=Math.random()<.5?-1:1;let res='tegol',P,style=FK?['normal','efecto','trivela','knuckle'][(Math.random()*4)|0]:(Math.random()<.45?'panenka':'normal');
+    if(style==='panenka'){P=V((Math.random()-.5)*.6,1.25+Math.random()*.45,11)}
+    else{if(FK&&r<.22){res='barrera';P=V(sg*1.5,1.0,11)}else if(r<(FK?.36:.1)){res='fuera';P=V(sg*(3.9+Math.random()*.6),.5+Math.random()*1.8,11)}
+      else if(r<(FK?.42:.16)){res='palo';P=V(sg*3.6,.4+Math.random()*1.9,11)}
+      else{const corner=Math.random()<.55;P=V(sg*(corner?2.5+Math.random()*.9:.6+Math.random()*1.8),corner?(Math.random()<.5?.35+Math.random()*.4:1.7+Math.random()*.55):.3+Math.random()*1.9,11)}}
+    const curve=style==='efecto'?sg*1.1:style==='trivela'?-sg*1.1:style==='normal'&&FK?-sg*.4:0;
+    let arc=style==='panenka'?1.5:FK?(style==='knuckle'?.8:1.1):0;
+    const dist=B0.distanceTo(V(P.x,0,11));A.wz=9.15/dist;
+    // un tiro que no es "barrera" tiene que pasar POR ENCIMA o POR UN LADO de la barrera, nunca atravesarla
+    if(FK&&res!=='barrera'&&wall.length){const wc=wall[0].root.position.clone().add(wall[4].root.position).multiplyScalar(.5),wz=A.wz;
+      const wx=lerp(B0.x,P.x,wz)+curve*4*wz*(1-wz),hAt=lerp(.11,P.y,wz)+arc*4*wz*(1-wz);
+      if(Math.abs(wx-wc.x)<1.6&&hAt<2.25)arc+=(2.3-hAt)/(4*wz*(1-wz))}
+    Object.assign(A,{P,res,style,T:style==='panenka'?1.05:FK?(style==='knuckle'?1.05:.95):.6,arc,curve,knuck:style==='knuckle',ph:'aim'})}
   function updKeeper(t,dt){const sp=V(SPOT.x,0,SPOT.z),dirG=V(0,0,11).sub(sp).normalize(),hd=Math.atan2(dirG.x,dirG.z);
     // ---- entrada ----
     let mx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),my=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);
@@ -2126,13 +2137,13 @@ function scenePenPlay(L,opt){
     const s0=kickT+RU+.23;if(s0<0){me.root.position.copy(run0);me.root.rotation.y=hd+.25;idle(me,t)}
     else if(s0<RU){const u=s0/RU;me.root.position.copy(run0).lerp(plant,u);me.root.rotation.y=hd+.25*(1-u);cycle(me,u*Math.PI*3,.8)}
     else{me.root.position.copy(plant);me.root.rotation.y=hd;const ku=Math.min(1,(s0-RU)/.42);if(A.ph!=='done'||A.res!=='tegol'||ku<1)kickPose(me,ku);else celebPose(me,s0-RU-.42,'salto')}
-    uTime.textContent='';if(kickT<0)cap(kickT<-.9?'Prepárate…':'',false);
+    uTime.textContent='';if(kickT<0)cap(kickT<-.9?'Prepárate…':'',false);else if(A.ph!=='done'&&A.style!=='normal')cap({panenka:'¡PANENKA!',efecto:'¡Con efecto!',trivela:'¡De trivela!',knuckle:'¡Knuckleball!'}[A.style],false);
     // ---- balón ----
     const B=B0,P=A.P;let bt=kickT;
     if(bt<0)ball.position.copy(B);
     else{const u=Math.min(1,bt/A.T);
-      if(A.res==='barrera'){const wz=.83;const uu=Math.min(u,wz);ball.position.copy(B).lerp(P,uu);ball.position.y=lerp(.11,P.y,uu)+A.arc*4*uu*(1-uu);if(u>=wz&&A.ph!=='done'){A.bbT=bt;markDone(t)}if(A.bbT!=null){const k=Math.min(1,(bt-A.bbT)/1);ball.position.add(V(.6*k,-k*.8,-2*k));ball.position.y=Math.max(.11,ball.position.y)}}
-      else if(A.ph!=='done'){ball.position.copy(B).lerp(P,u);if(A.curve)ball.position.x+=A.curve*4*u*(1-u);if(A.arc)ball.position.y=lerp(.11,P.y,u)+A.arc*4*u*(1-u);ball.rotation.x+=dt*18;
+      if(A.res==='barrera'){const wz=A.wz;const uu=Math.min(u,wz);ball.position.copy(B).lerp(P,uu);ball.position.y=lerp(.11,P.y,uu)+A.arc*4*uu*(1-uu);if(u>=wz&&A.ph!=='done'){A.bbT=bt;markDone(t)}if(A.bbT!=null){const k=Math.min(1,(bt-A.bbT)/1);ball.position.add(V(.6*k,-k*.8,-2*k));ball.position.y=Math.max(.11,ball.position.y)}}
+      else if(A.ph!=='done'){ball.position.copy(B).lerp(P,u);if(A.curve)ball.position.x+=A.curve*4*u*(1-u);if(A.arc)ball.position.y=lerp(.11,P.y,u)+A.arc*4*u*(1-u);if(A.knuck){ball.position.x+=Math.sin(u*24)*.16*u;ball.position.y+=Math.sin(u*31+1)*.1*u}ball.rotation.x+=dt*(A.knuck?.6:A.style==='panenka'?5:18);
         if(u>=1){if(A.res==='tegol'){netPoke(V(P.x,P.y,11.6),.55);if(CR&&CR.jump)A.cj=true}if(A.res==='palo')postShake=1;A.endT=bt;markDone(t)}}
       else if(A.endT!=null){const t2=bt-A.endT;if(A.res==='tegol'){const v=1-Math.exp(-t2*7);ball.position.set(P.x,Math.max(.11,P.y-t2*1.6),11+.95*v)}
         else if(A.res==='atajada'||A.res==='atajaste'){const h=A.saveP;ball.position.set(h.x+(h.x>K.x?1:-1)*t2*2.5,Math.max(.11,h.y+t2*2-t2*t2*6),h.z-t2*4.5)}
