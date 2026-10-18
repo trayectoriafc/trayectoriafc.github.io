@@ -353,6 +353,11 @@ body.pad :focus{outline:3px solid #f2b705!important;outline-offset:3px}
 .pp-fx.on{background:#7b3ff2;border-color:#c8b0ff}
 .pg-cross{display:none;position:absolute;right:120px;bottom:30px;width:74px;height:74px;border-radius:50%;border:0;background:#7b3ff2;color:#fff;font-weight:900;font-size:12px;pointer-events:auto;touch-action:none;box-shadow:0 4px 14px rgba(0,0,0,.35)}
 @media (pointer:coarse){.pg-cross{display:block}}
+#fast-toasts{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:9000;display:flex;flex-direction:column;gap:8px;width:min(94vw,520px);pointer-events:none}
+.fast-toast{pointer-events:auto;background:var(--surface,#fff);color:var(--ink,#111);border:1px solid var(--line,#ccc);border-left:5px solid var(--pitch,#16794a);border-radius:12px;padding:10px 14px;box-shadow:0 8px 24px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:4px;animation:ftIn .25s ease-out;cursor:pointer;font-size:14px}
+.fast-toast b{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted,#555)}.fast-toast .chips,.fast-toast .chip{font-size:12px}
+.fast-toast.out{opacity:0;transform:translateY(8px);transition:.4s}
+@keyframes ftIn{from{opacity:0;transform:translateY(10px)}}
 </style>
 
 <header class="band"><div class="in">
@@ -368,6 +373,7 @@ body.pad :focus{outline:3px solid #f2b705!important;outline-offset:3px}
   <label hidden>Dificultad<select id="set-diff"><option value="0">Fácil: para aprender, juegas más y creces más rápido</option><option value="1">Normal: para disfrutar la carrera</option><option value="2">Difícil: cuesta jugar, crecer y ganar</option><option value="3">Leyenda: solo para cracks de verdad</option></select></label>
   <details class="anim-list"><summary>Ver animaciones</summary><div class="anim-grid"><button type="button" class="btn small" data-anim="pass|">🎮 Jugable: rondo de 10 pases</button><button type="button" class="btn small" data-anim="penplay|pen">🎮 Jugable: penal</button><button type="button" class="btn small" data-anim="penplay|fk">🎮 Jugable: tiro libre</button><button type="button" class="btn ghost small" data-anim="gala|">Gala Balón de Oro</button><button type="button" class="btn ghost small" data-anim="gala|yashin">Gala Trofeo Yashin</button><button type="button" class="btn ghost small" data-anim="penal|gol">Penal: gol</button><button type="button" class="btn ghost small" data-anim="penal|atajada">Penal: atajada</button><button type="button" class="btn ghost small" data-anim="penal|palo">Penal: al palo</button><button type="button" class="btn ghost small" data-anim="penal|picada">Penal: picada</button><button type="button" class="btn ghost small" data-anim="penal|picada_falla">Picada atajada</button><button type="button" class="btn ghost small" data-anim="fk|tu_gol">Tiro libre: golazo</button><button type="button" class="btn ghost small" data-anim="fk|tu_barrera">Tiro libre: barrera</button><button type="button" class="btn ghost small" data-anim="fk|esp_gol">Especialista: gol</button><button type="button" class="btn ghost small" data-anim="fk|esp_fuera">Especialista: afuera</button><button type="button" class="btn ghost small" data-anim="fk|jug_gol">Jugada ensayada</button><button type="button" class="btn ghost small" data-anim="fk|jug_falla">Jugada fallida</button><button type="button" class="btn ghost small" data-anim="train|fisico">Físico</button><button type="button" class="btn ghost small" data-anim="train|tecnica">Técnica y tiro</button><button type="button" class="btn ghost small" data-anim="train|portero">Portero</button><button type="button" class="btn ghost small" data-anim="train|notas">Observar y notas</button><button type="button" class="btn ghost small" data-anim="train|descanso">Descanso</button></div></details>
   <div class="rk-set" id="set-rkbox"><label>Usuario del ranking<input id="set-rkuser" maxlength="20" placeholder="Ej. agusblox" autocomplete="off"></label><button class="btn ghost small" id="set-rank" type="button">Ver ranking en línea</button></div>
+  <label>Ritmo de juego<select id="set-fast"><option value="1">Rápido (estilo Copero)</option><option value="0">Completo (todas las pantallas)</option></select></label>
   <label>Tema<select id="set-theme"><option value="light">Claro</option><option value="dark">Oscuro</option><option value="auto">Automático (como el celular)</option></select></label>
   <label class="chk"><input type="checkbox" id="set-3d"> Animaciones 3D: gala, penales y entrenamiento</label>
   <p class="note" id="set-note" style="margin:0"></p>
@@ -382,6 +388,7 @@ body.pad :focus{outline:3px solid #f2b705!important;outline-offset:3px}
 
 <script>
 /* ---------- utilidades ---------- */
+const FAST_KEY='tfc-fast';function isFast(){try{return localStorage.getItem(FAST_KEY)!=='0'}catch(e){return true}}
 const TH_KEY='tfc-theme';function thGet(){try{return localStorage.getItem(TH_KEY)||'light'}catch(e){return'light'}}
 function thApply(v){const el=document.documentElement;if(v==='auto')el.removeAttribute('data-theme');else el.setAttribute('data-theme',v==='dark'?'dark':'light')}
 thApply(thGet());
@@ -1061,7 +1068,10 @@ function rivalMove(club,next){const p=S.p,old=rivalOf(club);if(!old)return false
  const ch=[{t:'+'+up+' polémica',c:'bad'}].concat(fx({rep:6,morale:-6}));
  show('polemica',{club,old,cantera,memes,ch,next});return true}
 /* ---------- escenas ---------- */
-function show(k,data){S.step={k,data:data||{}};save();render()}
+function show(k,data){if(k==='result'&&isFast()&&data&&data.next){fastToast(data.title,data.t,data.ch);go(data.next);return}S.step={k,data:data||{}};save();render()}
+function fastToast(title,t,ch){let box=document.getElementById('fast-toasts');if(!box){box=document.createElement('div');box.id='fast-toasts';box.setAttribute('aria-live','polite');document.body.appendChild(box)}
+  const d=document.createElement('div');d.className='fast-toast';d.innerHTML=`<b>${title||''}</b><span>${t||''}</span>${ch&&ch.length?chipsHTML(ch):''}`;d.onclick=()=>d.remove();box.appendChild(d);
+  while(box.children.length>2)box.firstChild.remove();setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),400)},5200)}
 function chipsHTML(ch){return ch&&ch.length?`<div class="chips">${ch.map(c=>`<span class="chip ${c.ovr?'up':c.c||''}">${esc(c.t)}</span>`).join('')}</div>`:''}
 function roleChip(rk){return `<span class="chip ${ROLES[rk].cls}">${ROLES[rk].n}</span>`}
 function label(){const p=S.p;return 'Temporada '+seasonLabel(S.year,CL[p.club].l)}
@@ -1188,12 +1198,12 @@ function statsHTML(h){const por=S.p.pos==='POR';return `<div class="statline">
  <div class="stat"><b>${h.nota?h.nota.toFixed(2).replace('.',','):'—'}</b><span>Nota media</span></div></div>`}
 
 function pickEvent(){const p=S.p;const el=EVENTS.filter(e=>(!e.w||e.w(p))&&!S.sm.used.includes(e.id)&&!(S.recent||[]).includes(e.id));const e=pick(el.length?el:EVENTS);if(e.pre)e.pre(p);S.sm.used.push(e.id);S.recent=[e.id].concat(S.recent||[]).slice(0,6);return e.id}
-function nextAfterPre(){show('event',{id:pickEvent(),next:'h1'})}
-function preDone(t,ch){show('result',{title:'Pretemporada',t,ch,next:'evA'});const f=S.sm.focus,v=f==='fisico'||f==='doble'?'fisico':f==='tecnica'?(S.p.pos==='POR'?'portero':'tecnica'):f==='vision'?'notas':f==='descanso'?'descanso':null;if(f==='pases')anim3d('pass',null);else if(v)anim3d('train',v)}
+function nextAfterPre(){if(isFast()){go('h1');return}show('event',{id:pickEvent(),next:'h1'})}
+function preDone(t,ch){show('result',{title:'Pretemporada',t,ch,next:'evA'});const f=S.sm.focus,v=f==='fisico'||f==='doble'?'fisico':f==='tecnica'?(S.p.pos==='POR'?'portero':'tecnica'):f==='vision'?'notas':f==='descanso'?'descanso':null;if(f==='pases')anim3d('pass',null);else if(v&&!isFast())anim3d('train',v)}
 function go(k){if(k==='pre'){show('pre');return}if(k==='season'){nextSeason();return}
- if(k==='evA'){const newClub=S.rows.filter(r=>r.club===S.p.club).length<=1;if((newClub||R()<.3)&&!S.sm.intDone){S.sm.intDone=1;interviewStart('wheel');return}go('wheel');return}
+ if(k==='evA'){go('wheel');return}
  if(k==='wheel'){if(!S.sm.wheelDone){S.sm.wheelDone=1;show('ruleta',{segs:wheelSegs(),res:null,next:'evA2'});return}go('evA2');return}
- if(k==='evA2'){nextAfterPre();return}if(k==='h1'){halfSim(0);show('half',{h:0})}else if(k==='h2'){halfSim(1);show('half',{h:1})}else if(k==='evB'){show('event',{id:pickEvent(),next:'h2'})}}
+ if(k==='evA2'){nextAfterPre();return}if(k==='h1'){halfSim(0);if(isFast()){midDecision();return}show('half',{h:0})}else if(k==='h2'){halfSim(1);if(isFast()){show('summary',{sum:endSeason()});return}show('half',{h:1})}else if(k==='evB'){show('event',{id:pickEvent(),next:'h2'})}}
 function midDecision(){const p=S.p;
  if(!p.acl&&p.age>=19&&R()<(p.pos==='POR'?.07*.16:.07)){p.acl=1;show('acl',{});return}
  if(injuryRoll()){const grave=R()<.25;const w=grave?ri(14,30):ri(3,7);show('injury',{grave,w,miss:clamp(w/22,.1,.95)});return}
@@ -1590,7 +1600,7 @@ function render(){
  const sp=document.getElementById('spin');if(sp)sp.onclick=()=>{const d=S.step.data;if(d.res!=null)return;sp.disabled=true;
   const tot=d.segs.reduce((a,x)=>a+x.w,0);let r=R()*tot,idx=0;for(;idx<d.segs.length;idx++){r-=d.segs[idx].w;if(r<=0)break}idx=Math.min(idx,d.segs.length-1);
   let a0=0;for(let i=0;i<idx;i++)a0+=d.segs[i].w/tot*360;const mid=a0+d.segs[idx].w/tot*360/2;const rot=360*5+(360-mid)+rnd(-4,4)*(d.segs[idx].w/tot*20);
-  const wh=document.getElementById('wheel');const fin=()=>{const out=wheelApply(d.segs[idx].k);d.res=idx;d.seg=d.segs[idx];d.out=out;d.rot=rot%360;save();render()};
+  const wh=document.getElementById('wheel');const fin=()=>{const out=wheelApply(d.segs[idx].k);d.res=idx;d.seg=d.segs[idx];d.out=out;d.rot=rot%360;if(isFast()){save();fastToast('Ruleta · '+d.seg.n,out.t,out.ch);setTimeout(()=>go(d.next),650);return}save();render()};
   const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(reduce||!wh){fin();return}wh.style.transition='transform 3.2s cubic-bezier(.12,.75,.12,1)';wh.style.transform=`rotate(${rot}deg)`;setTimeout(fin,3400)};
  const cp=document.getElementById('copy');if(cp)cp.onclick=()=>{const ta=document.getElementById('sharetxt');const t=ta.value;
@@ -1619,7 +1629,7 @@ let pendingOrder=null;
 (function(){const box=document.getElementById('settings'),$=id=>document.getElementById(id);let last=null;
  function open(){last=document.activeElement;const inGame=S&&S.p;
   $('set-name').value=inGame?S.p.name:($('name')?$('name').value:'');$('set-num').value=inGame?S.p.num:($('num')?$('num').value:9);
-  $('set-diff').value=String(DF());$('set-3d').checked=a3dOn();$('set-theme').value=thGet();$('set-theme').onchange=()=>thApply($('set-theme').value);$('set-rkuser').value=rkUser();$('set-rkbox').hidden=!FB_URL;$('set-reset').hidden=!inGame;$('set-reset-confirm').hidden=true;$('set-reset-ask').hidden=false;$('set-latbox').hidden=!(inGame&&isLat(S.p));if(inGame&&isLat(S.p))$('set-lat').value=S.p.latRole||'defensa';$('set-note').textContent=inGame?'Los cambios se aplican desde ahora en tu carrera actual.':'Se aplicará a la carrera que vas a crear.';
+  $('set-diff').value=String(DF());$('set-3d').checked=a3dOn();$('set-theme').value=thGet();$('set-fast').value=isFast()?'1':'0';$('set-theme').onchange=()=>thApply($('set-theme').value);$('set-rkuser').value=rkUser();$('set-rkbox').hidden=!FB_URL;$('set-reset').hidden=!inGame;$('set-reset-confirm').hidden=true;$('set-reset-ask').hidden=false;$('set-latbox').hidden=!(inGame&&isLat(S.p));if(inGame&&isLat(S.p))$('set-lat').value=S.p.latRole||'defensa';$('set-note').textContent=inGame?'Los cambios se aplican desde ahora en tu carrera actual.':'Se aplicará a la carrera que vas a crear.';
   box.hidden=false;$('set-name').focus()}
  function close(){box.hidden=true;if(last&&last.focus)last.focus()}
  $('set-reset-ask').onclick=()=>{$('set-reset-confirm').hidden=false;$('set-reset-ask').hidden=true;$('set-reset-no').focus()};
@@ -1629,7 +1639,7 @@ let pendingOrder=null;
  $('set-rank').onclick=()=>{const u=rkSetUser($('set-rkuser').value);$('set-rkuser').value=u;if(!u){$('set-rkuser').focus();return}close();rankingShow(true)};
  box.addEventListener('click',e=>{if(e.target===box)close()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!box.hidden)close()});
- $('set-save').onclick=()=>{try{localStorage.setItem(A3D_KEY,$('set-3d').checked?'1':'0');localStorage.setItem(TH_KEY,$('set-theme').value)}catch(e){}thApply($('set-theme').value);if($('set-rkuser').value.trim())rkSetUser($('set-rkuser').value);const name=($('set-name').value||'').trim().slice(0,28),num=clamp(+$('set-num').value||9,1,99),d=clamp(+$('set-diff').value||0,0,3);
+ $('set-save').onclick=()=>{try{localStorage.setItem(A3D_KEY,$('set-3d').checked?'1':'0');localStorage.setItem(TH_KEY,$('set-theme').value);localStorage.setItem(FAST_KEY,$('set-fast').value)}catch(e){}thApply($('set-theme').value);if($('set-rkuser').value.trim())rkSetUser($('set-rkuser').value);const name=($('set-name').value||'').trim().slice(0,28),num=clamp(+$('set-num').value||9,1,99),d=clamp(+$('set-diff').value||0,0,3);
   if(S&&S.p){const old=DF();if(name)S.p.name=name;S.p.num=num;S.diff=d;if(isLat(S.p)){const nl=$('set-lat').value;if(nl!==(S.p.latRole||'defensa')){S.p.latRole=nl;news(`Cambiaste tu rol a ${LATR[nl].n}.`)}}if(old!==d)news(`Dificultad cambiada a ${DIFFS[d].n}.`);save();close();render()}
   else{DIFF_START=d;if(name&&$('name'))$('name').value=name;if($('num'))$('num').value=num;if($('diff'))$('diff').value=String(d);close();const ev=$('diff');if(ev)ev.dispatchEvent(new Event('change'))}};
 })();
