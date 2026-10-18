@@ -904,7 +904,7 @@ function halfSim(h){
  S.sm.halves[h]=half;S.sm.imp+=imp;
  return half}
 
-function injuryRoll(){const p=S.p;let ch=.13+(p.acl?.05:0)+(p.age>=30?(p.age-29)*.025:0)+S.sm.inj-(p.staff?.04:0)-(p.prof-50)/600;if(S.sm.focus==='fisico')ch-=.04;ch=clamp(ch+[-.05,0,.05,.1][DF()],.02,.6);if(p.pos==='POR')ch*=.16;return R()<ch}
+function injuryRoll(){const p=S.p;let ch=.08+(p.acl?.03:0)+(p.age>=30?(p.age-29)*.015:0)+S.sm.inj-(p.staff?.04:0)-(p.prof-50)/600;if(S.sm.focus==='fisico')ch-=.04;ch=clamp(ch+[-.04,0,.03,.06][DF()],.02,.35);if(p.pos==='POR')ch*=.16;return R()<ch}
 
 function endSeason(){
  const p=S.p,club=CL[p.club],lg=L[club.l],sum={titles:[],awards:[],notes:[]};
@@ -1213,7 +1213,7 @@ function scene(){const p=S.p,st=S.step,club=CL[p.club];let sc;
    choices:[{l:'Continuar',f:()=>h===0?midDecision():show('summary',{sum:endSeason()})}]};break}
  case 'injury':{const g=st.data;sc={kicker:label()+' · Enfermería',title:g.grave?'Lesión grave':'Lesión muscular',
    body:`<p>${g.grave?`Rotura de ligamento lateral. Los médicos hablan de ${g.w} semanas fuera.`:`Desgarro en el isquiotibial. Unas ${g.w} semanas fuera.`}</p>`,
-   choices:[{l:'Rehabilitación completa',d:'Vuelves al 100%',f:()=>{const ch=fx({miss:g.miss});show('result',{title:'Rehabilitación',t:'Seguiste el protocolo al pie de la letra.',ch,next:'h2'})}},
+   choices:[{l:'Rehabilitación completa',d:'Vuelves al 100%',f:()=>{const ch=fx({miss:g.miss*.85});show('result',{title:'Rehabilitación',t:`Seguiste el protocolo al pie de la letra. Te pierdes unas ${Math.max(1,Math.round(g.w*.85))} semanas y vuelves para jugar el resto de la temporada.`,ch,next:'h2'})}},
     {l:'Acelerar la vuelta',d:'Vuelves antes, riesgo de recaída',f:()=>{let ch,t;if(R()<(g.grave?.45:.3)){ch=fx({miss:Math.min(.95,g.miss*1.5),ovr:-1});t='Recaíste a las dos semanas. Ahora es peor.'}else{ch=fx({miss:g.miss*.55});t='Volviste antes y respondiste bien.'}show('result',{title:'Volver antes',t,ch,next:'h2'})}}]};break}
  case 'winter':{const offs=st.data.offs;sc={kicker:label()+' · Mercado de invierno',title:'Opciones para enero',
    body:`<p>Con tu rol actual (${roleChip(S.roleNow)}) tu representante encontró clubes que te quieren a préstamo por seis meses.</p>`,
@@ -1274,7 +1274,7 @@ function midDecision(){const p=S.p;
  if(['ED','EI','MCO','DC'].includes(p.pos)&&!S.sm.ocRoll){S.sm.ocRoll=1;if(R()<.3){show('event',{id:'ocasion',next:'h2'});return}}
  if(p.pos==='POR'&&!S.sm.jpRoll){S.sm.jpRoll=1;if(R()<.2){show('event',{id:'jugadapeligrosa',next:'h2'});return}}
  if(!p.acl&&p.age>=19&&R()<(p.pos==='POR'?.07*.16:.07)){p.acl=1;show('acl',{});return}
- if(injuryRoll()){const grave=R()<.25;const w=grave?ri(14,30):ri(3,7);show('injury',{grave,w,miss:clamp(w/22,.1,.95)});return}
+ if(injuryRoll()){const grave=R()<.15;const w=grave?ri(8,18):ri(2,5);show('injury',{grave,w,miss:clamp(w/30,.06,.6)});return}
  if(!p.loan&&(['suplente','reserva'].includes(S.roleNow)||S.sm.winterWish)&&p.age<=30){const offs=genOffers('winter');if(offs.length){show('winter',{offs});return}}
  go('evB')}
 
