@@ -3382,13 +3382,15 @@ function start(){const [kind,variant,L]=lastArgs;if(cur){if(cur.cleanup)cur.clea
  if(!raf){last=performance.now();raf=requestAnimationFrame(loop)}}
 const setPause=v=>{paused=v};
 // entrenamientos: como máximo 3 repeticiones
-const MAXREP=3;let reps=0,trDone=null,trPend=null;const isTrain=()=>lastArgs&&(lastArgs[0]==='train'||lastArgs[0]==='pass');
+let MAXREP=3,reps=0,trDone=null,trPend=null;const isTrain=()=>MAXREP>0;
 function updRep(){const b=ov.querySelector('[data-a=rep]');if(!b)return;if(!b.dataset.t)b.dataset.t=b.textContent;const left=MAXREP-reps,lock=isTrain()&&left<=0;
-  b.textContent=isTrain()?`${b.dataset.t} (${Math.max(0,left)})`:b.dataset.t;b.disabled=lock;b.style.opacity=lock?.4:'';b.title=lock?'Ya repetiste este entrenamiento 3 veces':''}
+  b.textContent=isTrain()?`${b.dataset.t} (${Math.max(0,left)})`:b.dataset.t;b.disabled=lock;b.style.opacity=lock?.4:'';b.title=lock?'Ya no puedes repetir':''}
 ov.querySelector('[data-a=rep]').onclick=()=>{if(isTrain()){if(reps>=MAXREP)return;reps++;updRep()}setPause(false);start()};ov.querySelector('[data-a=skip]').onclick=close;
 addEventListener('keydown',e=>{if(!ov.hidden&&e.key==='Escape'){const b3=ov.querySelector('.a3d-bar');if(b3&&b3.style.visibility==='hidden')return;close()}});
 return{play(kind,variant,L){setPause(false);if(trDone){const f=trDone,a=trPend;trDone=trPend=null;if(a)f(...a)}
-  if((kind==='train'||kind==='pass')&&L&&typeof L.onDone==='function'){trDone=L.onDone;trPend=null;L=Object.assign({},L,{onDone:(...a)=>{trPend=a}})}
+  // límite de repeticiones (solo cuenta el último intento): entrenamientos 3, jugada peligrosa 1 (2 intentos)
+  MAXREP=0;if((kind==='train'||kind==='pass')&&L&&typeof L.onDone==='function'){MAXREP=3;trDone=L.onDone;trPend=null;L=Object.assign({},L,{onDone:(...a)=>{trPend=a}})}
+  else if(kind==='penplay'&&L&&L.play&&L.play.danger&&typeof L.play.onDone==='function'){MAXREP=1;trDone=L.play.onDone;trPend=null;L=Object.assign({},L,{play:Object.assign({},L.play,{onDone:(...a)=>{trPend=a}})})}
   lastArgs=[kind,variant,L];reps=0;updRep();ov.hidden=false;document.documentElement.style.overflow='hidden';requestAnimationFrame(()=>{start();ov.querySelector('[data-a=skip]').focus()})}}}
 function boot(d){if(d&&d.S){S=d.S;restoreClubs()}migrate();render()}
 window.claude?.hot?.snapshot?.(()=>({S}));
