@@ -524,9 +524,9 @@ function fx(d){const p=S.p,chips=[];
 /* ---------- eventos ---------- */
 const EVENTS=[
 {id:'penalcontra',w:p=>p.pos==='POR',t:'Penal en contra',x:p=>`Minuto 89, ganan 1-0. El árbitro pita penal para el rival. Todo el estadio te mira a ti.`,
- o:[{l:'🧤 Atajarlo tú (jugable)',d:'A/D moverte · W/S alto/bajo · ESPACIO tirarte',f:()=>({play:{keeper:true,title:'Penal en contra · minuto 89'},prob:.3,done:(sv,why)=>sv?[why==='atajaste'?'¡LO ATAJASTE! Salvaste el partido y tus compañeros te tiraron encima.':why==='palo'?'¡Al palo! Te tiraste bien y el rival se puso nervioso.':'¡Lo mandó afuera! Lo pusiste nervioso.',fx({rep:6,morale:10,coach:5})]:['Te la metieron. Empate en el último minuto.',fx({morale:-6})]})},
-  {l:'Adivinar un lado (rápido)',d:'30% lo atajas',f:()=>R()<.3?['¡Lo adivinaste y lo atajaste!',fx({rep:5,morale:9,coach:4})]:['Te fuiste para el otro lado. Gol.',fx({morale:-6})]},
-  {l:'Quedarte en el centro',d:'Si patea al medio, es tuyo',f:()=>R()<.2?['Pateó al medio y la agarraste sin moverte.',fx({rep:4,morale:7,coach:3})]:['Pateó a un rincón. Gol.',fx({morale:-5})]}]},
+ o:[{l:'🧤 Atajarlo tú (jugable)',d:'A/D moverte · W/S alto/bajo · ESPACIO tirarte',f:()=>({play:{keeper:true,title:'Penal en contra · minuto 89'},prob:.3,done:(sv,why)=>(S.sm.pcSaved=sv)?[why==='atajaste'?'¡LO ATAJASTE! Salvaste el partido y tus compañeros te tiraron encima.':why==='palo'?'¡Al palo! Te tiraste bien y el rival se puso nervioso.':'¡Lo mandó afuera! Lo pusiste nervioso.',fx({rep:6,morale:10,coach:5})]:['Te la metieron. Empate en el último minuto.',fx({morale:-6})]})},
+  {l:'Adivinar un lado (rápido)',d:'30% lo atajas',f:()=>(S.sm.pcSaved=R()<.3)?['¡Lo adivinaste y lo atajaste!',fx({rep:5,morale:9,coach:4})]:['Te fuiste para el otro lado. Gol.',fx({morale:-6})]},
+  {l:'Quedarte en el centro',d:'Si patea al medio, es tuyo',f:()=>(S.sm.pcSaved=R()<.2)?['Pateó al medio y la agarraste sin moverte.',fx({rep:4,morale:7,coach:3})]:['Pateó a un rincón. Gol.',fx({morale:-5})]}]},
 {id:'tlcontra',w:p=>p.pos==='POR',t:'Tiro libre en contra',x:p=>`Falta en la puerta del área en el minuto 85. El especialista rival acomoda el balón.`,
  o:[{l:'🧤 Atajarlo tú (jugable)',d:'Arma la barrera y vuela',f:()=>({play:{keeper:true,fk:true,title:'Tiro libre en contra · minuto 85'},prob:.6,done:(sv,why)=>sv?[why==='atajaste'?'¡Voló y la sacó del ángulo! Atajadón.':why==='barrera'?'La barrera que armaste la rechazó.':'Se fue afuera. Respiras.',fx({rep:4,morale:8,coach:4})]:['Golazo del rival al ángulo. Nada que hacer.',fx({morale:-4})]})},
   {l:'Barrera de 5 (rápido)',d:'Más barrera, menos visión',f:()=>R()<.6?['La barrera hizo su trabajo.',fx({coach:3,morale:4})]:['Se metió por encima de la barrera. Gol.',fx({morale:-4})]}]},
@@ -1087,6 +1087,19 @@ function rivalMove(club,next){const p=S.p,old=rivalOf(club);if(!old)return false
  const ch=[{t:'+'+up+' polémica',c:'bad'}].concat(fx({rep:6,morale:-6}));
  show('polemica',{club,old,cantera,memes,ch,next});return true}
 /* ---------- escenas ---------- */
+function tandaPenales(ev,t0,ch0,nx){const p=S.p,GK=p.pos==='POR',sim=pr=>R()<pr;let us=0,them=0,tries=0;
+  do{us=0;them=0;for(let i=0;i<4;i++){if(sim(.75))us++;if(sim(.75))them++}tries++}while(Math.abs(us-them)>1&&tries<20);
+  const fin=(mine)=>{ // mine: true = metiste (jugador) / atajaste (portero)
+    let u5,t5;if(GK){t5=!mine;u5=sim(.75)}else{u5=mine;t5=sim(.75)}us+=u5?1:0;them+=t5?1:0;let sd=0;
+    while(us===them&&sd<10){sd++;const a=sim(.72),b=sim(.72);us+=a?1:0;them+=b?1:0}
+    const win=us>them;if(ev.id==='penal')S.sm.cupWin=win;
+    const mineTxt=GK?(mine?'¡Atajaste el 5.º penal!':'Te metieron el 5.º penal.'):(mine?'¡Metiste el 5.º penal!':'Fallaste el 5.º penal.');
+    const t=t0.replace(/ ?Perdieron la final\.?/,'').replace(/ ?Empate en el último minuto\.?/,'')+` Pero el partido se fue a la tanda de penales… ${mineTxt} Tanda ${us}-${them}${sd?' en muerte súbita':''}: `+(win?(ev.id==='penal'?'¡CAMPEONES! 🏆':'¡GANARON en los penales!'):'perdieron en los penales.');
+    const ch=ch0.concat(fx(win?{rep:GK&&mine||!GK&&mine?7:4,morale:12,coach:4}:{morale:-4}));show('result',{title:'Tanda de penales',t,ch,next:nx})};
+  if(typeof fastToast==='function')fastToast('Tanda de penales','¡Se va a penales! Después de 4 rondas: '+us+'-'+them+'. Te toca el 5.º.',[]);
+  let once=false;const done=g=>{if(once)return;once=true;fin(g)};
+  const ok=anim3d('penplay',null,{play:GK?{keeper:true,title:'Tanda de penales · 5.º penal',onDone:sv=>done(sv)}:{title:'Tanda de penales · 5.º penal',onDone:g=>done(g)}});
+  if(!ok)done(sim(GK?.3:.72))}
 function show(k,data){if(k==='result'&&isFast()&&data&&data.next){fastToast(data.title,data.t,data.ch);go(data.next);return}S.step={k,data:data||{}};save();render()}
 function fastToast(title,t,ch){let box=document.getElementById('fast-toasts');if(!box){box=document.createElement('div');box.id='fast-toasts';box.setAttribute('aria-live','polite');document.body.appendChild(box)}
   const d=document.createElement('div');d.className='fast-toast';d.innerHTML=`<b>${title||''}</b><span>${t||''}</span>${ch&&ch.length?chipsHTML(ch):''}`;d.onclick=()=>d.remove();box.appendChild(d);
@@ -1119,10 +1132,13 @@ function scene(){const p=S.p,st=S.step,club=CL[p.club];let sc;
     {l:'Doble turno de entrenamiento',d:'+3 media, más riesgo de lesión',f:()=>{S.sm.focus='doble';preDone('Mañana y tarde, todos los días.',fx({ovr:3,inj:.08,morale:-4}))}}].filter(Boolean)};break}
  case 'event':{const ev=EVENTS.find(e=>e.id===st.data.id);
   sc={kicker:label()+(st.data.next==='h1'?' · Antes del arranque':' · Segunda mitad'),title:ev.t,body:`<p>${ev.x(p)}</p>`,
-   choices:ev.o.map(o=>({l:o.l,d:o.d,f:()=>{const r=o.f(p),nx=st.data.next;
-    if(r&&r.play){let once=false;const fin=(g,why)=>{if(once)return;once=true;const [t,ch]=r.done(g,why);show('result',{title:ev.t,t,ch,next:nx})};
+   choices:ev.o.map(o=>({l:o.l,d:o.d,f:()=>{S.sm.pcSaved=null;const r=o.f(p),nx=st.data.next;
+    const out=(t,ch)=>{const failed=ev.id==='penal'?S.sm.cupWin===false:ev.id==='penalcontra'?S.sm.pcSaved===false:false;
+      const elig=ev.id==='penal'?['DC','ED','EI'].includes(p.pos):ev.id==='penalcontra'&&p.pos==='POR';
+      if(failed&&elig&&R()<.4){tandaPenales(ev,t,ch,nx);return}show('result',{title:ev.t,t,ch,next:nx})};
+    if(r&&r.play){let once=false;const fin=(g,why)=>{if(once)return;once=true;const [t,ch]=r.done(g,why);out(t,ch)};
       if(!anim3d('penplay',null,{play:Object.assign({},r.play,{onDone:fin})}))fin(R()<(r.prob||.5));return}
-    const [t,ch]=r;show('result',{title:ev.t,t,ch,next:nx})}}))};break}
+    const [t,ch]=r;out(t,ch)}}))};break}
  case 'ruleta':{const d=st.data;
   sc={kicker:label()+' · Ruleta de la temporada',title:d.res==null?'Gira la ruleta':d.seg.n,
    body:d.res==null?`<p>Gira la ruleta: las porciones grandes son más probables.</p>${wheelSVG(d.segs)}<div><button class="btn" id="spin">Girar la ruleta</button></div>`:
