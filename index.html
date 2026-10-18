@@ -534,8 +534,10 @@ const EVENTS=[
   {l:'Defensa zonal con ayudas',d:'Lo seguro',f:()=>['Con las ayudas del equipo lo controlaron. Partido serio.',fx({coach:3,morale:2})]},
   {l:'Hablarle durante el partido',d:'A ver quién pierde la cabeza',f:()=>R()<.5?['Se calentó, te empujó y lo expulsaron. Ganaron con uno más.',fx({rep:3,coach:2,morale:4})]:['El árbitro te vio a ti: amarilla y el DT te cambió al descanso.',fx({coach:-5,morale:-4})]}]},
 {id:'tirolibre',w:p=>p.pos!=='POR',t:'Tiro libre al minuto 90',x:p=>`Van empatados y hay falta en la puerta del área. El especialista del equipo ya agarró el balón, pero tú lo pides.`,
- o:[{l:'🎮 Pegarle tú (jugable)',d:'Tú apuntas y le das potencia',f:()=>({play:{fk:true,title:'Tiro libre · minuto 90',gk:.38},prob:.33,done:(g,why)=>g?[why==='efecto'?'¡GOLAZO CON EFECTO! La curva dejó parado al arquero.':why==='palogol'?'¡Palo y adentro! Golazo tuyo.':'¡GOLAZO! Lo clavaste tú y el estadio se vino abajo.',fx({rep:6,morale:8,coach:2})]:[why==='barrera'?'Le pegaste a la barrera. El especialista te mira feo.':why==='atajada'?'El arquero voló y la sacó. Casi.':why==='palo'?'¡Al palo! Por centímetros.':'Se fue afuera. El especialista te mira feo.',fx({morale:-5,coach:-4})]})},
+ o:[{l:'🎮 Pegarle tú (jugable)',d:'Tú apuntas y le das potencia',f:()=>({play:{fk:true,title:'Tiro libre · minuto 90',gk:.38},prob:.33,done:(g,why)=>g?[why==='trivela'?'¡GOLAZO DE TRIVELA! Le pegaste con el exterior y se metió al ángulo.':why==='knuckle'?'¡KNUCKLEBALL! El balón bailó en el aire y el arquero ni se movió.':why==='efecto'?'¡GOLAZO CON EFECTO! La curva dejó parado al arquero.':why==='palogol'?'¡Palo y adentro! Golazo tuyo.':'¡GOLAZO! Lo clavaste tú y el estadio se vino abajo.',fx({rep:6,morale:8,coach:2})]:[why==='barrera'?'Le pegaste a la barrera. El especialista te mira feo.':why==='atajada'?'El arquero voló y la sacó. Casi.':why==='palo'?'¡Al palo! Por centímetros.':'Se fue afuera. El especialista te mira feo.',fx({morale:-5,coach:-4})]})},
   {l:'🌀 Tiro con efecto (rápido)',d:'20% golazo · 30% falla · 50% normal',f:()=>{const r=R(),ok=r<.2?true:r<.5?false:R()<.33;anim3d('fk',ok?'tu_gol':'tu_barrera');return ok?[r<.2?'¡GOLAZO CON EFECTO! La curva dejó parado al arquero.':'Le diste efecto y entró por poco.',fx({rep:r<.2?8:6,morale:9,coach:2})]:[r<.5?'Le diste demasiado efecto y se fue lejos.':'El efecto no alcanzó: barrera.',fx({morale:-5,coach:-4})]}},
+  {l:'↪️ Trivela (rápido)',d:'15% golazo · 35% falla · 50% normal (zurdo: 7% · 55% · 38%)',f:()=>{const zur=S.p.foot==='Zurdo',G1=zur?.07:.15,F1=zur?.62:.5,r=R(),ok=r<G1?true:r<F1?false:R()<.33;anim3d('fk',ok?'tu_gol':'tu_barrera');return ok?[r<G1?'¡GOLAZO DE TRIVELA! Exterior del pie y al ángulo.':'Le pegaste de trivela y entró por poco.',fx({rep:r<G1?9:6,morale:9,coach:2})]:[r<F1?(zur?'Siendo zurdo, la trivela no te salió: se abrió y se fue afuera.':'La trivela se abrió de más y se fue afuera.'):'La trivela pegó en la barrera.',fx({morale:-5,coach:-4})]}},
+  {l:'🪶 Knuckleball (rápido)',d:'12% golazo · 45% por arriba · 43% normal',f:()=>{const r=R(),ok=r<.12?true:r<.57?false:R()<.3;anim3d('fk',ok?'tu_gol':'tu_barrera');return ok?[r<.12?'¡KNUCKLEBALL! El balón bailó y el arquero no la vio.':'Le pegaste sin rotación y se le escurrió al arquero.',fx({rep:r<.12?9:6,morale:9,coach:2})]:[r<.57?'Sin rotación… y se fue por encima del travesaño.':'El knuckleball se estrelló en la barrera.',fx({morale:-5,coach:-4})]}},
   {l:'Pegarle tú (rápido)',d:'Sin jugarlo, a la suerte',f:()=>{const ok=R()<.33;anim3d('fk',ok?'tu_gol':'tu_barrera');return ok?['¡Golazo al ángulo! El estadio se viene abajo.',fx({rep:6,morale:8,coach:2})]:['Le pegaste a la barrera. El especialista te mira feo.',fx({morale:-5,coach:-4})]}},
   {l:'Dejárselo al especialista',d:'Lo seguro',f:()=>{const ok=R()<.25;anim3d('fk',ok?'esp_gol':'esp_fuera');return ok?['Lo metió y te abrazó primero a ti.',fx({morale:4,coach:3})]:['Se fue por arriba. Nadie te culpa.',fx({coach:2})]}},
   {l:'Jugada ensayada',d:'Amagas y patea otro',f:()=>{const ok=R()<.28;anim3d('fk',ok?'jug_gol':'jug_falla');return ok?['La jugada salió perfecta: amagaste y tu compañero la clavó.',fx({coach:6,rep:3,morale:4})]:['El portero no se comió el amago.',fx({coach:1})]}}]},
@@ -1998,8 +2000,11 @@ function scenePenPlay(L,opt){
   ui.innerHTML='<div class="pp-top"><span class="pp-t"></span><span class="pp-time"></span></div><div class="pp-pw"><i></i><b></b></div><button type="button" class="pp-fire">PATEAR</button><button type="button" class="pp-fx" hidden>🌀 Efecto: NO</button><div class="pp-help"></div>';
   stageEl.appendChild(ui);const uT=ui.querySelector('.pp-t'),uTime=ui.querySelector('.pp-time'),uPw=ui.querySelector('.pp-pw'),uPwI=uPw.querySelector('i'),uHelp=ui.querySelector('.pp-help'),uFire=ui.querySelector('.pp-fire');
   uT.textContent=opt.title||(FK?'Tiro libre':'Penal');
-  const uFx=ui.querySelector('.pp-fx');A.fx=false;const setFx=v=>{if(A.ph!=='aim'&&A.ph!=='power')return;A.fx=v;uFx.textContent=(FK?'🌀 Efecto: ':'🕺 Paradinha: ')+(v?'SÍ':'NO')+(!FK&&v?' · 5 partidos de sanción':'');uFx.classList.toggle('on',v)};
-  if(FK||opt.para!==false){if(!FK)uFx.textContent='🕺 Paradinha: NO';uFx.hidden=false;uFx.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();setFx(!A.fx)})}
+  const uFx=ui.querySelector('.pp-fx');A.fx=false;A.shot='normal';const SHOTS=[['normal','🎯 Tiro: Normal'],['efecto','🌀 Tiro: Efecto'],['trivela','↪️ Tiro: Trivela'],['knuckle','🪶 Tiro: Knuckleball']];
+  const setFx=v=>{if(A.ph!=='aim'&&A.ph!=='power')return;
+    if(FK){const i=(SHOTS.findIndex(x=>x[0]===A.shot)+1)%SHOTS.length;A.shot=SHOTS[i][0];A.fx=A.shot!=='normal';uFx.textContent=SHOTS[i][1]+(A.shot==='trivela'&&S&&S.p&&S.p.foot==='Zurdo'?' (difícil: eres zurdo)':'');uFx.classList.toggle('on',A.fx);return}
+    A.fx=v;uFx.textContent='🕺 Paradinha: '+(v?'SÍ':'NO')+(v?' · 5 partidos de sanción':'');uFx.classList.toggle('on',v)};
+  if(FK||opt.para!==false){uFx.textContent=FK?'🎯 Tiro: Normal':'🕺 Paradinha: NO';uFx.hidden=false;uFx.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();setFx(!A.fx)})}
   uFire.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fire=true});
   const toGoal=e=>{const r=stageEl.getBoundingClientRect();const u=(e.clientX-r.left)/r.width,v=(e.clientY-r.top)/r.height;
     // proyecta el puntero sobre el plano del arco
@@ -2040,12 +2045,21 @@ function scenePenPlay(L,opt){
         else{P.set(Math.max(-1.5,Math.min(1.5,P.x)),Math.max(.3,Math.min(1.5,P.y)),10.62);res='paraquieto';g=0;th=0;rx=P.x*.75}}
       else{P.set(sg*(3.85+Math.random()*.6),.4+Math.random()*1.8,11);res='parafuera';g=sg;th=1.1;rx=sg*1.1}}
     // tiro con efecto: 20% golazo al ángulo, 30% se le va, 50% tiro normal (con curva)
-    let curve=0;if(FK&&A.fx){const sg=P.x>=0?1:-1,r=Math.random();curve=sg*(.9+Math.random()*.5);
+    let curve=0;A.knuck=false;
+    if(FK&&A.shot==='trivela'){const sg=P.x>=0?1:-1,r=Math.random(),zur=S&&S.p&&S.p.foot==='Zurdo',G1=zur?.07:.15,F1=zur?.62:.5;curve=-sg*(1+Math.random()*.4); // exterior del pie: curva al revés (difícil para zurdos)
+      if(r<G1){P.set(sg*(3.0+Math.random()*.3),1.6+Math.random()*.5,11);res='trivela';g=-sg;th=1.15;rx=-sg*1.2}
+      else if(r<F1){P.set(sg*(3.8+Math.random()*.6),.5+Math.random()*1.8,11);res='fuera'}
+      else if(res==='barrera'){const wz=9.15/B0.distanceTo(V(P.x,0,11));const wx=lerp(B0.x,P.x,wz)+curve*4*wz*(1-wz);const wc=wall[0].root.position.clone().add(wall[4].root.position).multiplyScalar(.5);if(Math.abs(wx-wc.x)>=1.45)res='gol'}}
+    if(FK&&A.shot==='knuckle'){const r=Math.random();A.knuck=true; // sin rotación: baila en el aire
+      if(r<.12){P.set(Math.max(-3.1,Math.min(3.1,P.x)),Math.max(.4,Math.min(2.1,P.y)),11);res='knuckle';g=P.x>0?-1:1;th=1.1;rx=g*1.1}
+      else if(r<.57){P.set(P.x*.9,2.65+Math.random()*.8,11);res='fuera'}
+      else if(res==='barrera'&&Math.random()<.3)res='gol'}
+    if(FK&&A.shot==='efecto'){const sg=P.x>=0?1:-1,r=Math.random();curve=sg*(.9+Math.random()*.5);
       if(r<.2){P.set(sg*(3.05+Math.random()*.3),1.85+Math.random()*.35,11);res='efecto';g=-sg;th=1.15;rx=-sg*1.2}
       else if(r<.5){P.set(sg*(3.85+Math.random()*.7),.6+Math.random()*2,11);res='fuera'}
       else if(res==='barrera'){const wz=9.15/B0.distanceTo(V(P.x,0,11));const wx=lerp(B0.x,P.x,wz)+curve*4*wz*(1-wz);const wc=wall[0].root.position.clone().add(wall[4].root.position).multiplyScalar(.5);if(Math.abs(wx-wc.x)>=1.45)res='gol'}}
     // la atajada NO se decide aquí: se decide con el hitbox real del arquero cuando pasa el balón
-    Object.assign(A,{P,T,res,dive:g,th,rx,react:A.para?(res==='paragol'?-.35:.25):.05+Math.random()*.1,arc,curve,prevB:B0.clone()})}
+    Object.assign(A,{P,T,res,dive:g,th,rx,react:A.para?(res==='paragol'?-.35:.25):(A.knuck?.1:0)+.05+Math.random()*.1,arc:A.knuck?arc*.75:arc,curve,prevB:B0.clone()})}
   // hitbox del arquero: esferas en manos, codos, cabeza, torso, cadera, rodillas y pies (posición real de la animación)
   const _h=V(0,0,0),_q=V(0,0,0);
   // hitbox: "huesos" (cápsulas) que siguen la animación real: manos, antebrazos, brazos, tronco, cabeza, muslos y piernas
@@ -2058,16 +2072,16 @@ function scenePenPlay(L,opt){
   const segD=(p,a,b)=>{const ab=b.clone().sub(a),l2=ab.lengthSq();const t=l2?Math.max(0,Math.min(1,p.clone().sub(a).dot(ab)/l2)):0;return p.distanceTo(a.clone().addScaledVector(ab,t))};
   function hitGK(a,b){const C=gkParts(),n=Math.max(2,Math.ceil(a.distanceTo(b)/.06));
     for(let k=0;k<=n;k++){const p=a.clone().lerp(b,k/n);for(const [c0,c1,r] of C)if(segD(p,c0,c1)<r+.11)return p}return null}
-  const say={paraquietogol:['EL ARQUERO NO SE INMUTÓ… ¡PERO ENTRÓ!',true],paragol:['¡GOL CON PARADINHA! 🕺',true],paraquieto:['EL ARQUERO NO SE MOVIÓ… ¡LA ATAJÓ!',false],parafuera:['LA PARADINHA SALIÓ MAL: AFUERA',false],palogol:['¡PALO Y ADENTRO!',true],efecto:['¡GOLAZO CON EFECTO!',true],gol:['¡GOOOL!',true],atajada:['¡LA ATAJÓ!',false],fuera:['AFUERA…',false],palo:['¡AL PALO!',false],barrera:['PEGÓ EN LA BARRERA',false]};
+  const say={trivela:['¡GOLAZO DE TRIVELA! ↪️',true],knuckle:['¡KNUCKLEBALL IMPARABLE! 🪶',true],paraquietogol:['EL ARQUERO NO SE INMUTÓ… ¡PERO ENTRÓ!',true],paragol:['¡GOL CON PARADINHA! 🕺',true],paraquieto:['EL ARQUERO NO SE MOVIÓ… ¡LA ATAJÓ!',false],parafuera:['LA PARADINHA SALIÓ MAL: AFUERA',false],palogol:['¡PALO Y ADENTRO!',true],efecto:['¡GOLAZO CON EFECTO!',true],gol:['¡GOOOL!',true],atajada:['¡LA ATAJÓ!',false],fuera:['AFUERA…',false],palo:['¡AL PALO!',false],barrera:['PEGÓ EN LA BARRERA',false]};
   const camPos=V(0,0,0),look=V(0,1.2,11);
-  function finish(){if(A.resolved)return;A.resolved=true;const g=A.res==='gol'||A.res==='palogol'||A.res==='efecto'||A.res==='paragol'||A.res==='paraquietogol';if(opt.onDone)setTimeout(()=>opt.onDone(g,A.res),0)}
+  function finish(){if(A.resolved)return;A.resolved=true;const g=A.res==='trivela'||A.res==='knuckle'||A.res==='gol'||A.res==='palogol'||A.res==='efecto'||A.res==='paragol'||A.res==='paraquietogol';if(opt.onDone)setTimeout(()=>opt.onDone(g,A.res),0)}
   function markDone(t){if(A.ph==='done')return;A.ph='done';A.doneT=t;const [tx,gold]=say[A.res];cap(tx,gold);if(A.res==='gol'&&CR&&CR.jump)A.cj=true;setTimeout(finish,900)}
   function update(t,dt){input(dt);
     const sp=V(SPOT.x,0,SPOT.z);
     // ---- fases ----
     if(A.ph==='aim'||A.ph==='power'){const pr=(FK?1.35:1)*(A.ph==='power'?1.6:1)*(1+Math.min(1,A.aimT/5)*.6);A.wob=(Math.sin(t*1.7)*.16+Math.sin(t*2.9+1)*.09)*pr}
     if(A.ph==='aim'){A.aimT+=dt;const left=Math.max(0,AIM_LIMIT-A.aimT);uTime.textContent='⏱ '+left.toFixed(1);uTime.classList.toggle('hot',left<2.5);
-      uHelp.innerHTML='<b>1.</b> Apunta y presiona para patear'+(FK?' · <b>Q</b>/<b>X</b>: efecto':' · <b>Q</b>/<b>X</b>: paradinha');uPw.style.opacity=.35;uPwI.style.width='0%';
+      uHelp.innerHTML='<b>1.</b> Apunta y presiona para patear'+(FK?' · <b>Q</b>/<b>X</b>: tipo de tiro':' · <b>Q</b>/<b>X</b>: paradinha');uPw.style.opacity=.35;uPwI.style.width='0%';
       if(fire||left<=0){fire=false;A.ph='power';A.pwT=0}}
     else if(A.ph==='power'){A.pwT+=dt;const k=(A.pwT*1.45)%2;A.pw=k<1?k:2-k;uPw.style.opacity=1;uPwI.style.width=(A.pw*100).toFixed(0)+'%';uPwI.className=A.pw>.86?'over':A.pw>=.66?'ok':'';
       const left=Math.max(0,PW_LIMIT-A.pwT);uTime.textContent='⏱ '+left.toFixed(1);uHelp.innerHTML='<b>2.</b> ¡Presiona en la zona verde!';
@@ -2085,13 +2099,13 @@ function scenePenPlay(L,opt){
     if(A.ph==='shoot'||A.ph==='done'){A.shotT+=dt;bt=A.shotT-contact}
     if(bt<0)ball.position.copy(B0);
     else{const u=Math.min(1,bt/A.T),P=A.P;
-      if(u<1){ball.position.copy(B0).lerp(P,u);if(A.curve)ball.position.x+=A.curve*4*u*(1-u);if(FK)ball.position.y=lerp(.11,P.y,u)+A.arc*4*u*(1-u);ball.rotation.x+=dt*18;if(A.curve)ball.rotation.y+=dt*30*Math.sign(A.curve);
+      if(u<1){ball.position.copy(B0).lerp(P,u);if(A.curve)ball.position.x+=A.curve*4*u*(1-u);if(FK)ball.position.y=lerp(.11,P.y,u)+A.arc*4*u*(1-u);if(A.knuck){ball.position.x+=Math.sin(u*24)*.16*u;ball.position.y+=Math.sin(u*31+1)*.11*u}ball.rotation.x+=dt*(A.knuck?.6:18);if(A.curve)ball.rotation.y+=dt*30*Math.sign(A.curve);
         if(A.res==='barrera'){const wz=9.15/B0.distanceTo(V(P.x,0,11));if(u>=wz&&!A.bb){A.bb=ball.position.clone();A.bbT=bt;markDone(t)}}}
       if(A.bb&&A.res==='barrera'){const k=Math.min(1,(bt-A.bbT)/1);ball.position.copy(A.bb).add(V(.6*k,1.2*Math.sin(k*Math.PI)*(1-k)-.0,-2.2*k));ball.position.y=Math.max(.11,ball.position.y-k*1.4)}
       else if(u>=1){const t2=bt-A.T;
-        if(!A.netHit&&(A.res==='gol'||A.res==='palogol'||A.res==='efecto'||A.res==='paragol'||A.res==='paraquietogol')){A.netHit=true;setTimeout(()=>netPoke(V(P.x,P.y,11.6),.55),A.res==='palogol'?120:60)}
+        if(!A.netHit&&(A.res==='trivela'||A.res==='knuckle'||A.res==='gol'||A.res==='palogol'||A.res==='efecto'||A.res==='paragol'||A.res==='paraquietogol')){A.netHit=true;setTimeout(()=>netPoke(V(P.x,P.y,11.6),.55),A.res==='palogol'?120:60)}
         if((A.res==='palo'||A.res==='palogol')&&!A.shk){A.shk=true;postShake=1}
-        if(A.res==='gol'||A.res==='efecto'||A.res==='paragol'||A.res==='paraquietogol'){const v=1-Math.exp(-t2*7);ball.position.set(P.x*1.02,Math.max(.11,P.y-t2*1.6),11+.95*v)}
+        if(A.res==='gol'||A.res==='efecto'||A.res==='trivela'||A.res==='knuckle'||A.res==='paragol'||A.res==='paraquietogol'){const v=1-Math.exp(-t2*7);ball.position.set(P.x*1.02,Math.max(.11,P.y-t2*1.6),11+.95*v)}
         else if(A.res==='palogol'){const v=1-Math.exp(-t2*6);const ix=P.x-Math.sign(P.x)*.6*v;ball.position.set(ix,Math.max(.11,P.y-t2*2),11+.8*v)}
         else if(A.res==='paraquieto'){ball.position.set(P.x,Math.max(.11,P.y-t2*1.2),P.z-Math.min(.25,t2*.6))}
         else if(A.res==='atajada'){ball.position.set(P.x+(P.x>gk.root.position.x?1:-1)*t2*3,Math.max(.11,P.y+t2*2-t2*t2*6),P.z-t2*4.5)}
