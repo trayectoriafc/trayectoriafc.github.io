@@ -2121,9 +2121,34 @@ function scenePenPlay(L,opt){
     netUpdate();if(postShake>0){postShake=Math.max(0,postShake-dt*2.2);NET.position.x=Math.sin(t*70)*.025*postShake;NET.position.y=Math.cos(t*63)*.012*postShake}else NET.position.x=NET.position.y=0;
     // ---- portero ----
     rest(gk);gk.root.position.set(0,0,10.6);gk.root.rotation.z=0;const dT=bt-(A.react||.1);
-    if(dT<0||!A.res){const b=Math.sin(t*5);gk.root.position.x=.15*Math.sin(t*1.6);legA(gk,0,.15,.45);legA(gk,1,.15,.45);gk.hips.position.y=BASE-.1+.02*b;armA(gk,0,.5,.6,.55);armA(gk,1,.5,.6,.55);gk.spine.rotation.x=.18}
-    else{const DV=FK?.42:.36,e=ez(Math.min(1,dT/DV)),d=A.dive;if(d){gk.root.position.x=A.rx*e;gk.root.position.y=Math.sin(Math.min(1,dT/DV)*Math.PI)*.35+.12*e;gk.root.rotation.z=d*A.th*e;armA(gk,0,2.9,.08,.15);armA(gk,1,2.9,.08,.15);legA(gk,0,.2,.3);legA(gk,1,-.1,.2)}
-      else{gk.root.position.x=(A.rx||0)*e;gk.hips.position.y=BASE-.05;gk.root.position.y=Math.sin(Math.min(1,dT/.4)*Math.PI)*.3;armA(gk,0,lerp(.5,2.6,e),.3,.9);armA(gk,1,lerp(.5,2.6,e),.3,.9)}}
+    const kickT=bt; // <0 antes del contacto
+    if(dT<0||!A.res){
+      // listo: pasitos laterales sobre la línea, rebote en puntas, brazos abiertos y sigue tu mira
+      const track=Math.max(-.7,Math.min(.7,(A.x+(A.wob||0))*.1)),sh=.32*Math.sin(t*1.25)+.12*Math.sin(t*2.9);A.gkx=lerp(A.gkx||0,sh+track,.08);
+      const stepPh=t*7.5,stp=Math.sin(stepPh),bob=Math.abs(Math.sin(t*6.2));gk.root.position.x=A.gkx;
+      legA(gk,0,.22+.12*Math.max(0,stp),.62+.25*Math.max(0,stp));legA(gk,1,.22+.12*Math.max(0,-stp),.62+.25*Math.max(0,-stp));
+      gk.hip[0].rotation.z=.18;gk.hip[1].rotation.z=-.18;gk.hips.position.y=BASE-.2+.035*bob;gk.spine.rotation.x=.28;gk.head.rotation.x=-.18;gk.head.rotation.y=-track*.4;
+      const wv=Math.sin(t*4.3)*.18;armA(gk,0,.55+wv,.5,1.05);armA(gk,1,.55-wv,.5,1.05);
+      // saltito de preparación justo antes de la patada
+      if(A.ph==='shoot'&&kickT>-.28&&kickT<0){const v=(kickT+.28)/.28;gk.root.position.y=Math.sin(v*Math.PI)*.12;gk.hips.position.y=BASE-.12-.08*Math.sin(v*Math.PI)}
+      if(A.ph==='shoot'&&dT<0&&kickT>=0){gk.hips.position.y=BASE-.24;legA(gk,0,.32,.85);legA(gk,1,.32,.85)}}
+    else{const DV=FK?.42:.36,u=Math.min(1,dT/DV),e=ez(u),d=A.dive,rx0=A.gkx||0;
+      if(d){gk.root.position.x=lerp(rx0,A.rx,e);gk.root.position.y=Math.sin(u*Math.PI)*.35+.12*e;gk.root.rotation.z=d*A.th*e;
+        armA(gk,0,2.9,.08,.15);armA(gk,1,2.9,.08,.15);
+        // pierna de impulso estirada, la otra recogida; cuerpo girado hacia el balón
+        const push=d>0?1:0,trail=1-push;legA(gk,push,lerp(.3,-.15,e),lerp(.85,.08,e));legA(gk,trail,lerp(.3,.75,e),lerp(.85,1.1,e));
+        gk.spine.rotation.y=-d*.25*e;gk.spine.rotation.x=lerp(.28,.05,e);gk.head.rotation.z=d*.25*e;
+        // después del lance: en el piso
+        const after=dT-DV-.15;if(after>0){const saved=A.res==='atajada'||A.res==='paraquieto',goal=['gol','palogol','efecto','trivela','knuckle','paragol','paraquietogol'].includes(A.res);
+          gk.root.position.y=Math.max(0,gk.root.position.y-after*1.2)*.0+.1;
+          if(saved){const g2=Math.min(1,after/.35);armA(gk,0,lerp(2.9,1.4,g2),lerp(.08,1.9,g2),.4);armA(gk,1,lerp(2.9,1.4,g2),lerp(.08,1.9,g2),.4);legA(gk,trail,1.1,1.6)}
+          else if(goal){const k2=after<.9?0:Math.min(1,(after-.9)/.6);gk.root.rotation.z=d*A.th*(1-k2*.85);gk.root.position.y=.1*(1-k2);
+            if(after<.9){const hit=Math.abs(Math.sin(after*9));armA(gk,push,1.2+hit*.8,.3,.5)}else{armA(gk,0,2.5,1.9,-.2);armA(gk,1,2.5,1.9,-.2);gk.head.rotation.x=-.3;legA(gk,0,.1,.2);legA(gk,1,.1,.2)}}
+          else{const k2=Math.min(1,Math.max(0,(after-.5)/.6));gk.root.rotation.z=d*A.th*(1-k2*.9);gk.root.position.y=.1*(1-k2);if(k2>=1){armA(gk,d>0?0:1,1.6,.1,.3)}}}}
+      else{gk.root.position.x=lerp(rx0,A.rx||0,e);gk.hips.position.y=BASE-.08;gk.root.position.y=Math.sin(Math.min(1,dT/.4)*Math.PI)*.3;
+        legA(gk,0,.15,.3+.3*(1-e));legA(gk,1,.15,.3+.3*(1-e));gk.hip[0].rotation.z=.2;gk.hip[1].rotation.z=-.2;
+        armA(gk,0,lerp(.5,2.6,e),.3,.9);armA(gk,1,lerp(.5,2.6,e),.3,.9);
+        if(dT>.7&&(A.res==='atajada'||A.res==='paraquieto')){armA(gk,0,1.3,1.9,.35);armA(gk,1,1.3,1.9,.35);gk.spine.rotation.x=.35;if(dT>1.4){armA(gk,1,2.8,.2,.2);gk.head.rotation.x=-.4}}}}
     if(bt>=0&&A.res==='gol'&&A.ph!=='done'&&ball.position.z<11.05){const cb=ball.position.clone();if(cb.z>9.4){const h=hitGK(A.prevB,cb);if(h){A.res='atajada';A.P=h;A.T=bt;ball.position.copy(h);markDone(t)}}A.prevB.copy(cb)}
     // ---- retícula ----
     ret.visible=A.ph==='aim'||A.ph==='power';ret.position.set(A.x+A.wob,A.y,10.9);const pul=1+.08*Math.sin(t*9);ret.scale.setScalar((FK?2:1.5)*(A.ph==='power'?.85:pul));
