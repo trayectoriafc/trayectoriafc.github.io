@@ -1836,6 +1836,10 @@ function cycle(P,ph,amp){const s=Math.sin(ph),c=Math.cos(ph),s2=Math.sin(ph*2);
   P.spine.rotation.x=.16*amp+.03*amp*s2;P.spine.rotation.y=-.26*amp*s;P.spine.rotation.z=-.04*amp*c;P.head.rotation.y=.12*amp*s;P.head.rotation.x=-.08*amp}
 function idle(P,t){const b=Math.sin(t*2.2),w=Math.sin(t*.55);P.hips.position.y=BASE+.008*b-.006;P.hips.position.x=.022*w;P.hips.rotation.z=-.03*w;P.spine.rotation.z=.035*w;P.spine.rotation.x=.02*b;
  P.head.rotation.y=.28*Math.sin(t*.37)*Math.sin(t*.23);P.head.rotation.x=.04*Math.sin(t*.5);P.sh[0].rotation.x-=.04*Math.sin(t*.8);P.sh[1].rotation.x-=.04*Math.sin(t*.8+1)}
+function mirrorPose(P){ // espeja la pose (derecha <-> izquierda): para zurdos
+  const sw=(A,B)=>{const a=A.rotation.clone(),b=B.rotation.clone();A.rotation.set(b.x,-b.y,-b.z);B.rotation.set(a.x,-a.y,-a.z)};
+  sw(P.hip[0],P.hip[1]);sw(P.kn[0],P.kn[1]);sw(P.sh[0],P.sh[1]);sw(P.el[0],P.el[1]);
+  for(const o of [P.hips,P.spine,P.head]){o.rotation.y=-o.rotation.y;o.rotation.z=-o.rotation.z}P.hips.position.x=-P.hips.position.x}
 function passPose(P,u){ // pase con el interior del pie derecho: pierna abierta, apoyo flexionado, brazos de equilibrio
   let a,k,y;if(u<.4){const e=ez(u/.4);a=lerp(0,-.55,e);k=lerp(.25,.95,e);y=lerp(0,-.8,e)}else if(u<.6){const e=ez((u-.4)/.2);a=lerp(-.55,.6,e);k=lerp(.95,.15,e);y=-.85}else{const e=ez((u-.6)/.4);a=lerp(.6,.15,e);k=lerp(.15,.3,e);y=lerp(-.85,0,e)}
   const lean=u<.6?ez(Math.min(1,u/.35)):1-ez((u-.6)/.4);
@@ -2089,11 +2093,12 @@ function scenePenPlay(L,opt){
     fire=fire&&A.ph!=='shoot'&&A.ph!=='done'?fire:false;
     // ---- tirador ----
     rest(me);const dirG=V(0,0,11).sub(sp).normalize(),hd=Math.atan2(dirG.x,dirG.z);
-    const run0=sp.clone().addScaledVector(dirG,-2.3).add(V(-1.25,0,0)),plant=sp.clone().addScaledVector(dirG,-.45).add(V(-.22,0,0));
+    const LF=FK&&S&&S.p&&S.p.foot==='Zurdo',sd=LF?-1:1; // zurdo: solo en tiro libre patea con la izquierda
+    const run0=sp.clone().addScaledVector(dirG,-2.3).add(V(-1.25*sd,0,0)),plant=sp.clone().addScaledVector(dirG,-.45).add(V(-.22*sd,0,0));
     let kickU=-1;
-    if(A.ph==='aim'||A.ph==='power'){me.root.position.copy(run0);me.root.rotation.y=hd+.25;idle(me,t);me.spine.rotation.x=.12}
-    else{const s=A.shotT;const RU=A.para?1.15:.55;A.RU=RU;if(s<RU){let u=s/RU,stop=false;if(A.para){if(u<.4)u=u/.4*.6;else if(u<.75){u=.6;stop=true}else u=.6+(u-.75)/.25*.4}me.root.position.copy(run0).lerp(plant,u);me.root.rotation.y=hd+.25*(1-u);if(stop){idle(me,t);me.hips.position.y=BASE-.06;me.spine.rotation.x=.25;armA(me,0,.2,.5,.5);armA(me,1,.2,.5,.5)}else cycle(me,u*Math.PI*3,.8)}
-      else{kickU=Math.min(1,(s-RU)/.42);me.root.position.copy(plant);me.root.rotation.y=hd;if(kickU<1||A.res!=='gol')kickPose(me,kickU);else celebPose(me,s-RU-.42,'salto')}}
+    if(A.ph==='aim'||A.ph==='power'){me.root.position.copy(run0);me.root.rotation.y=hd+.25*sd;idle(me,t);me.spine.rotation.x=.12}
+    else{const s=A.shotT;const RU=A.para?1.15:.55;A.RU=RU;if(s<RU){let u=s/RU,stop=false;if(A.para){if(u<.4)u=u/.4*.6;else if(u<.75){u=.6;stop=true}else u=.6+(u-.75)/.25*.4}me.root.position.copy(run0).lerp(plant,u);me.root.rotation.y=hd+.25*sd*(1-u);if(stop){idle(me,t);me.hips.position.y=BASE-.06;me.spine.rotation.x=.25;armA(me,0,.2,.5,.5);armA(me,1,.2,.5,.5)}else cycle(me,u*Math.PI*3,.8)}
+      else{kickU=Math.min(1,(s-RU)/.42);me.root.position.copy(plant);me.root.rotation.y=hd;if(kickU<1||A.res!=='gol'){kickPose(me,kickU);if(LF)mirrorPose(me)}else celebPose(me,s-RU-.42,'salto')}}
     // ---- balón ----
     const contact=(A.RU||.55)+.42*.55;let bt=-1;
     if(A.ph==='shoot'||A.ph==='done'){A.shotT+=dt;bt=A.shotT-contact}
