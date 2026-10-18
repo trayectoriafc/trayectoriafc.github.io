@@ -1164,7 +1164,7 @@ function scene(){const p=S.p,st=S.step,club=CL[p.club];let sc;
       const elig=ev.id==='penal'?['DC','ED','EI'].includes(p.pos):ev.id==='penalcontra'&&p.pos==='POR';
       if(failed&&elig&&R()<.4){tandaPenales(ev,t,ch,nx);return}show('result',{title:ev.t,t,ch,next:nx})};
     if(r&&r.play){let once=false;const fin=(g,why)=>{if(once)return;once=true;const [t,ch]=r.done(g,why);out(t,ch)};
-      if(!anim3d(r.play.kind||'penplay',null,{play:Object.assign({},r.play,{onDone:fin})}))fin(R()<(r.prob||.5));return}
+      if(!anim3d(r.play.kind||'penplay',null,{play:Object.assign({},r.play,{lim:true,onDone:fin})}))fin(R()<(r.prob||.5));return}
     const [t,ch]=r;out(t,ch)}}))};break}
  case 'ruleta':{const d=st.data;
   sc={kicker:label()+' · Ruleta de la temporada',title:d.res==null?'Gira la ruleta':d.seg.n,
@@ -3388,9 +3388,9 @@ function updRep(){const b=ov.querySelector('[data-a=rep]');if(!b)return;if(!b.da
 ov.querySelector('[data-a=rep]').onclick=()=>{if(isTrain()){if(reps>=MAXREP)return;reps++;updRep()}setPause(false);start()};ov.querySelector('[data-a=skip]').onclick=close;
 addEventListener('keydown',e=>{if(!ov.hidden&&e.key==='Escape'){const b3=ov.querySelector('.a3d-bar');if(b3&&b3.style.visibility==='hidden')return;close()}});
 return{play(kind,variant,L){setPause(false);if(trDone){const f=trDone,a=trPend;trDone=trPend=null;if(a)f(...a)}
-  // límite de repeticiones (solo cuenta el último intento): entrenamientos 3, jugada peligrosa y ocasión de gol 1 (2 intentos)
+  // límite de repeticiones (solo cuenta el último intento): entrenamientos 3; penal, tiro libre, jugada peligrosa y ocasión de gol 1 (2 intentos)
   MAXREP=0;if((kind==='train'||kind==='pass')&&L&&typeof L.onDone==='function'){MAXREP=3;trDone=L.onDone;trPend=null;L=Object.assign({},L,{onDone:(...a)=>{trPend=a}})}
-  else if((kind==='penplay'&&L&&L.play&&L.play.danger||kind==='chance'&&L&&L.play)&&typeof L.play.onDone==='function'){MAXREP=1;trDone=L.play.onDone;trPend=null;L=Object.assign({},L,{play:Object.assign({},L.play,{onDone:(...a)=>{trPend=a}})})}
+  else if((kind==='penplay'||kind==='chance')&&L&&L.play&&L.play.lim&&typeof L.play.onDone==='function'){MAXREP=1;trDone=L.play.onDone;trPend=null;L=Object.assign({},L,{play:Object.assign({},L.play,{onDone:(...a)=>{trPend=a}})})}
   lastArgs=[kind,variant,L];reps=0;updRep();ov.hidden=false;document.documentElement.style.overflow='hidden';requestAnimationFrame(()=>{start();ov.querySelector('[data-a=skip]').focus()})}}}
 function boot(d){if(d&&d.S){S=d.S;restoreClubs()}migrate();render()}
 window.claude?.hot?.snapshot?.(()=>({S}));
