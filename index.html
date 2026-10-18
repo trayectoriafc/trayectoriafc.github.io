@@ -2055,10 +2055,12 @@ function scenePenPlay(L,opt){
   // la red se mueve cuando la toca el balón (vibración amortiguada alrededor del impacto)
   const pokes=[];function netPoke(wp,str){const l=NET.worldToLocal(wp.clone());pokes.push({x:l.x,y:l.y,s:str,t0:performance.now()/1000})}
   const _sx=NET.scale.x,_sy=NET.scale.y,_sz=NET.scale.z;
-  const GP_RES=['gol','efecto','trivela','knuckle','paragol','paraquietogol','palogol','palo','fuera','parafuera','tegol'];
-  function ballPhys(A,bt,dt){ // desde 60 cm antes de la línea, el balón sigue con física real contra palos y red
+  const POSTR=['palo','palogol'];const GP_RES=['gol','efecto','trivela','knuckle','paragol','paraquietogol','palogol','palo','fuera','parafuera','tegol'];
+  function ballPhys(A,bt,dt,t){ // desde 60 cm antes de la línea, el balón sigue con física real contra palos y red
     A.from=B0;const q=shotPhys(A,ball.position,bt,dt,{onPost:(q,s)=>{postShake=Math.min(1,.4+s*.06)},onNet:(q,s)=>netPoke(q,s)});if(!q)return;
-    ball.position.copy(q);ball.rotation.x+=A.gp.v.length()*dt*3}
+    ball.position.copy(q);ball.rotation.x+=A.gp.v.length()*dt*3;
+    // palo: el resultado lo decide el rebote real (si entra es gol, si sale es palo)
+    if(POSTR.includes(A.res)&&A.ph!=='done'){const d=postDecide(A,bt);if(d){A.res=d==='in'?(KP?'tegol':'palogol'):'palo';if(KP&&A.res==='tegol'&&CR&&CR.jump)A.cj=true;markDone(t)}}}
   function netUpdate(){if(!pokes.length)return;const now=performance.now()/1000,a=NET.geometry.attributes.position.array;let alive=false;
     for(let i=0;i<a.length;i+=3){let dz=0;const bz=NB[i+2];if(bz*_sz<.08){a[i+2]=bz;continue}
       for(const p of pokes){const t=now-p.t0;const env=Math.exp(-3.2*t)*Math.cos(t*10)*p.s;if(Math.abs(env)<.002)continue;alive=true;
@@ -2246,11 +2248,11 @@ function scenePenPlay(L,opt){
     else{const u=Math.min(1,bt/A.T);
       if(A.res==='barrera'){const wz=A.wz;const uu=Math.min(u,wz);ball.position.copy(B).lerp(P,uu);ball.position.y=lerp(.11,P.y,uu)+A.arc*4*uu*(1-uu);if(u>=wz&&A.ph!=='done'){A.bbT=bt;markDone(t)}if(A.bbT!=null){const k=Math.min(1,(bt-A.bbT)/1);ball.position.add(V(.6*k,-k*.8,-2*k));ball.position.y=Math.max(.11,ball.position.y)}}
       else if(A.ph!=='done'){ball.position.copy(B).lerp(P,u);if(A.curve)ball.position.x+=A.curve*4*u*(1-u);if(A.arc)ball.position.y=lerp(.11,P.y,u)+A.arc*4*u*(1-u);if(A.knuck){ball.position.x+=Math.sin(u*24)*.16*u;ball.position.y+=Math.sin(u*31+1)*.1*u}ball.rotation.x+=dt*(A.knuck?.6:A.style==='panenka'?5:18);
-        if(u>=1){if(A.res==='tegol'){if(!A.gp)netPoke(V(P.x,P.y,11.6),.55);if(CR&&CR.jump)A.cj=true}if(A.res==='palo'&&!A.gp)postShake=1;A.endT=bt;markDone(t)}}
+        if(u>=1){if(A.res==='tegol'){if(!A.gp)netPoke(V(P.x,P.y,11.6),.55);if(CR&&CR.jump)A.cj=true}if(A.res==='palo'&&!A.gp)postShake=1;A.endT=bt;if(!POSTR.includes(A.res))markDone(t)}}
       else if(A.endT!=null){const t2=bt-A.endT;if(A.res==='tegol'){const v=1-Math.exp(-t2*7);ball.position.set(P.x,Math.max(.11,P.y-t2*1.6),11+.95*v)}
         else if(A.res==='atajada'||A.res==='atajaste'||A.res==='bloqueo'){const h=A.saveP;ball.position.set(h.x+(h.x>K.x?1:-1)*t2*2.5,Math.max(.11,h.y+t2*2-t2*t2*6),h.z-t2*4.5)}
         else if(A.res==='palo'){ball.position.set(P.x-Math.sign(P.x)*t2*2.5,Math.max(.11,P.y+t2*1.5-t2*t2*6),11-t2*5)}else ball.position.set(P.x,P.y+t2*.5,11+t2*14)}}
-    if(bt>=0&&GP_RES.includes(A.res))ballPhys(A,bt,dt);
+    if(bt>=0&&GP_RES.includes(A.res))ballPhys(A,bt,dt,t);
     if(A.cj&&CR.jump)CR.jump(t,1);netUpdate();if(postShake>0){postShake=Math.max(0,postShake-dt*2.2);NET.position.x=Math.sin(t*70)*.025*postShake}else NET.position.x=0;
     // ---- portero (tú) ----
     rest(gk);gk.root.rotation.z=0;let gAir=0;
@@ -2306,8 +2308,8 @@ function scenePenPlay(L,opt){
         else if(A.res==='atajada'){ball.position.set(P.x+(P.x>gk.root.position.x?1:-1)*t2*3,Math.max(.11,P.y+t2*2-t2*t2*6),P.z-t2*4.5)}
         else if(A.res==='palo'){const out=Math.abs(P.y-2.4)<.2&&Math.abs(P.x)<3.5;ball.position.set(P.x+(out?0:Math.sign(P.x||1)*t2*2.5),Math.max(.11,P.y+(out?t2*3:t2*1.5)-t2*t2*6),11-t2*(out?2:5))}
         else{ball.position.set(P.x+(P.x-B0.x)*t2*.3,P.y+t2*.5,11+t2*14)} // fuera / parafuera
-        markDone(t)}}
-    if(bt>=0&&GP_RES.includes(A.res))ballPhys(A,bt,dt);
+        if(!POSTR.includes(A.res))markDone(t)}}
+    if(bt>=0&&GP_RES.includes(A.res))ballPhys(A,bt,dt,t);
     if(A.cj&&CR.jump)CR.jump(t,1);
     netUpdate();if(postShake>0){postShake=Math.max(0,postShake-dt*2.2);NET.position.x=Math.sin(t*70)*.025*postShake;NET.position.y=Math.cos(t*63)*.012*postShake}else NET.position.x=NET.position.y=0;
     // ---- portero ----
@@ -2396,9 +2398,9 @@ function sceneChance(L,opt){opt=opt||{};
   function shot(from,skill){const d=V(0,0,11).sub(from);const dist=d.length(),ang=Math.abs(Math.atan2(from.x,11-from.z));
     const far=from.x*0+(C.gx>=0?-1:1);let tx=far*(2.3+Math.random()*.9),ty=.3+Math.random()*1.8;
     const err=.45+dist*.06+ang*1.1+C.vel.length()*.06-(skill||0);const P=V(tx+gauss()*err*.7,Math.max(.12,ty+gauss()*err*.4),11);
-    const T=Math.max(.32,dist/22);let res=goalClass(P);if(res==='palogol')res='gol';
+    const T=Math.max(.32,dist/22);let res=goalClass(P);const post=res==='palo'||res==='palogol';if(res==='palogol')res='gol';
     const reach=Math.min(3.2,1.05+5.6*Math.max(0,T-.18));const save=res==='gol'&&Math.abs(P.x-C.gx)<reach*(P.y>1.9?.8:1)&&Math.random()<.85;if(save)res='atajada';
-    return{from:from.clone().setY(.11),P,T,t:0,res,dive:Math.sign(P.x-C.gx)||1}}
+    return{from:from.clone().setY(.11),P,T,t:0,res,post:post&&res!=='atajada',dive:Math.sign(P.x-C.gx)||1}}
   // centro: balón por el aire hacia el punto de caída; quien lo recibe salta y cabecea
   function cross(from,land,who){const D=from.distanceTo(land);const dir=land.clone().sub(from).setY(0).normalize(),perp=V(dir.z,0,-dir.x);if(perp.z<0)perp.negate();C.cr={from:from.setY(.11),to:land.clone().setY(2.05),t:0,T:Math.max(1,D/11.5),hgt:2.2+D*.11,curve:-(.5+D*.07),perp,spin:Math.sign(dir.x)||1,who,bonus:0};
     // ¿el defensa llega antes al punto de caída?
@@ -2466,7 +2468,8 @@ function sceneChance(L,opt){opt=opt||{};
       if(R2.clear&&u>=.9){C.owner='def';finish('despeje')}else if(u>=1)header()}
     else if(C.owner==='mate'){const fw=V(Math.sin(C.mh),0,Math.cos(C.mh));C.bp.lerp(C.mpos.clone().addScaledVector(fw,.4).setY(.11),Math.min(1,dt*12))}
     else if(C.owner==='shot'){const S1=C.shot;S1.t+=dt;const u=Math.min(1,S1.t/S1.T);C.bp.copy(S1.from).lerp(S1.P,u);C.bp.y=lerp(S1.from.y,S1.P.y,u)+(S1.head?.15:.3)*4*u*(1-u);ball.rotation.x+=dt*20;
-      if(u>=1&&!C.done){const r=S1.res;finish(r==='gol'?(S1.mate?'golcompa':'gol'):r==='atajada'&&S1.mate?'atajadacompa':r);C.endT=S1.t}
+      if(S1.post&&u>=1&&!C.done){const d=postDecide(S1,S1.t);if(d)S1.res=d==='in'?'gol':'palo';}
+      if(u>=1&&!C.done&&!(S1.post&&!S1.pd)){const r=S1.res;finish(r==='gol'?(S1.mate?'golcompa':'gol'):r==='atajada'&&S1.mate?'atajadacompa':r);C.endT=S1.t}
       // al llegar al arco: física real (palos, travesaño, red)
       if(S1.res!=='atajada'){const q=shotPhys(S1,C.bp,S1.t,dt,{onPost:(q,s)=>{postShake=Math.min(1,.4+s*.06)},onNet:(q,s)=>NFX.poke(q,s)});if(q){C.bp.copy(q);ball.rotation.x+=S1.gp.v.length()*dt*3}}
       if(C.done&&C.endT!=null&&!S1.gp){const t2=S1.t-C.endT,P=S1.P;if(S1.res==='gol')C.bp.set(P.x,Math.max(.11,P.y-t2*1.6),11+.9*(1-Math.exp(-t2*7)));else if(S1.res==='atajada')C.bp.set(P.x-S1.dive*t2*2,Math.max(.11,P.y+t2*2-t2*t2*6),11-t2*4);else if(S1.res==='palo')C.bp.set(P.x-Math.sign(P.x)*t2*2,Math.max(.11,P.y+t2-t2*t2*6),11-t2*5);else C.bp.set(P.x,P.y+t2*.5,11+t2*12)}}
@@ -2549,6 +2552,8 @@ function shotPhys(st,cur,t,dt,o){ // st:{P,T,from}; cur: posición del vuelo est
     const b0=st.lastB||st.from.clone(),t0=st.lastB?st.lastBt:0,rem=Math.max(.02,st.T-t0),v=st.P.clone().sub(b0).divideScalar(rem);v.y+=4.9*rem;
     st.gp=goalPhys(b0,v,o);st.gp.step(Math.max(0,t-t0))}else st.gp.step(dt);
   return st.gp.p}
+function postDecide(st,t){if(st.pd)return st.pd;const g=st.gp;if(!g)return null;const z0=st.z0||11;
+  if(g.inside&&g.p.z>z0+.15)st.pd='in';else if(!g.inside&&(g.p.z<z0-.25||Math.abs(g.p.x)>GOAL_HB.PX+.35||g.p.y>GOAL_HB.CY+.4||g.p.z>z0+.3))st.pd='out';else if(t>st.T+.8)st.pd=g.inside?'in':'out';return st.pd}
 function netFx(NET){NET.geometry=NET.geometry.clone();NET.geometry.userData={};const NB=NET.geometry.attributes.position.array.slice(),pokes=[],sx=NET.scale.x,sy=NET.scale.y,sz=NET.scale.z;
   return{poke(wp,str){const l=NET.worldToLocal(wp.clone());pokes.push({x:l.x,y:l.y,s:str,t0:performance.now()/1000})},
     update(){if(!pokes.length)return;const now=performance.now()/1000,a=NET.geometry.attributes.position.array;let alive=false;
@@ -2974,11 +2979,12 @@ function sceneTrain(L,variant){
         if(D.cr&&!D.sh){const R2=D.cr;R2.t+=dt;const u=Math.min(1,R2.t/R2.T),uh=(1-Math.exp(-1.3*u))/(1-Math.exp(-1.3));bp.copy(R2.from).lerp(D.land.clone().setY(2.05),uh).addScaledVector(R2.perp,R2.curve*Math.sin(Math.PI*uh));bp.y=lerp(.11,2.05,u)+R2.hgt*4*u*(1-u)*(1-.18*u);ball.rotation.x+=dt*12;
           if(u>.72&&!D.hd)D.hd={t:(u-.72)*R2.T,hit:-1};
           if(u>=1){const ok=st.root.position.distanceTo(D.land)<1.1;D.hd.hit=D.hd.t;const err=.35+(1-D.q)*1.4+(ok?0:2);const P2=V(Math.max(-3.3,Math.min(3.3,(Math.random()<.5?-1:1)*(1.5+Math.random()*1.6)))+(Math.random()-.5)*2*err,.3+Math.random()*1.6+(Math.random()-.5)*err,16.5);
-            D.sh={from:bp.clone(),P:P2,T:.42,t:0,res:goalClass(P2),dive:Math.sign(P2.x-D.gx)||1};if(D.sh.res==='gol'&&Math.abs(P2.x-D.gx)<1.1&&P2.y<1.8&&Math.random()<.6)D.sh.res='atajada'}}
+            D.sh={from:bp.clone(),P:P2,T:.42,t:0,z0:16.5,res:goalClass(P2),dive:Math.sign(P2.x-D.gx)||1};if(D.sh.res==='gol'&&Math.abs(P2.x-D.gx)<1.1&&P2.y<1.8&&Math.random()<.6)D.sh.res='atajada'}}
         if(D.hd){D.hd.t+=dt;headPose(st,D.hd.t/.62,D.hd.hit>=0?D.hd.t-D.hd.hit:-1);if(D.hd.t>.62&&!D.sh)D.hd=null}
         if(D.sh){const S1=D.sh;S1.t+=dt;const u=Math.min(1,S1.t/S1.T);if(S1.res==='atajada'){bp.copy(S1.from).lerp(S1.P.clone().setZ(15.9),u);if(u>=1)bp.y=Math.max(.11,bp.y-dt*3)}
           else{bp.copy(S1.from).lerp(S1.P,u);bp.y=lerp(S1.from.y,S1.P.y,u)+.12*4*u*(1-u);const q=shotPhys(S1,bp,S1.t,dt,{z:16.5,onNet:(q,s)=>NFX.poke(q,s)});if(q)bp.copy(q)}
-          if(u>=1&&live){const r=S1.res;win(r==='gol'||r==='palogol',r==='gol'||r==='palogol'?'¡Gol de cabeza con tu centro!':r==='atajada'?'Buen centro, pero lo atajó el arquero':r==='palo'?'¡Al palo!':'El cabezazo se fue afuera')}}
+          const PST=S1.res==='palo'||S1.res==='palogol';if(PST&&u>=1&&!S1.pd0){const d=postDecide(S1,S1.t);if(d){S1.res=d==='in'?'palogol':'palo';S1.pd0=1}}
+          if(u>=1&&live&&!(PST&&!S1.pd0)){const r=S1.res;win(r==='gol'||r==='palogol',r==='gol'||r==='palogol'?'¡Gol de cabeza con tu centro!':r==='atajada'?'Buen centro, pero lo atajó el arquero':r==='palo'?'¡Al palo!':'El cabezazo se fue afuera')}}
         // arquero
         const gx=D.sh&&D.sh.res==='atajada'?lerp(D.gx,D.sh.P.x,Math.min(1,D.sh.t/.3)):D.gx=lerp(D.gx,bp.x*.35,Math.min(1,dt*3));gk.root.position.set(gx,0,16);gk.root.rotation.y=Math.PI;gkReady(gk,t,0);groundSnap(gk,false);NFX.update()}
       if(variant==='presion'){const a=NPC[0],ap=a.root.position;lim(7);
