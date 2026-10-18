@@ -541,7 +541,7 @@ const EVENTS=[
   {l:'Centro al área (rápido)',d:'35% gol de cabeza',f:()=>R()<.35?['Tiraste el centro y tu compañero la clavó de cabeza. Ganaron 1-0.',fx({rep:4,morale:7,coach:6})]:['Tiraste el centro pero el defensa la despejó.',fx({morale:-3})]},
   {l:'Pasarla al compañero (rápido)',d:'30% gol de tu compañero, +confianza del DT',f:()=>R()<.3?['Asistencia perfecta: tu compañero solo tuvo que empujarla.',fx({coach:6,morale:5,rep:2})]:['Le diste el pase pero el defensor la cortó.',fx({coach:2,morale:-2})]}]},
 {id:'jugadapeligrosa',w:()=>false,t:'¡Jugada peligrosa!',x:p=>`Contragolpe del rival: el 9 se escapó, entró al área y queda mano a mano contigo. Todo depende de ti.`,
- o:[{l:'🧤 Atajarla tú (jugable)',d:'A/D moverte · W/S alto/bajo · ESPACIO tirarte',f:()=>({play:{keeper:true,danger:true,title:'¡Jugada peligrosa! · Mano a mano'},prob:.4,done:(sv,why)=>sv?[why==='atajaste'?'¡ATAJADÓN! Le ganaste el mano a mano y el estadio coreó tu nombre.':'¡Afuera! Lo achicaste bien y no encontró el arco.',fx({rep:5,morale:9,coach:5,ovr:why==='atajaste'?1:0})]:['Te definió bien. Gol del rival.',fx({morale:-5,coach:-2})]})},
+ o:[{l:'🧤 Atajarla tú (jugable)',d:'A/D moverte · W/S alto/bajo · ESPACIO tirarte',f:()=>({play:{keeper:true,danger:true,title:'¡Jugada peligrosa! · Mano a mano'},prob:.4,done:(sv,why)=>sv?[why==='bloqueo'?'Tu defensa se adelantó y tapó el remate. ¡Salvados!':why==='atajaste'?'¡ATAJADÓN! Le ganaste el mano a mano y el estadio coreó tu nombre.':'¡Afuera! Lo achicaste bien y no encontró el arco.',fx({rep:5,morale:9,coach:5,ovr:why==='atajaste'?1:0})]:['Te definió bien. Gol del rival.',fx({morale:-5,coach:-2})]})},
   {l:'Achicar y esperar (rápido)',d:'45% la sacas',f:()=>R()<.45?['Achicaste, esperaste hasta el final y la tapaste con el pie.',fx({rep:4,morale:7,coach:4})]:['Te picó la pelota por encima. Gol.',fx({morale:-5})]},
   {l:'Salir con todo (rápido)',d:'60% la sacas · 15% penal y roja',f:()=>{const r=R();return r<.6?['Saliste como un rayo y te llevaste el balón.',fx({rep:5,morale:8,coach:5})]:r<.85?['Llegaste tarde y te gambeteó. Gol.',fx({morale:-6})]:['Te llevaste al delantero: penal y roja. Te pierdes 2 partidos.',fx({miss:.08,morale:-8,coach:-5})]}}]},
 {id:'penalcontra',w:p=>p.pos==='POR',t:'Penal en contra',x:p=>`Minuto 89, ganan 1-0. El árbitro pita penal para el rival. Todo el estadio te mira a ti.`,
@@ -2080,7 +2080,7 @@ function scenePenPlay(L,opt){
     const m2=person(Object.assign({},rv,{num:11,hair:'#0e0b09',skin:'#8d5a3b'})),d1=person(Object.assign({},dk,{num:4,hair:'#3a2616',skin:'#e0b48c'})),d2=person(Object.assign({},dk,{num:2,hair:'#1d130c',skin:'#a87050'}));
     sc.add(m2.root,d1.root,d2.root);const sd=dsg;
     DGX={m2,d1,d2,S0:V(sd*(4+Math.random()*2.5),0,-5),F:SPOT.clone(),M0:V(-sd*(4.5+Math.random()*2),0,-4),F2:V(-sd*(1+Math.random()*2),0,3.3+Math.random()*1.8),
-      pass:Math.random()<.4,ph:Math.random()*6,ph2:Math.random()*6,d1p:V(sd*2.5,0,2.5),d2p:V(-sd*2,0,3),c1:0,c2:0,c9:0,c11:0}}
+      pass:Math.random()<.4,adv:Math.random()<.35,ph:Math.random()*6,ph2:Math.random()*6,d1p:V(sd*2.5,0,2.5),d2p:V(-sd*2,0,3),c1:0,c2:0,c9:0,c11:0}}
   // retícula sobre el arco
   const ret=new T.Group();const rm=new T.MeshBasicMaterial({color:'#f2b705',transparent:true,opacity:.95,depthTest:false});
   const r1=new T.Mesh(new T.RingGeometry(.2,.26,32),rm);ret.add(r1);[0,1,2,3].forEach(i=>{const b=new T.Mesh(new T.PlaneGeometry(.05,.18),rm);b.position.set(Math.cos(i*Math.PI/2)*.36,Math.sin(i*Math.PI/2)*.36,0);b.rotation.z=i*Math.PI/2;ret.add(b)});
@@ -2165,12 +2165,12 @@ function scenePenPlay(L,opt){
   const segD=(p,a,b)=>{const ab=b.clone().sub(a),l2=ab.lengthSq();const t=l2?Math.max(0,Math.min(1,p.clone().sub(a).dot(ab)/l2)):0;return p.distanceTo(a.clone().addScaledVector(ab,t))};
   function hitGK(a,b){const C=gkParts(),n=Math.max(2,Math.ceil(a.distanceTo(b)/.06));
     for(let k=0;k<=n;k++){const p=a.clone().lerp(b,k/n);for(const [c0,c1,r] of C)if(segD(p,c0,c1)<r+.11+(DG?.05:0))return p}return null}
-  const say={atajaste:['¡LA ATAJASTE! 🧤',true],tegol:['GOL DEL RIVAL…',false],trivela:['¡GOLAZO DE TRIVELA! ↪️',true],knuckle:['¡KNUCKLEBALL IMPARABLE! 🪶',true],paraquietogol:['EL ARQUERO NO SE INMUTÓ… ¡PERO ENTRÓ!',true],paragol:['¡GOL CON PARADINHA! 🕺',true],paraquieto:['EL ARQUERO NO SE MOVIÓ… ¡LA ATAJÓ!',false],parafuera:['LA PARADINHA SALIÓ MAL: AFUERA',false],palogol:['¡PALO Y ADENTRO!',true],efecto:['¡GOLAZO CON EFECTO!',true],gol:['¡GOOOL!',true],atajada:['¡LA ATAJÓ!',false],fuera:['AFUERA…',false],palo:['¡AL PALO!',false],barrera:['PEGÓ EN LA BARRERA',false]};
+  const say={bloqueo:['¡LO TAPÓ TU DEFENSA! 🛡️',true],atajaste:['¡LA ATAJASTE! 🧤',true],tegol:['GOL DEL RIVAL…',false],trivela:['¡GOLAZO DE TRIVELA! ↪️',true],knuckle:['¡KNUCKLEBALL IMPARABLE! 🪶',true],paraquietogol:['EL ARQUERO NO SE INMUTÓ… ¡PERO ENTRÓ!',true],paragol:['¡GOL CON PARADINHA! 🕺',true],paraquieto:['EL ARQUERO NO SE MOVIÓ… ¡LA ATAJÓ!',false],parafuera:['LA PARADINHA SALIÓ MAL: AFUERA',false],palogol:['¡PALO Y ADENTRO!',true],efecto:['¡GOLAZO CON EFECTO!',true],gol:['¡GOOOL!',true],atajada:['¡LA ATAJÓ!',false],fuera:['AFUERA…',false],palo:['¡AL PALO!',false],barrera:['PEGÓ EN LA BARRERA',false]};
   const camPos=V(0,0,0),look=V(0,1.2,11);
   function finish(){if(A.resolved)return;A.resolved=true;if(KP){const sv=A.res!=='tegol';if(opt.onDone)setTimeout(()=>opt.onDone(sv,A.res),0);return}const g=A.res==='trivela'||A.res==='knuckle'||A.res==='gol'||A.res==='palogol'||A.res==='efecto'||A.res==='paragol'||A.res==='paraquietogol';if(opt.onDone)setTimeout(()=>opt.onDone(g,A.res),0)}
   function markDone(t){if(A.ph==='done')return;A.ph='done';A.doneT=t;const [tx,gold]=say[A.res];cap(tx,gold);if(A.res==='gol'&&CR&&CR.jump)A.cj=true;setTimeout(finish,900)}
   // ===== modo portero: tú atajas =====
-  const K={x:0,dive:null,diveT:0,kickAt:DGX?3.1+Math.random()*1.3:1.4+Math.random()*1.4,tap:null,started:false};window.__ppK=K;
+  const K={x:0,dive:null,diveT:0,kickAt:DGX?3.1+Math.random()*1.3:1.4+Math.random()*1.4,tap:null,started:false};if(DGX)DGX.block=DGX.adv&&Math.random()<.45;window.__ppK=K;
   if(KP){ret.visible=false;uPw.style.display='none';uFx.hidden=true;uFire.textContent='TIRARSE';uHelp.innerHTML='<b>A/D</b> moverte · <b>W/S</b> alto/bajo · <b>ESPACIO</b> tirarte · mando: stick + A/B';
     // el rival elige a dónde patea
     const r=Math.random(),sg=Math.random()<.5?-1:1;let res='tegol',P,style=FK?['normal','efecto','trivela','knuckle'][(Math.random()*4)|0]:DG?'normal':(Math.random()<.45?'panenka':'normal');
@@ -2212,7 +2212,15 @@ function scenePenPlay(L,opt){
     // ---- defensas: persiguen, pero llegan tarde ----
     const chase=(D,key,ck,tg,ofs,spd)=>{const p=X[key],d=tg.clone().add(ofs).sub(p);d.y=0;const l=d.length();
       if(l>.15){const s=Math.min(spd,l*2.5);p.addScaledVector(d.normalize(),s*dt);D.root.position.copy(p);D.root.rotation.y=angLerp(D.root.rotation.y,Math.atan2(d.x,d.z),Math.min(1,dt*8));X[ck]+=dt*s*2.6;cycle(D,X[ck],Math.min(1,s/5))}else{D.root.position.copy(p);idle(D,t)}};
-    const fin=A.ph==='done';chase(X.d1,'d1p','c1',g9,V(0,0,-.9-Math.max(0,1.5-t*.4)),fin?1:4.4);chase(X.d2,'d2p','c2',g11,V(0,0,-1.1),fin?1:4.2);
+    const fin=A.ph==='done';
+    // 35%: el defensa del que remata se adelanta y se pone en la línea del tiro (a veces lo tapa)
+    const sh=X.pass?g11:g9,lane=sh.clone().lerp(V(A.P.x,0,11),Math.min(.45,1.5/Math.max(1,sh.distanceTo(V(A.P.x,0,11))))).sub(sh);lane.y=0;
+    const adv1=X.adv&&!X.pass&&t>end9-1.2,adv2=X.adv&&X.pass&&t>passT-.6;
+    chase(X.d1,'d1p','c1',g9,adv1?lane:V(0,0,-.9-Math.max(0,1.5-t*.4)),fin?1:adv1?6.2:4.4);chase(X.d2,'d2p','c2',g11,adv2?lane:V(0,0,-1.1),fin?1:adv2?6.2:4.2);
+    if(X.adv&&t>end9-1&&t<end9-.3&&kickT<0)cap('¡Se adelanta tu defensa!',true);
+    if(X.block&&kickT>0&&A.ph!=='done'&&A.res!=='atajaste'){const D=X.pass?X.d2:X.d1,dz=D.root.position.z,u=Math.min(1,kickT/A.T),bz=lerp(B0.z,11,u);
+      if(bz>=dz-.15){const hp=B0.clone().lerp(A.P,u);A.res='bloqueo';A.saveP=V(hp.x,Math.max(.3,Math.min(1.6,hp.y)),dz-.2);A.endT=kickT;ball.position.copy(A.saveP);markDone(t)}}
+    if(A.res==='bloqueo'){const D=X.pass?X.d2:X.d1;armA(D,0,.6,.3,.9);armA(D,1,.6,.3,.9);D.spine.rotation.x=-.2}
     if(kickT<0&&ballP){ball.position.copy(ballP);B0.copy(ballP);ball.rotation.x+=dt*8}}
   function updKeeper(t,dt){window.__ppT=t;const sp=V(SPOT.x,0,SPOT.z),dirG=V(0,0,11).sub(sp).normalize(),hd=Math.atan2(dirG.x,dirG.z);
     // ---- entrada ----
@@ -2240,7 +2248,7 @@ function scenePenPlay(L,opt){
       else if(A.ph!=='done'){ball.position.copy(B).lerp(P,u);if(A.curve)ball.position.x+=A.curve*4*u*(1-u);if(A.arc)ball.position.y=lerp(.11,P.y,u)+A.arc*4*u*(1-u);if(A.knuck){ball.position.x+=Math.sin(u*24)*.16*u;ball.position.y+=Math.sin(u*31+1)*.1*u}ball.rotation.x+=dt*(A.knuck?.6:A.style==='panenka'?5:18);
         if(u>=1){if(A.res==='tegol'){if(!A.gp)netPoke(V(P.x,P.y,11.6),.55);if(CR&&CR.jump)A.cj=true}if(A.res==='palo'&&!A.gp)postShake=1;A.endT=bt;markDone(t)}}
       else if(A.endT!=null){const t2=bt-A.endT;if(A.res==='tegol'){const v=1-Math.exp(-t2*7);ball.position.set(P.x,Math.max(.11,P.y-t2*1.6),11+.95*v)}
-        else if(A.res==='atajada'||A.res==='atajaste'){const h=A.saveP;ball.position.set(h.x+(h.x>K.x?1:-1)*t2*2.5,Math.max(.11,h.y+t2*2-t2*t2*6),h.z-t2*4.5)}
+        else if(A.res==='atajada'||A.res==='atajaste'||A.res==='bloqueo'){const h=A.saveP;ball.position.set(h.x+(h.x>K.x?1:-1)*t2*2.5,Math.max(.11,h.y+t2*2-t2*t2*6),h.z-t2*4.5)}
         else if(A.res==='palo'){ball.position.set(P.x-Math.sign(P.x)*t2*2.5,Math.max(.11,P.y+t2*1.5-t2*t2*6),11-t2*5)}else ball.position.set(P.x,P.y+t2*.5,11+t2*14)}}
     if(bt>=0&&GP_RES.includes(A.res))ballPhys(A,bt,dt);
     if(A.cj&&CR.jump)CR.jump(t,1);netUpdate();if(postShake>0){postShake=Math.max(0,postShake-dt*2.2);NET.position.x=Math.sin(t*70)*.025*postShake}else NET.position.x=0;
