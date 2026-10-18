@@ -564,9 +564,9 @@ const EVENTS=[
   {l:'Esperar a una marca más grande',d:'Apuesta a futuro',f:()=>['Tu representante dice que vendrá algo mejor si sigues así.',[]]}]},
 {id:'penal',w:p=>L[CL[p.club].l].cup&&['estrella','titular'].includes(S.roleNow)&&p.pos!=='POR',t:'Penal en la final de copa',x:p=>`Final de la ${L[CL[p.club].l].cup}, minuto 93, empate. Penal a favor y el cobrador habitual ya salió.`,
  o:[{l:'🎮 Patearlo tú (jugable)',d:'Apunta, carga la potencia… y que sea lo que Dios quiera',f:()=>({play:{title:'Final de copa · minuto 93',gk:.4},prob:.7,done:(g,why)=>{S.sm.cupWin=g;const para=String(why).startsWith('para');const ch=fx(g?{rep:7,morale:12,ovr:1}:{morale:-10,rep:-2});if(para){const mc=fx({miss:.2});mc.forEach(c=>c.t='5 partidos de sanción');ch.push(...mc)}
-   return[(g?(para?'¡GOL CON PARADINHA en el minuto 93! ¡Campeones!':why==='palogol'?'¡Palo y adentro en el minuto 93! ¡Campeones!':'¡LA METISTE! Penal perfecto en el minuto 93. ¡Campeones!'):(why==='paraquieto'?'Hiciste la paradinha… y el arquero ni se movió. La atajó.':why==='parafuera'?'La paradinha te desacomodó y la mandaste afuera.':why==='atajada'?'El arquero la adivinó.':why==='palo'?'¡Al palo! El estadio se quedó mudo.':'Se fue afuera.'))+(g?'':' Perdieron la final.')+(para?' Por la paradinha te sancionan 5 partidos.':''),ch]}})},
-  {l:'🕺 Paradinha (rápido)',d:'70% gol · 20% el arquero no se mueve · 10% fallas · siempre 5 partidos de sanción',f:()=>{const r=R(),g=r<.7;S.sm.cupWin=g;anim3d('penal',g?'gol':'palo',{penTitle:'Final de copa · minuto 93'});const ch=fx(g?{rep:7,morale:12,ovr:1}:{morale:-10,rep:-2});{const mc=fx({miss:.2});mc.forEach(c=>c.t='5 partidos de sanción');ch.push(...mc)}
-   return[(g?'¡Gol con paradinha! ¡Campeones!':r<.9?'Hiciste la paradinha y el arquero ni se movió: la atajó. Perdieron la final.':'La paradinha te salió mal y la mandaste afuera. Perdieron la final.')+' Te sancionan 5 partidos.',ch]}},
+   return[(g?(why==='paraquietogol'?'El arquero no se inmutó con la paradinha… ¡pero la pusiste lejos y entró! ¡Campeones!':para?'¡GOL CON PARADINHA en el minuto 93! ¡Campeones!':why==='palogol'?'¡Palo y adentro en el minuto 93! ¡Campeones!':'¡LA METISTE! Penal perfecto en el minuto 93. ¡Campeones!'):(why==='paraquieto'?'Hiciste la paradinha… y el arquero ni se movió. La atajó.':why==='parafuera'?'La paradinha te desacomodó y la mandaste afuera.':why==='atajada'?'El arquero la adivinó.':why==='palo'?'¡Al palo! El estadio se quedó mudo.':'Se fue afuera.'))+(g?'':' Perdieron la final.')+(para?' Por la paradinha te sancionan 5 partidos.':''),ch]}})},
+  {l:'🕺 Paradinha (rápido)',d:'70% gol · 20% el arquero no se mueve (y aun así 30% entra) · 10% fallas · siempre 5 partidos de sanción',f:()=>{const r=R(),qg=r>=.7&&r<.9&&R()<.3,g=r<.7||qg;S.sm.cupWin=g;anim3d('penal',g?'gol':'palo',{penTitle:'Final de copa · minuto 93'});const ch=fx(g?{rep:7,morale:12,ovr:1}:{morale:-10,rep:-2});{const mc=fx({miss:.2});mc.forEach(c=>c.t='5 partidos de sanción');ch.push(...mc)}
+   return[(g?(qg?'El arquero no se inmutó… ¡pero la pusiste lejos y entró! ¡Campeones!':'¡Gol con paradinha! ¡Campeones!'):r<.9?'Hiciste la paradinha y el arquero ni se movió: la atajó. Perdieron la final.':'La paradinha te salió mal y la mandaste afuera. Perdieron la final.')+' Te sancionan 5 partidos.',ch]}},
   {l:'Picarla',d:'Si sale bien, eres leyenda',f:p=>pen(p,.58,'La picaste y el estadio explotó.','El arquero se quedó parado y la atrapó con una mano.',8,'picada')},
   {l:'Fuerte al ángulo',d:'La más segura',f:p=>pen(p,.76,'Al ángulo, imposible para el arquero.','Pegó en el palo y salió.',5,'angulo')},
   {l:'Dejarle el penal a otro',d:'Sin presión',f:()=>{const ok=R()<.7;S.sm.cupWin=ok;return[ok?'Tu compañero lo metió y el club ganó la copa.':'Tu compañero lo falló. La copa se perdió en la prórroga.',fx({rep:-1})]}}]},
@@ -2012,7 +2012,8 @@ function scenePenPlay(L,opt){
       if(hAt<2.1&&Math.abs(wx-wc.x)<1.45)res='barrera'}
     if(!FK&&A.fx){const r=Math.random(),sg=P.x>=0?1:-1;A.para=true;
       if(r<.7){P.set(Math.max(-3.1,Math.min(3.1,P.x)),Math.max(.25,Math.min(2.05,P.y)),11);if(Math.abs(P.x)<.6)P.x=sg*1.4;res='paragol';g=-(P.x>=0?1:-1);th=1.2;rx=g*1.2}
-      else if(r<.9){P.set(Math.max(-1.5,Math.min(1.5,P.x)),Math.max(.3,Math.min(1.5,P.y)),10.62);res='paraquieto';g=0;th=0;rx=P.x*.75}
+      else if(r<.9){if(Math.random()<.3){P.set(sg*(2.7+Math.random()*.5),.3+Math.random()*1.6,11);res='paraquietogol';g=0;th=0;rx=-sg*.15}
+        else{P.set(Math.max(-1.5,Math.min(1.5,P.x)),Math.max(.3,Math.min(1.5,P.y)),10.62);res='paraquieto';g=0;th=0;rx=P.x*.75}}
       else{P.set(sg*(3.85+Math.random()*.6),.4+Math.random()*1.8,11);res='parafuera';g=sg;th=1.1;rx=sg*1.1}}
     // tiro con efecto: 20% golazo al ángulo, 30% se le va, 50% tiro normal (con curva)
     let curve=0;if(FK&&A.fx){const sg=P.x>=0?1:-1,r=Math.random();curve=sg*(.9+Math.random()*.5);
@@ -2033,9 +2034,9 @@ function scenePenPlay(L,opt){
   const segD=(p,a,b)=>{const ab=b.clone().sub(a),l2=ab.lengthSq();const t=l2?Math.max(0,Math.min(1,p.clone().sub(a).dot(ab)/l2)):0;return p.distanceTo(a.clone().addScaledVector(ab,t))};
   function hitGK(a,b){const C=gkParts(),n=Math.max(2,Math.ceil(a.distanceTo(b)/.06));
     for(let k=0;k<=n;k++){const p=a.clone().lerp(b,k/n);for(const [c0,c1,r] of C)if(segD(p,c0,c1)<r+.11)return p}return null}
-  const say={paragol:['¡GOL CON PARADINHA! 🕺',true],paraquieto:['EL ARQUERO NO SE MOVIÓ… ¡LA ATAJÓ!',false],parafuera:['LA PARADINHA SALIÓ MAL: AFUERA',false],palogol:['¡PALO Y ADENTRO!',true],efecto:['¡GOLAZO CON EFECTO!',true],gol:['¡GOOOL!',true],atajada:['¡LA ATAJÓ!',false],fuera:['AFUERA…',false],palo:['¡AL PALO!',false],barrera:['PEGÓ EN LA BARRERA',false]};
+  const say={paraquietogol:['EL ARQUERO NO SE INMUTÓ… ¡PERO ENTRÓ!',true],paragol:['¡GOL CON PARADINHA! 🕺',true],paraquieto:['EL ARQUERO NO SE MOVIÓ… ¡LA ATAJÓ!',false],parafuera:['LA PARADINHA SALIÓ MAL: AFUERA',false],palogol:['¡PALO Y ADENTRO!',true],efecto:['¡GOLAZO CON EFECTO!',true],gol:['¡GOOOL!',true],atajada:['¡LA ATAJÓ!',false],fuera:['AFUERA…',false],palo:['¡AL PALO!',false],barrera:['PEGÓ EN LA BARRERA',false]};
   const camPos=V(0,0,0),look=V(0,1.2,11);
-  function finish(){if(A.resolved)return;A.resolved=true;const g=A.res==='gol'||A.res==='palogol'||A.res==='efecto'||A.res==='paragol';if(opt.onDone)setTimeout(()=>opt.onDone(g,A.res),0)}
+  function finish(){if(A.resolved)return;A.resolved=true;const g=A.res==='gol'||A.res==='palogol'||A.res==='efecto'||A.res==='paragol'||A.res==='paraquietogol';if(opt.onDone)setTimeout(()=>opt.onDone(g,A.res),0)}
   function markDone(t){if(A.ph==='done')return;A.ph='done';A.doneT=t;const [tx,gold]=say[A.res];cap(tx,gold);if(A.res==='gol'&&CR&&CR.jump)A.cj=true;setTimeout(finish,900)}
   function update(t,dt){input(dt);
     const sp=V(SPOT.x,0,SPOT.z);
@@ -2064,9 +2065,9 @@ function scenePenPlay(L,opt){
         if(A.res==='barrera'){const wz=9.15/B0.distanceTo(V(P.x,0,11));if(u>=wz&&!A.bb){A.bb=ball.position.clone();A.bbT=bt;markDone(t)}}}
       if(A.bb&&A.res==='barrera'){const k=Math.min(1,(bt-A.bbT)/1);ball.position.copy(A.bb).add(V(.6*k,1.2*Math.sin(k*Math.PI)*(1-k)-.0,-2.2*k));ball.position.y=Math.max(.11,ball.position.y-k*1.4)}
       else if(u>=1){const t2=bt-A.T;
-        if(!A.netHit&&(A.res==='gol'||A.res==='palogol'||A.res==='efecto'||A.res==='paragol')){A.netHit=true;setTimeout(()=>netPoke(V(P.x,P.y,11.6),.55),A.res==='palogol'?120:60)}
+        if(!A.netHit&&(A.res==='gol'||A.res==='palogol'||A.res==='efecto'||A.res==='paragol'||A.res==='paraquietogol')){A.netHit=true;setTimeout(()=>netPoke(V(P.x,P.y,11.6),.55),A.res==='palogol'?120:60)}
         if((A.res==='palo'||A.res==='palogol')&&!A.shk){A.shk=true;postShake=1}
-        if(A.res==='gol'||A.res==='efecto'||A.res==='paragol'){const v=1-Math.exp(-t2*7);ball.position.set(P.x*1.02,Math.max(.11,P.y-t2*1.6),11+.95*v)}
+        if(A.res==='gol'||A.res==='efecto'||A.res==='paragol'||A.res==='paraquietogol'){const v=1-Math.exp(-t2*7);ball.position.set(P.x*1.02,Math.max(.11,P.y-t2*1.6),11+.95*v)}
         else if(A.res==='palogol'){const v=1-Math.exp(-t2*6);const ix=P.x-Math.sign(P.x)*.6*v;ball.position.set(ix,Math.max(.11,P.y-t2*2),11+.8*v)}
         else if(A.res==='paraquieto'){ball.position.set(P.x,Math.max(.11,P.y-t2*1.2),P.z-Math.min(.25,t2*.6))}
         else if(A.res==='atajada'){ball.position.set(P.x+(P.x>gk.root.position.x?1:-1)*t2*3,Math.max(.11,P.y+t2*2-t2*t2*6),P.z-t2*4.5)}
