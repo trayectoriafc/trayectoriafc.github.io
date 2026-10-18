@@ -1058,10 +1058,12 @@ function gala(tr){const p=S.p,b=S.bal||{g:0,titles:0,cont:0,nota:6};
  if(!ok){if(p.ovr>=95)news(`No entraste a la gala del Balón de Oro ${S.year}${p.ovr<=100?' (necesitas más de 100 de media)':!statOk?` (necesitas ${needTxt})`:titles<2?' (necesitas al menos 2 títulos)':''}.`);toMarket();return}
  const ntW=ntChamp?(/Mundial/.test(tn)?2.5:/Copa Oro/.test(tn)?.5:1.5):0;
  const clubT=b.titles;const pol=p.pol||1;const polPen=pol<=20?0:(pol-20)/80*4.5;
- const prod=grp==='POR'?Math.min(3.5,(b.ata||0)/50+(b.cs||0)/12):grp==='DEF'?Math.min(3.5,1+goals/5+(b.cs||0)/20):goals/10;
- const score=(p.ovr-100)*.12+prod+clubT*2+b.cont*4+(b.nota-7)*2+(b.eu?1:-2)+ntW-polPen;
+ const prod=grp==='POR'?Math.min(3.5,(b.ata||0)/50+(b.cs||0)/12):grp==='DEF'?Math.min(3.5,1+goals/5+(b.cs||0)/20):goals/10+Math.max(0,goals-30)/10;
+ // temporada histórica (muchos goles/atajadas y títulos): pesa mucho más en la votación
+ const hist=titles>=4&&(grp==='ATA'?goals>=50:grp==='DEF'?goals>=12:(b.ata||0)>=90);
+ const score=(p.ovr-100)*.12+prod+clubT*2+b.cont*4+(b.nota-7)*2+(b.eu?1:-2)+ntW-polPen+(hist?4:0);
  const polPen0=0;
- const mode=p.ovr<110?(R()<.32?'abierta':'normal'):R()<(p.ovr<120?.3:.23)?'renida':'normal';
+ const mode=p.ovr<110?(R()<.32?'abierta':'normal'):!hist&&R()<(p.ovr<120?.3:.23)?'renida':'normal';
  const rivals=BO_RIVALS.slice().sort(()=>R()-.5).slice(0,4).map(n=>({n,v:mode==='abierta'?[11,13,15,17][DF()]+gauss()*3.5:mode==='renida'?score+gauss()*1.5:BO_B[DF()]+gauss()*1.8}));
  let all=rivals.concat([{n:p.name,v:score,me:true}]).sort((a,b)=>b.v-a.v);
  const triple=b.lgT&&b.cont&&b.star&&pol<=50;
@@ -1079,7 +1081,7 @@ function gala(tr){const p=S.p,b=S.bal||{g:0,titles:0,cont:0,nota:6};
  const polTxt=polPen>=.5?` Tu polémica (${pol}/100) te restó votos.`:'';
  const why=vet?`Hiciste méritos para ganarlo, pero los votantes prefirieron a ${esc(all[0].n)}, más joven. Después de los 32 años cada vez es más difícil ganar el Balón de Oro.`:(won&&triple)?`Liga, Champions y premio individual en la liga: temporada de Balón de Oro indiscutible.`+polTxt:robbed?`Eras el favorito, pero los votantes eligieron a ${esc(all[0].n)}. Te lo robaron: quedaste ${place}º.`:won?(b.cont?'La temporada con tu club, con la Champions o la Libertadores incluida, convenció a los votantes.':'Tu temporada de club fue la mejor del año.')+(ntChamp?` El título con ${p.nat} en la ${tn} terminó de cerrar la votación.`:''):
   (!place?`Quedaste ${fullPlace}º, fuera del podio. `:'')+(b.cont?(place?'Estuviste cerca: otro tuvo un año todavía mejor.':'Ni la Champions alcanzó esta vez: los rivales tuvieron años enormes.'):'Lo que más pesa es el club: ganar la liga y la Champions o la Libertadores te acerca mucho más. La selección ayuda, pero no alcanza sola.');
- const modeTxt=mode==='abierta'?' Fue un año abierto, sin grandes favoritos: competiste de verdad por puntos.':mode==='renida'?' Fue una votación reñida: todos los candidatos llegaron muy parejos.':'';
+ const modeTxt=(hist?' Tu temporada fue histórica y los votantes lo tuvieron muy en cuenta.':'')+(mode==='abierta'?' Fue un año abierto, sin grandes favoritos: competiste de verdad por puntos.':mode==='renida'?' Fue una votación reñida: todos los candidatos llegaron muy parejos.':'');
  show('gala',{full:fullPlace,place,won,rank:all.map(x=>({n:x.n,me:!!x.me})),why:why+polTxt+modeTxt+` Tus números: ${grp==='POR'?(b.ata||0)+' atajadas, '+(b.cs||0)+' vallas invictas':goals+' goles'}, ${titles} títulos, media ${p.ovr}.`})}
 
 /* ---------- rivales directos y polémica ---------- */
