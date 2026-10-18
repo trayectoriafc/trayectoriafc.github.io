@@ -103,7 +103,7 @@ button{font:inherit;color:inherit}
 .btn:focus-visible,.choice:focus-visible,select:focus-visible,input:focus-visible,.tabs button:focus-visible,.cant:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 
 /* inicio */
-.start{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:24px}
+.start{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;max-width:760px;width:100%;margin:0 auto}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;min-width:0}
 .panel h2,.sec-h{font-family:var(--f-display);font-size:30px;margin:0 0 4px;text-transform:uppercase;letter-spacing:.02em;text-wrap:balance;line-height:1.05}
 .form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}
@@ -1557,10 +1557,8 @@ function startView(){if(!CANT.list.length)rollCanteras('Colombia');
   <label>Dorsal<input id="num" type="number" min="1" max="99" value="9"></label>
   <label class="full">Dificultad<select id="diff">${DIFFS.map((d,i)=>`<option value="${i}"${i===DIFF_START?' selected':''}>${d.n}: ${d.d}</option>`).join('')}</select></label>
   <label class="full">Perfil<select id="prof">${Object.entries(PROFILES).map(([k,v])=>`<option value="${k}">${v.n}: ${v.d}</option>`).join('')}</select></label>
- </form></section>
- <section class="panel"><h2>Cómo funciona</h2><div id="flagbox"></div>
- <ul class="rules" style="margin-top:14px"><li>Juegas según tu media frente al nivel del club.</li><li>Cantera grande: más talento, menos minutos. Cantera pequeña: juegas desde ya.</li><li>Cada temporada tomas 5 o 6 decisiones.</li></ul>
- <p class="note" style="margin-top:14px">Niveles de clubes aproximados a 2026. Juego de fans sin relación con los clubes.</p></section></div>
+ </form><div id="flagbox" style="margin-top:18px"></div>
+ <p class="note" style="margin-top:10px">Niveles de clubes aproximados a 2026. Juego de fans sin relación con los clubes.</p></section></div>
  <section class="panel"><div class="cants-head"><div><h2 class="sec-h">Elige tu cantera</h2><p class="note" style="margin:0">Tres clubes de ${esc(CANT.nat)} quieren ficharte, y uno de otro país apuesta por ti.</p></div><button class="btn ghost small" type="button" id="reroll">Ver otras canteras</button></div>
  <div class="cants" id="cants" style="margin-top:16px"></div></section>
  <div class="startbar"><button class="btn" id="go">Empezar carrera</button>${load()&&load().p&&!load().retired?'<button class="btn ghost" type="button" id="resume">Seguir carrera guardada</button>':''}</div>${histHTML()}</div>`}
