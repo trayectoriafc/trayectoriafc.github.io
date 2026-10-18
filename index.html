@@ -371,7 +371,7 @@ body.pad :focus{outline:3px solid #f2b705!important;outline-offset:3px}
   <label>Dorsal<input id="set-num" type="number" min="1" max="99"></label>
   <label id="set-latbox" hidden>Rol de lateral<select id="set-lat"><option value="extremo">Falso extremo</option><option value="defensa">Defensa lateral</option></select></label>
   <label hidden>Dificultad<select id="set-diff"><option value="0">Fácil: para aprender, juegas más y creces más rápido</option><option value="1">Normal: para disfrutar la carrera</option><option value="2">Difícil: cuesta jugar, crecer y ganar</option><option value="3">Leyenda: solo para cracks de verdad</option></select></label>
-  <details class="anim-list"><summary>Ver animaciones</summary><div class="anim-grid"><button type="button" class="btn small" data-anim="pass|">🎮 Jugable: rondo de 10 pases</button><button type="button" class="btn small" data-anim="penplay|pen">🎮 Jugable: penal</button><button type="button" class="btn small" data-anim="penplay|fk">🎮 Jugable: tiro libre</button><button type="button" class="btn ghost small" data-anim="gala|">Gala Balón de Oro</button><button type="button" class="btn ghost small" data-anim="gala|yashin">Gala Trofeo Yashin</button><button type="button" class="btn ghost small" data-anim="penal|gol">Penal: gol</button><button type="button" class="btn ghost small" data-anim="penal|atajada">Penal: atajada</button><button type="button" class="btn ghost small" data-anim="penal|palo">Penal: al palo</button><button type="button" class="btn ghost small" data-anim="penal|picada">Penal: picada</button><button type="button" class="btn ghost small" data-anim="penal|picada_falla">Picada atajada</button><button type="button" class="btn ghost small" data-anim="fk|tu_gol">Tiro libre: golazo</button><button type="button" class="btn ghost small" data-anim="fk|tu_barrera">Tiro libre: barrera</button><button type="button" class="btn ghost small" data-anim="fk|esp_gol">Especialista: gol</button><button type="button" class="btn ghost small" data-anim="fk|esp_fuera">Especialista: afuera</button><button type="button" class="btn ghost small" data-anim="fk|jug_gol">Jugada ensayada</button><button type="button" class="btn ghost small" data-anim="fk|jug_falla">Jugada fallida</button><button type="button" class="btn ghost small" data-anim="train|fisico">Físico</button><button type="button" class="btn ghost small" data-anim="train|tecnica">Técnica y tiro</button><button type="button" class="btn ghost small" data-anim="train|portero">Portero</button><button type="button" class="btn ghost small" data-anim="train|notas">Observar y notas</button><button type="button" class="btn ghost small" data-anim="train|descanso">Descanso</button></div></details>
+  <details class="anim-list"><summary>Ver animaciones</summary><div class="anim-grid"><button type="button" class="btn small" data-anim="pass|">🎮 Jugable: rondo de 10 pases</button><button type="button" class="btn small" data-anim="penplay|pen">🎮 Jugable: penal</button><button type="button" class="btn small" data-anim="penplay|fk">🎮 Jugable: tiro libre</button><button type="button" class="btn ghost small" data-anim="gala|">Gala Balón de Oro</button><button type="button" class="btn ghost small" data-anim="train|cabeza">🛡️ Juego aéreo</button><button type="button" class="btn ghost small" data-anim="train|barrida">🛡️ Barrida</button><button type="button" class="btn ghost small" data-anim="train|anticipo">🛡️ Anticipo y corte</button><button type="button" class="btn ghost small" data-anim="train|centro">🛡️ Subida y centro</button><button type="button" class="btn ghost small" data-anim="train|presion">🛡️ Presión y robo</button><button type="button" class="btn ghost small" data-anim="gala|yashin">Gala Trofeo Yashin</button><button type="button" class="btn ghost small" data-anim="penal|gol">Penal: gol</button><button type="button" class="btn ghost small" data-anim="penal|atajada">Penal: atajada</button><button type="button" class="btn ghost small" data-anim="penal|palo">Penal: al palo</button><button type="button" class="btn ghost small" data-anim="penal|picada">Penal: picada</button><button type="button" class="btn ghost small" data-anim="penal|picada_falla">Picada atajada</button><button type="button" class="btn ghost small" data-anim="fk|tu_gol">Tiro libre: golazo</button><button type="button" class="btn ghost small" data-anim="fk|tu_barrera">Tiro libre: barrera</button><button type="button" class="btn ghost small" data-anim="fk|esp_gol">Especialista: gol</button><button type="button" class="btn ghost small" data-anim="fk|esp_fuera">Especialista: afuera</button><button type="button" class="btn ghost small" data-anim="fk|jug_gol">Jugada ensayada</button><button type="button" class="btn ghost small" data-anim="fk|jug_falla">Jugada fallida</button><button type="button" class="btn ghost small" data-anim="train|fisico">Físico</button><button type="button" class="btn ghost small" data-anim="train|tecnica">Técnica y tiro</button><button type="button" class="btn ghost small" data-anim="train|portero">Portero</button><button type="button" class="btn ghost small" data-anim="train|notas">Observar y notas</button><button type="button" class="btn ghost small" data-anim="train|descanso">Descanso</button></div></details>
   <div class="rk-set" id="set-rkbox"><label>Usuario del ranking<input id="set-rkuser" maxlength="20" placeholder="Ej. agusblox" autocomplete="off"></label><button class="btn ghost small" id="set-rank" type="button">Ver ranking en línea</button></div>
   <label>Ritmo de juego<select id="set-fast"><option value="1">Rápido (estilo Copero)</option><option value="0">Completo (todas las pantallas)</option></select></label>
   <label>Tema<select id="set-theme"><option value="light">Claro</option><option value="dark">Oscuro</option><option value="auto">Automático (como el celular)</option></select></label>
@@ -523,6 +523,16 @@ function fx(d){const p=S.p,chips=[];
 
 /* ---------- eventos ---------- */
 const EVENTS=[
+{id:'ultimohombre',w:p=>['DFC','LD','LI','MCD'].includes(p.pos),t:'Último hombre',x:p=>`Minuto 87, van ganando 1-0. El 9 rival se escapa solo hacia el arco y el único que queda eres tú.`,
+ o:[{l:'🛡️ Barrida al balón',d:'Si sale limpia, eres el héroe',f:()=>{const r=R();if(r<.6){anim3d('train','barrida');return['¡Barrida perfecta! Te llevaste el balón limpio y el estadio te ovacionó.',fx({rep:5,morale:8,coach:5})]}
+    if(r<.85)return['Llegaste tarde: falta y amarilla. Sacaron del borde del área y no pasó nada.',fx({morale:-2,coach:-1})];
+    return['Te barriste con los tapones arriba: roja directa y penal. Te pierdes 2 partidos.',fx({miss:.08,morale:-8,rep:-3,coach:-6})]}},
+  {l:'Acompañarlo y cerrar el ángulo',d:'Sin riesgo de tarjeta',f:()=>R()<.5?['Lo acompañaste, le cerraste el ángulo y remató al cuerpo del arquero.',fx({coach:4,morale:3})]:['Lo acompañaste pero definió cruzado. Empataron.',fx({morale:-5,coach:-2})]},
+  {l:'Falta táctica',d:'Amarilla segura, cortas la jugada',f:()=>['Lo tumbaste antes de que entrara al área. Amarilla, pero el DT te aplaudió.',fx({coach:6,rep:-1})]}]},
+{id:'marcaje',w:p=>['DFC','LD','LI','MCD'].includes(p.pos)&&p.ovr>=60,t:'Te toca marcar al crack',x:p=>`El DT te dice que esta noche te encargas del mejor jugador rival. Toda la prensa habla de ese duelo.`,
+ o:[{l:'🛡️ Marca personal todo el partido',d:'Si lo anulas, te llevas los aplausos',f:()=>R()<.6?['Lo anulaste: ni un remate en 90 minutos. Te eligieron figura.',fx({rep:6,coach:6,morale:6})]:['Te ganó dos veces en el uno contra uno. Mal partido.',fx({morale:-6,coach:-3})]},
+  {l:'Defensa zonal con ayudas',d:'Lo seguro',f:()=>['Con las ayudas del equipo lo controlaron. Partido serio.',fx({coach:3,morale:2})]},
+  {l:'Hablarle durante el partido',d:'A ver quién pierde la cabeza',f:()=>R()<.5?['Se calentó, te empujó y lo expulsaron. Ganaron con uno más.',fx({rep:3,coach:2,morale:4})]:['El árbitro te vio a ti: amarilla y el DT te cambió al descanso.',fx({coach:-5,morale:-4})]}]},
 {id:'tirolibre',w:p=>p.pos!=='POR',t:'Tiro libre al minuto 90',x:p=>`Van empatados y hay falta en la puerta del área. El especialista del equipo ya agarró el balón, pero tú lo pides.`,
  o:[{l:'🎮 Pegarle tú (jugable)',d:'Tú apuntas y le das potencia',f:()=>({play:{fk:true,title:'Tiro libre · minuto 90',gk:.38},prob:.33,done:(g,why)=>g?[why==='efecto'?'¡GOLAZO CON EFECTO! La curva dejó parado al arquero.':why==='palogol'?'¡Palo y adentro! Golazo tuyo.':'¡GOLAZO! Lo clavaste tú y el estadio se vino abajo.',fx({rep:6,morale:8,coach:2})]:[why==='barrera'?'Le pegaste a la barrera. El especialista te mira feo.':why==='atajada'?'El arquero voló y la sacó. Casi.':why==='palo'?'¡Al palo! Por centímetros.':'Se fue afuera. El especialista te mira feo.',fx({morale:-5,coach:-4})]})},
   {l:'🌀 Tiro con efecto (rápido)',d:'20% golazo · 30% falla · 50% normal',f:()=>{const r=R(),ok=r<.2?true:r<.5?false:R()<.33;anim3d('fk',ok?'tu_gol':'tu_barrera');return ok?[r<.2?'¡GOLAZO CON EFECTO! La curva dejó parado al arquero.':'Le diste efecto y entró por poco.',fx({rep:r<.2?8:6,morale:9,coach:2})]:[r<.5?'Le diste demasiado efecto y se fue lejos.':'El efecto no alcanzó: barrera.',fx({morale:-5,coach:-4})]}},
@@ -837,7 +847,7 @@ function halfSim(h){
   if(p.pos==='DC'&&n90>=5&&g<1)g=1;
   if(p.ovr>100&&apps>0&&['DC','ED','EI'].includes(p.pos)){const floorS=11+Math.max(0,round((80-avg)/3))+Math.floor((p.ovr-100)/15);const share=clamp(n90/(games*.35),0,1);const fl=Math.ceil(floorS/2*share);if(g<fl)g=fl+(R()<.5?1:0)}
   if(S.sm.dry&&apps>0){const cap=h===0?ri(4,6):Math.max(0,ri(9,11)-(S.sm.dryG||0));if(g>cap)g=cap;S.sm.dryG=(S.sm.dryG||0)+g}
-  a=Math.max(0,round(P.a*n90*clamp(Math.pow(qf,.8)*tf,.3,2)*form*(S.sm.focus==='vision'?1.15:S.sm.focus==='pases'?1.08:1)*(1+.2*gauss())));
+  a=Math.max(0,round(P.a*n90*clamp(Math.pow(qf,.8)*tf,.3,2)*form*(S.sm.focus==='vision'?1.15:S.sm.focus==='centro'?1.14:S.sm.focus==='pases'?1.08:1)*(1+.2*gauss())));
   if(apps){const exp=(P.g+.7*P.a)*Math.max(n90,1),got=g+.7*a;
    nota=6.5+.03*(p.ovr-avg)+.025*(club.s-avg)+.35*clamp(got/Math.max(exp,.4)-1,-1,1.5)*Math.min(1,(P.g+P.a)*3)+(p.morale-60)/400+gauss()*.12}
  }
@@ -1087,7 +1097,11 @@ function scene(){const p=S.p,st=S.step,club=CL[p.club];let sc;
   sc={kicker:label()+' · Pretemporada',title:`<span class="ctag big">${crest(p.club,40)}<span>${esc(p.club)}</span></span>`,
    body:`<p>Nivel del club <b>${club.s}</b> · promedio de la ${L[club.l].n} <b>${avg.toFixed(0)}</b> · tu media <b>${p.ovr}</b>. El cuerpo técnico te ve como ${roleChip(rk)}.${cont}</p>${S.sm.comp?`<p><b>Competencia:</b> llega ${esc(S.sm.comp.n)}, ${S.sm.comp.nat}, con media <b>${S.sm.comp.ovr}</b>, a pelear tu puesto. ${S.sm.comp.ovr>p.ovr?'<span class="chip bad">Tiene más media que tú: arrancas detrás de él</span>':'<span class="chip good">Le ganas el puesto</span>'}</p>`:''}<p>¿En qué te enfocas esta pretemporada?</p>`,
    choices:[
-    (()=>{const g=posGroup(p.pos);const T={POR:['Reflejos y atajadas','+2 media y más atajadas','Horas de reflejos, mano a mano y salidas por arriba.'],DEF:['Marcaje y anticipación','+2 media y mejor defensa','Horas de marcaje, anticipación y juego aéreo.'],MED:null,ATA:['Definición y técnica','+2 media y más gol','Horas de definición y técnica con el balón.']}[g];return T&&{l:T[0],d:T[1],f:()=>{S.sm.focus='tecnica';if(g==='ATA')S.sm.goal*=1.06;else S.sm.def=(S.sm.def||1)*1.08;preDone(T[2],fx({ovr:2,growth:.3}))}}})(),
+    ...(()=>{const D={DFC:[['Juego aéreo','+2 media · mejor por arriba','Horas de centros y despejes de cabeza. Ya no pierdes un balón aéreo.','cabeza',2],['Barridas y marca','+2 media · mejor defensa','Barridas limpias al balón y marca pegajosa.','barrida',2]],
+      LD:[['Subidas y centros','+1 media · más asistencias','Subes la banda y pones centros con rosca al segundo palo.','centro',1],['Marca 1 vs 1 y barridas','+2 media · mejor defensa','Duelos uno contra uno con los extremos y barridas al balón.','barrida',2]],
+      MCD:[['Presión y recuperación','+2 media · más robos','Presión tras pérdida, robo y pase vertical.','presion',2],['Anticipo y corte','+1 media · el DT confía más','Leer el pase, cruzarse y cortar. El DT lo valora.','anticipo',1]]};D.LI=D.LD;
+     const O=D[p.pos];return O?O.map(([l,d,txt,v,ov])=>({l:'🛡️ '+l,d,f:()=>{S.sm.focus=v;S.sm.def=(S.sm.def||1)*(v==='centro'?1.03:1.08);preDone(txt,fx(v==='anticipo'?{ovr:ov,coach:8,growth:.3}:{ovr:ov,growth:.3}))}})):[]})(),
+    (()=>{if(['DFC','LD','LI','MCD'].includes(p.pos))return null;const g=posGroup(p.pos);const T={POR:['Reflejos y atajadas','+2 media y más atajadas','Horas de reflejos, mano a mano y salidas por arriba.'],DEF:['Marcaje y anticipación','+2 media y mejor defensa','Horas de marcaje, anticipación y juego aéreo.'],MED:null,ATA:['Definición y técnica','+2 media y más gol','Horas de definición y técnica con el balón.']}[g];return T&&{l:T[0],d:T[1],f:()=>{S.sm.focus='tecnica';if(g==='ATA')S.sm.goal*=1.06;else S.sm.def=(S.sm.def||1)*1.08;preDone(T[2],fx({ovr:2,growth:.3}))}}})(),
     {l:'Físico y gimnasio',d:'+1 media, menos lesiones',f:()=>{S.sm.focus='fisico';preDone('Ganaste masa muscular y potencia.',fx({ovr:1,inj:-.05,growth:.3}))}},
     {l:'Observar y tomar notas',d:'Visión: +1 media y más asistencias',f:()=>{S.sm.focus='vision';preDone('Pasas la pretemporada mirando entrenar a tus compañeros y llenas una libreta: quién pide el balón al pie, quién al espacio, por dónde se desmarca cada uno.',fx({ovr:1,coach:4,growth:.3}).concat([{t:'+15% asistencias esta temporada',c:'good'}]))}},
     {l:'Táctica y video',d:'+1 media, el DT confía más',f:()=>{S.sm.focus='tactica';preDone('Ahora entiendes el sistema mejor que nadie.',fx({ovr:1,coach:10,growth:.3}))}},
@@ -1199,7 +1213,7 @@ function statsHTML(h){const por=S.p.pos==='POR';return `<div class="statline">
 
 function pickEvent(){const p=S.p;const el=EVENTS.filter(e=>(!e.w||e.w(p))&&!S.sm.used.includes(e.id)&&!(S.recent||[]).includes(e.id));const e=pick(el.length?el:EVENTS);if(e.pre)e.pre(p);S.sm.used.push(e.id);S.recent=[e.id].concat(S.recent||[]).slice(0,6);return e.id}
 function nextAfterPre(){if(isFast()){go('h1');return}show('event',{id:pickEvent(),next:'h1'})}
-function preDone(t,ch){show('result',{title:'Pretemporada',t,ch,next:'evA'});const f=S.sm.focus,v=f==='fisico'||f==='doble'?'fisico':f==='tecnica'?(S.p.pos==='POR'?'portero':'tecnica'):f==='vision'?'notas':f==='descanso'?'descanso':null;if(f==='pases')anim3d('pass',null);else if(v&&!isFast())anim3d('train',v)}
+function preDone(t,ch){show('result',{title:'Pretemporada',t,ch,next:'evA'});const f=S.sm.focus,DEFV=['cabeza','barrida','anticipo','centro','presion'].includes(f),v=DEFV?f:f==='fisico'||f==='doble'?'fisico':f==='tecnica'?(S.p.pos==='POR'?'portero':'tecnica'):f==='vision'?'notas':f==='descanso'?'descanso':null;if(f==='pases')anim3d('pass',null);else if(v&&(DEFV||!isFast()))anim3d('train',v)}
 function go(k){if(k==='pre'){show('pre');return}if(k==='season'){nextSeason();return}
  if(k==='evA'){go('wheel');return}
  if(k==='wheel'){if(!S.sm.wheelDone){S.sm.wheelDone=1;show('ruleta',{segs:wheelSegs(),res:null,next:'evA2'});return}go('evA2');return}
@@ -1975,7 +1989,7 @@ function scenePenPlay(L,opt){
   const r1=new T.Mesh(new T.RingGeometry(.2,.26,32),rm);ret.add(r1);[0,1,2,3].forEach(i=>{const b=new T.Mesh(new T.PlaneGeometry(.05,.18),rm);b.position.set(Math.cos(i*Math.PI/2)*.36,Math.sin(i*Math.PI/2)*.36,0);b.rotation.z=i*Math.PI/2;ret.add(b)});
   ret.renderOrder=10;ret.children.forEach(c=>c.renderOrder=10);ret.rotation.y=Math.PI;sc.add(ret);
   const A={ph:'aim',x:(Math.random()-.5)*2,y:1.2,aimT:0,pw:0,pwT:0,shotT:0,res:null,dive:0,kx:0,ky:.9,P:null,out:null,done:false,resolved:false};
-  const AIM_LIMIT=FK?6.5:5.5,PW_LIMIT=2.2;A.wob=0;
+  const AIM_LIMIT=FK?20:15,PW_LIMIT=2.2;A.wob=0;
   // ---- entrada ----
   const keys={};let fire=false,ptr=null;
   const kd=e=>{const k=e.key.toLowerCase();if(k==='q'&&!e.repeat)setFx(!A.fx);if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[k]=true;if((k==='e'||k===' '||k==='enter')&&!e.repeat)fire=true};
@@ -2431,6 +2445,82 @@ function sceneTrain(L,variant){
       heading=angLerp(heading,tgt,cl(dt*10,0,1));me.root.rotation.y=heading;
       const r=me.root.position;return[t<5.9?V(r.x+4.6,2.4,r.z-1.8):V(3.6,2.3,6.2),t<5.9?V(r.x,.9,r.z+1.4):V(.3,.9,11)]};
     return finish(26,9.5,'Pretemporada · Técnica y tiro');
+  }
+  // ===== entrenamientos defensivos (DFC, laterales, MCD) =====
+  if(['cabeza','barrida','anticipo','centro','presion'].includes(variant)){
+    const ball=ballMesh();sc.add(ball);const bp=V(0,.11,0);
+    const mk=(o)=>{const q=person(Object.assign({shirt:kit.shirt,sleeve:kit.sleeve,shorts:kit.shorts,socks:kit.socks,numColor:kit.num},o));sc.add(q.root);return q};
+    const rival=o=>mk(Object.assign({shirt:'#ff8a1f',sleeve:'#ff8a1f',shorts:'#1b1b1f',socks:'#ff8a1f',num:9,name:'',numColor:'#111',hair:'#2a1a12',skin:'#c08a5f'},o||{}));
+    const arcP=(a,b,u,h)=>V(lerp(a.x,b.x,u),lerp(a.y,b.y,u)+h*4*u*(1-u),lerp(a.z,b.z,u));
+    const face=(P,x,z)=>Math.atan2(x-P.root.position.x,z-P.root.position.z);
+    function slide(P,u){ // barrida: cuerpo abajo, pierna de adelante estirada
+      const e=u<.25?ez(u/.25):u<.75?1:1-ez((u-.75)/.25);P.hips.position.y=lerp(BASE,.36,e);legA(P,1,1.45*e,.05);legA(P,0,lerp(0,.25,e),lerp(.1,1.75,e));
+      P.spine.rotation.x=-.55*e;armA(P,0,lerp(0,-.7,e),.25,.6*e);armA(P,1,.4*e,.4,.5*e);P.head.rotation.x=.35*e}
+    let upd2,LOOP,TAG;
+    if(variant==='cabeza'){ // juego aéreo: despejes de cabeza
+      const mate=mk({num:7,name:'',hair:'#3a2616',skin:'#8d5a3b'});mate.root.position.set(6,0,6.5);
+      const M0=V(5.7,.11,6.4),H=V(0,2.32,6.15),C=V(-7,.11,15);LOOP=3.4;TAG='Entrenamiento · Juego aéreo';
+      upd2=(t,dt)=>{const c=t%LOOP;rest(mate);mate.root.rotation.y=face(mate,0,6);
+        if(c<.5)kickPose(mate,c/.5);else idle(mate,t);
+        me.root.position.set(0,0,6);me.root.rotation.y=Math.PI/2-.3;
+        if(c<.95)idle(me,t);else if(c<1.8){const v=(c-.95)/.85;me.root.position.y=Math.sin(v*Math.PI)*.5;legA(me,0,.5*Math.sin(v*Math.PI),.9*Math.sin(v*Math.PI));legA(me,1,.3*Math.sin(v*Math.PI),.7*Math.sin(v*Math.PI));
+          armA(me,0,1.2,.6,.5);armA(me,1,1.2,.6,.5);me.head.rotation.x=c<1.45?-.45:.45;me.spine.rotation.x=c<1.45?-.15:.2}else idle(me,t);
+        if(c<.32)bp.copy(M0);else if(c<1.45)bp.copy(arcP(M0,H,(c-.32)/1.13,1.6));else{const u=Math.min(1,(c-1.45)/1.3);bp.copy(arcP(H,C,u,3.2));bp.y=Math.max(.11,bp.y)}
+        cap(c<1.45?'Centro desde la banda':'¡Despeje de cabeza!',c>=1.45);return[V(-3.4,2.1,2.4),V(1.4,1.5,6.6)]}}
+    else if(variant==='barrida'){ // barrida limpia contra un delantero
+      const atk=rival();LOOP=4.4;TAG='Entrenamiento · Barridas y marca';
+      upd2=(t,dt)=>{const c=t%LOOP;rest(atk);
+        // delantero conduce hacia ti
+        const az=lerp(11,3.55,Math.min(1,c/2.1));atk.root.position.set(.15,0,c<2.1?az:3.55);atk.root.rotation.y=Math.PI;
+        if(c<2.1)cycle(atk,c*8,.75);else if(c<2.5){idle(atk,t);atk.spine.rotation.x=-.15}else{idle(atk,t);armA(atk,0,2.4,.4,.5);armA(atk,1,2.4,.4,.5);atk.head.rotation.x=-.2}
+        // tú: llegas en diagonal y te barras cruzando delante del delantero
+        const A0=V(-2.4,0,1.6),A1=V(-1.15,0,3.05),A2=V(1.05,0,3.75);
+        if(c<1.25){me.root.position.copy(A0);me.root.rotation.y=.5;idle(me,t);legA(me,0,.15,.4);legA(me,1,.15,.4);me.hips.position.y=BASE-.08}
+        else if(c<1.8){const v=(c-1.25)/.55;me.root.position.copy(A0).lerp(A1,v);me.root.rotation.y=Math.atan2(A1.x-A0.x,A1.z-A0.z);cycle(me,v*Math.PI*2.4,.95)}
+        else if(c<3.0){const v=(c-1.8)/1.2;me.root.position.copy(A1).lerp(A2,1-Math.pow(1-Math.min(1,v/.55),2));me.root.rotation.y=Math.atan2(A2.x-A1.x,A2.z-A1.z);slide(me,v)}
+        else{me.root.position.copy(A2);me.root.rotation.y=-.4;idle(me,t);armA(me,1,2.5,.3,.2)}
+        if(c<2.12){const p=atk.root.position;bp.set(p.x-.05,.11,p.z-.5-.08*Math.sin(c*16))}else{const u=Math.min(1,(c-2.12)/1);bp.set(lerp(.1,3.8,u),.11,lerp(3.0,3.6,u))}
+        cap(c<1.8?'El 9 rival viene encarando':c<3.0?'Barrida al balón…':'¡Balón limpio recuperado!',c>=2.6);
+        return[V(-1.2,2.7,-2.6),V(.2,.5,4)]}}
+    else if(variant==='anticipo'){ // anticipo: te cruzas y cortas el pase
+      const pas=rival({num:8,hair:'#0e0b09',skin:'#e0b48c'}),atk=rival();pas.root.position.set(-6,0,9);atk.root.position.set(0,0,4.2);
+      const mate=mk({num:10,name:'',hair:'#1d130c',skin:'#a87050'});mate.root.position.set(4,0,-4);
+      const P0=V(-5.6,.11,8.7),I=V(-.45,.11,4.9),F=V(3.8,.11,-3.6);LOOP=3.8;TAG='Entrenamiento · Anticipo y corte';
+      upd2=(t,dt)=>{const c=t%LOOP;rest(pas);rest(atk);rest(mate);pas.root.rotation.y=face(pas,0,4.2);atk.root.rotation.y=face(atk,-6,9);mate.root.rotation.y=face(mate,0,4);
+        if(c<.45)passPose(pas,c/.45);else idle(pas,t);idle(atk,t);idle(mate,t+1);
+        if(c<.55){me.root.position.set(.2,0,2.8);me.root.rotation.y=0;idle(me,t);legA(me,0,.12,.35);legA(me,1,.12,.35)}
+        else if(c<1.15){const v=(c-.55)/.6;me.root.position.set(lerp(.2,-.75,v),0,lerp(2.8,4.75,v));me.root.rotation.y=-.45;cycle(me,v*Math.PI*3,1)}
+        else if(c<1.6){me.root.position.set(-.75,0,4.75);me.root.rotation.y=-1.2;receivePose(me,(c-1.15)/.45)}
+        else if(c<2.1){me.root.position.set(-.75,0,4.75);me.root.rotation.y=face(me,4,-4);passPose(me,(c-1.6)/.5)}
+        else{me.root.position.set(-.75,0,4.75);me.root.rotation.y=face(me,4,-4);idle(me,t)}
+        if(c<.18)bp.copy(P0);else if(c<1.15)bp.copy(P0).lerp(I,(c-.18)/.97);else if(c<1.85)bp.copy(I);else{const u=Math.min(1,(c-1.85)/.8);bp.copy(I).lerp(F,u)}
+        if(c>1.2&&c<2.2){atk.head.rotation.y=.4;armA(atk,0,1.5,.4,.6)}
+        cap(c<1.15?'Leer el pase…':c<2.1?'¡Anticipo! Corte limpio':'Y salida rápida',c>=1.15);return[V(-6.5,3.2,0),V(-.5,.6,4.6)]}}
+    else if(variant==='centro'){ // laterales: subida por la banda y centro
+      goal(sc,16.5,7.32,2.44,1);const st=mk({num:9,name:'',hair:'#3a2616',skin:'#8d5a3b'});
+      const S0=V(5.6,0,-1),S1=V(5.6,0,10.8),Hd=V(0,2.2,13.3),G=V(-1.6,1.1,16.6);LOOP=6.2;TAG='Entrenamiento · Subidas y centros';
+      upd2=(t,dt)=>{const c=t%LOOP;rest(st);
+        if(c<3.3){const v=c/3.3;me.root.position.copy(S0).lerp(S1,v);me.root.rotation.y=0;cycle(me,c*9,1);bp.set(me.root.position.x-.08,.11,me.root.position.z+.55+.12*Math.sin(c*9))}
+        else if(c<3.75){me.root.position.copy(S1);me.root.rotation.y=-1.1;kickPose(me,(c-3.3)/.45);bp.set(S1.x-.35,.11,S1.z+.35)}
+        else{me.root.position.copy(S1);me.root.rotation.y=-1.1;idle(me,t);if(c>4.6){armA(me,0,2.6,.3,.2);armA(me,1,2.6,.3,.2)}}
+        const sx=c<3.2?lerp(-2,0,c/3.2):0;st.root.position.set(sx,0,lerp(9,13,Math.min(1,c/3.9)));st.root.rotation.y=c<3.9?0:face(st,S1.x,S1.z)*.4;
+        if(c<3.9)cycle(st,c*8,.8);else if(c<4.75){const v=(c-3.9)/.85;st.root.position.y=Math.sin(v*Math.PI)*.45;armA(st,0,1.2,.6,.5);armA(st,1,1.2,.6,.5);st.head.rotation.x=c<4.45?-.4:.45}else{idle(st,t);armA(st,0,2.7,.2,.2);armA(st,1,2.7,.2,.2)}
+        if(c>=3.5&&c<4.45)bp.copy(arcP(V(S1.x-.35,.11,S1.z+.35),Hd,(c-3.5)/.95,1.4));else if(c>=4.45){const u=Math.min(1,(c-4.45)/.5);bp.copy(Hd).lerp(G,u);if(u>=1)bp.y=Math.max(.11,G.y-(c-4.95)*2)}
+        cap(c<3.3?'Subida por la banda':c<4.45?'¡Centro!':'¡Gol de cabeza con tu asistencia!',c>=4.45);
+        const r=me.root.position;return c<3.4?[V(r.x+4.2,2.6,r.z-3.6),V(r.x-.5,.8,r.z+3)]:[V(8,3.2,7),V(1,1.2,13.5)]}}
+    else{ // presion (MCD): presión, robo y pase
+      const atk=rival({num:6});const mate=mk({num:9,name:'',hair:'#3a2616',skin:'#8d5a3b'});mate.root.position.set(-1,0,12);LOOP=4.4;TAG='Entrenamiento · Presión y recuperación';
+      upd2=(t,dt)=>{const c=t%LOOP;rest(atk);rest(mate);mate.root.rotation.y=Math.PI;idle(mate,t);
+        const ax=Math.sin(Math.min(c,2)*2.2)*1.2;atk.root.position.set(ax,0,5.2);atk.root.rotation.y=Math.PI*.5+Math.cos(c*2.2)*.6;
+        if(c<2.05)cycle(atk,c*7,.5);else{idle(atk,t);atk.spine.rotation.x=.2;armA(atk,0,.6,.4,.6);armA(atk,1,.6,.4,.6)}
+        if(c<1.7){const v=c/1.7;me.root.position.set(lerp(0,ax*.85,v),0,lerp(1,4.3,v));me.root.rotation.y=face(me,ax,5.2);cycle(me,c*8,.85);me.spine.rotation.x+=.12}
+        else if(c<2.25){me.root.position.set(ax*.85,0,4.3);me.root.rotation.y=face(me,ax,5.2);legA(me,1,.9,.3);legA(me,0,.1,.5);me.hips.position.y=BASE-.12;me.spine.rotation.x=.3;armA(me,0,.5,.4,.8);armA(me,1,.3,.4,.6)}
+        else if(c<2.8){me.root.position.set(ax*.85,0,4.4);me.root.rotation.y=face(me,-1,12);passPose(me,(c-2.25)/.55)}
+        else{me.root.position.set(ax*.85,0,4.4);me.root.rotation.y=face(me,-1,12);idle(me,t)}
+        const a=atk.root.position;if(c<2.05)bp.set(a.x+Math.sin(atk.root.rotation.y)*.45,.11,a.z+Math.cos(atk.root.rotation.y)*.45);else if(c<2.5){const m=me.root.position;bp.set(m.x+.15,.11,m.z+.5)}else{const u=Math.min(1,(c-2.5)/.9),m=V(ax*.85+.15,.11,4.9);bp.copy(m).lerp(V(-1,.11,11.4),u)}
+        cap(c<1.7?'Presión alta al rival':c<2.5?'¡Robo de balón!':'Y pase vertical',c>=1.95);return[V(5.5,3,1.5),V(0,.6,6)]}}
+    upd=(t,dt)=>{const r=upd2(t,dt);ball.position.copy(bp);ball.rotation.x+=dt*7;return r};
+    return finish(26,LOOP*3,TAG);
   }
   if(variant==='notas'||variant==='descanso'){
     const notas=variant==='notas';
