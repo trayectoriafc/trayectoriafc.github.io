@@ -52,6 +52,12 @@
   --sky:#6aa6ff; --coral:#ff8a66; --teal:#40c9d3; --rose:#ff7aa5;
   --gold-soft:#3a2f08; --sky-soft:#13284a; --coral-soft:#43200f; --teal-soft:#0e3338; --green-soft:#123d26; --rose-soft:#421628;
   --good:#5fd08f; --warn:#f0ad45; --bad:#ff7d72; color-scheme:dark}
+:root[data-theme="black"]{
+  --bg:#050505; --surface:#101010; --sunk:#181818; --ink:#f4f4f4; --muted:#8c8c8c; --line:#242424;
+  --pitch:#1c1c1c; --pitch2:#232323; --pitch-ink:#ffffff; --gold:#f2b705; --gold-ink:#111;
+  --sky:#6aa6ff; --coral:#f2b705; --teal:#40c9d3; --rose:#ff7aa5;
+  --gold-soft:#2a2306; --sky-soft:#10203a; --coral-soft:#2a2306; --teal-soft:#0c2a2e; --green-soft:#0f2a1a; --rose-soft:#2e1220;
+  --good:#5fd08f; --warn:#f0ad45; --bad:#ff7d72; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5}
@@ -426,6 +432,19 @@ body.pad :focus{outline:3px solid #f2b705!important;outline-offset:3px}
 .qte-btn{display:none;position:absolute;right:16px;bottom:16px;width:86px;height:86px;border-radius:50%;border:0;background:#f2b705;color:#111;font-weight:900;pointer-events:auto}
 @media (pointer:coarse){.qte-btn{display:block}.qte-help{white-space:normal;width:80%;text-align:center}}
 .anim-h{font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin:12px 0 4px;color:var(--muted,#555)}
+
+/* ---- tema negro (por defecto): mismo estilo que la pantalla de inicio ---- */
+:root[data-theme="black"] body{background:#050505}
+:root[data-theme="black"] .band{background:#050505!important;border-bottom:1px solid #1e1e1e!important}
+:root[data-theme="black"] .band::before,:root[data-theme="black"] .band::after{display:none!important}
+:root[data-theme="black"] .brand{color:#fff}:root[data-theme="black"] .brand span{color:#f2b705}
+:root[data-theme="black"] .gear{background:#161616;color:#ddd;border:1px solid #2a2a2a}
+:root[data-theme="black"] .btn{background:#f2b705;color:#111;border-radius:99px}
+:root[data-theme="black"] .btn.ghost{background:transparent;color:#ddd;border:1px solid #333}
+:root[data-theme="black"] .kicker{background:#1c1c1c!important;color:#f2b705!important;border:1px solid #2a2a2a}
+:root[data-theme="black"] .panel,:root[data-theme="black"] .scene{border-color:#1e1e1e}
+:root[data-theme="black"] .scene h2,:root[data-theme="black"] .sec-h{color:#fff}
+:root[data-theme="black"] input,:root[data-theme="black"] select,:root[data-theme="black"] textarea{background:#141414;color:#f4f4f4;border-color:#2a2a2a}
 </style>
 
 <header class="band"><div class="in">
@@ -442,7 +461,7 @@ body.pad :focus{outline:3px solid #f2b705!important;outline-offset:3px}
   <details class="anim-list"><summary>Ver animaciones</summary><div class="anim-h">🎮 Jugables</div><div class="anim-grid"><button type="button" class="btn small" data-anim="chance|">🎮 Jugable: ocasión de gol</button><button type="button" class="btn small" data-anim="pass|">🎮 Jugable: rondo de 10 pases</button><button type="button" class="btn small" data-anim="penplay|pen">🎮 Jugable: penal</button><button type="button" class="btn small" data-anim="penplay|fk">🎮 Jugable: tiro libre</button><button type="button" class="btn small" data-anim="tanda|dc">🎮 Tanda de penales (pateas tú)</button></div><div class="anim-h">🧤 Portero (jugables)</div><div class="anim-grid"><button type="button" class="btn small" data-anim="penplay|kp">🧤 Jugable: atajar penal</button><button type="button" class="btn small" data-anim="penplay|kpfk">🧤 Jugable: atajar tiro libre</button><button type="button" class="btn small" data-anim="penplay|dg">🧤 Jugable: jugada peligrosa</button><button type="button" class="btn small" data-anim="tanda|gk">🧤 Tanda de penales (atajas tú)</button></div><div class="anim-h">🏋️ Entrenamientos</div><div class="anim-grid"><button type="button" class="btn ghost small" data-anim="train|fisico">Físico</button><button type="button" class="btn ghost small" data-anim="train|tecnica">Técnica y tiro</button><button type="button" class="btn ghost small" data-anim="train|portero">Portero</button><button type="button" class="btn ghost small" data-anim="train|cabeza">🛡️ Juego aéreo</button><button type="button" class="btn ghost small" data-anim="train|barrida">🛡️ Barrida</button><button type="button" class="btn ghost small" data-anim="train|anticipo">🛡️ Anticipo y corte</button><button type="button" class="btn ghost small" data-anim="train|centro">🛡️ Subida y centro</button><button type="button" class="btn ghost small" data-anim="train|presion">🛡️ Presión y robo</button><button type="button" class="btn ghost small" data-anim="train|notas">Observar y notas</button><button type="button" class="btn ghost small" data-anim="train|descanso">Descanso</button></div><div class="anim-h">🎬 Animaciones</div><div class="anim-grid"><button type="button" class="btn ghost small" data-anim="gala|">Gala Balón de Oro</button><button type="button" class="btn ghost small" data-anim="gala|yashin">Gala Trofeo Yashin</button><button type="button" class="btn ghost small" data-anim="penal|gol">Penal: gol</button><button type="button" class="btn ghost small" data-anim="penal|atajada">Penal: atajada</button><button type="button" class="btn ghost small" data-anim="penal|palo">Penal: al palo</button><button type="button" class="btn ghost small" data-anim="penal|picada">Penal: picada</button><button type="button" class="btn ghost small" data-anim="penal|picada_falla">Picada atajada</button><button type="button" class="btn ghost small" data-anim="fk|tu_gol">Tiro libre: golazo</button><button type="button" class="btn ghost small" data-anim="fk|tu_barrera">Tiro libre: barrera</button><button type="button" class="btn ghost small" data-anim="fk|esp_gol">Especialista: gol</button><button type="button" class="btn ghost small" data-anim="fk|esp_fuera">Especialista: afuera</button><button type="button" class="btn ghost small" data-anim="fk|jug_gol">Jugada ensayada</button><button type="button" class="btn ghost small" data-anim="fk|jug_falla">Jugada fallida</button></div></details>
   <div class="rk-set" id="set-rkbox"><label>Usuario del ranking<input id="set-rkuser" maxlength="20" placeholder="Ej. agusblox" autocomplete="off"></label><button class="btn ghost small" id="set-rank" type="button">Ver ranking en línea</button></div>
   <label>Ritmo de juego<select id="set-fast"><option value="1">Rápido (estilo Copero)</option><option value="0">Completo (todas las pantallas)</option></select></label>
-  <label>Tema<select id="set-theme"><option value="light">Claro</option><option value="dark">Oscuro</option><option value="auto">Automático (como el celular)</option></select></label>
+  <label>Tema<select id="set-theme"><option value="black">Negro (recomendado)</option><option value="light">Claro</option><option value="dark">Oscuro</option><option value="auto">Automático (como el celular)</option></select></label>
   <label class="chk"><input type="checkbox" id="set-3d"> Animaciones 3D: gala, penales y entrenamiento</label>
   <p class="note" id="set-note" style="margin:0"></p>
   <div id="set-reset" class="reset-box" hidden><b>Reiniciar carrera</b><span class="note">Borra tu carrera actual y vuelves a crear un jugador desde cero.</span>
@@ -457,8 +476,8 @@ body.pad :focus{outline:3px solid #f2b705!important;outline-offset:3px}
 <script>
 /* ---------- utilidades ---------- */
 const FAST_KEY='tfc-fast';function isFast(){try{return localStorage.getItem(FAST_KEY)!=='0'}catch(e){return true}}
-const TH_KEY='tfc-theme';function thGet(){try{return localStorage.getItem(TH_KEY)||'light'}catch(e){return'light'}}
-function thApply(v){const el=document.documentElement;if(v==='auto')el.removeAttribute('data-theme');else el.setAttribute('data-theme',v==='dark'?'dark':'light')}
+const TH_KEY='tfc-theme2';function thGet(){try{return localStorage.getItem(TH_KEY)||'black'}catch(e){return'black'}}
+function thApply(v){const el=document.documentElement;if(v==='auto')el.removeAttribute('data-theme');else el.setAttribute('data-theme',v==='dark'?'dark':v==='black'?'black':'light')}
 thApply(thGet());
 const R=Math.random, rnd=(a,b)=>a+R()*(b-a), ri=(a,b)=>Math.floor(rnd(a,b+1));
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)), pick=a=>a[Math.floor(R()*a.length)];
