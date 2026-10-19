@@ -451,7 +451,7 @@ body.pad :focus{outline:3px solid #f2b705!important;outline-offset:3px}
 .shirt-in{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
 .shirt-k{color:#8a8a8a;letter-spacing:.3em;text-transform:uppercase;font-size:13px;animation:ifade .6s .2s both}
 .shirt-club{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:clamp(28px,6vw,44px);color:#fff;animation:iup .6s .3s both}
-.shirt-wrap{perspective:900px}.shirt{width:min(72vw,300px);height:auto;filter:drop-shadow(0 18px 30px rgba(0,0,0,.6));animation:ishirt 1s .5s cubic-bezier(.2,.8,.2,1) both}
+.shirt-wrap{perspective:900px;display:flex;gap:clamp(12px,4vw,40px);justify-content:center;align-items:flex-end}.shirt-wrap figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px}.shirt-wrap figcaption{color:#8a8a8a;font-size:13px;letter-spacing:.12em;text-transform:uppercase}.shirt-wrap .nt .shirt{width:min(38vw,230px);animation-delay:.8s}.shirt-wrap .nt figcaption{animation:ifade .5s 1.2s both}.shirt{width:min(46vw,300px);height:auto;filter:drop-shadow(0 18px 30px rgba(0,0,0,.6));animation:ishirt 1s .5s cubic-bezier(.2,.8,.2,1) both}
 @keyframes ishirt{from{opacity:0;transform:rotateY(80deg) scale(.85)}to{opacity:1;transform:none}}
 .shirt-in .ibtn{animation:ifade .5s 1.3s both}
 @media (prefers-reduced-motion:reduce){.shirt,.shirt-in .ibtn,.shirt-club,.shirt-k{animation:none}}
@@ -1783,7 +1783,7 @@ function render(){
  document.body.classList.toggle('intro',!S||!S.p);
  if(!S||!S.p){godMode(false);galaxy(false);app.innerHTML=startView();{const ru=document.getElementById('rkuser');if(ru){ru.value=rkUser();const lb=ru.closest('label');if(!FB_URL&&lb)lb.hidden=true}}
   const box=document.getElementById('cants'),fb=document.getElementById('flagbox');
-  const up=()=>{box.innerHTML=cantsHTML();fb.innerHTML=flagHTML(CANT.nat);box.querySelectorAll('.cant').forEach(b=>b.onclick=()=>{CANT.sel=+b.dataset.c;up();const n=document.getElementById('name');if(!n.value.trim()){document.getElementById('go').click();return}setTimeout(()=>showShirt(CANT.list[CANT.sel],n.value,document.getElementById('num').value,()=>document.getElementById('go').click()),200)})};up();
+  const up=()=>{box.innerHTML=cantsHTML();fb.innerHTML=flagHTML(CANT.nat);box.querySelectorAll('.cant').forEach(b=>b.onclick=()=>{CANT.sel=+b.dataset.c;up();const n=document.getElementById('name');if(!n.value.trim()){document.getElementById('go').click();return}setTimeout(()=>showShirt(CANT.list[CANT.sel],n.value,document.getElementById('num').value,()=>document.getElementById('go').click(),document.getElementById('nat').value),200)})};up();
   document.getElementById('prof').addEventListener('change',up);
   document.getElementById('diff').addEventListener('change',e=>{DIFF_START=+e.target.value;up()});
   document.getElementById('nat').addEventListener('change',e=>{rollCanteras(e.target.value);document.getElementById('cant-note').textContent=`Tres clubes de ${CANT.nat} y uno de otro país te quieren`;up()});
@@ -1928,19 +1928,45 @@ function a3dKit(club){const [a,b,pat]=kitOf(club);const lum=h=>{const n=parseInt
  const fcb=club==='FC Barcelona';return{shirt:a,sleeve:fcb?'#004d98':(pat==='stripes'?b:a),shorts:fcb?'#004d98':b,socks:a,num:fcb?'#f2c500':(Math.abs(lum(a)-lum(b))>.35?b:(lum(a)>.6?'#111318':'#ffffff')),tie:a}}
 let A3DI=null;
 /* ---------- camiseta (espalda) con tu nombre y dorsal ---------- */
-function shirtSVG(club,name,num){const [a,b,pat]=kitOf(club),k=a3dKit(club),id='sh'+(CREST_N++);
- const body='M62 18 L84 10 Q100 22 116 10 L138 18 L186 46 L172 86 L150 76 L150 204 Q100 212 50 204 L50 76 L28 86 L14 46 Z';
- const P={plain:'',stripes:[70,100,130].map(x=>`<rect x="${x-9}" y="0" width="18" height="220" fill="${b}"/>`).join(''),half:`<rect x="100" y="0" width="100" height="220" fill="${b}"/>`,
-  band:`<polygon points="0,150 0,110 200,40 200,80" fill="${b}"/>`,hband:`<rect x="0" y="92" width="200" height="34" fill="${b}"/>`,vband:`<rect x="86" y="0" width="28" height="220" fill="${b}"/>`}[pat]||'';
- const nm=esc(String(name||'').trim().split(/\s+/).pop().toUpperCase().slice(0,12));
- return `<svg class="shirt" viewBox="0 0 200 220" aria-label="Camiseta de ${esc(club)} con el ${num}"><defs><clipPath id="${id}"><path d="${body}"/></clipPath>
- <linearGradient id="${id}g" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity=".22"/><stop offset=".25" stop-color="#000" stop-opacity="0"/><stop offset=".75" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".25"/></linearGradient></defs>
- <g clip-path="url(#${id})"><rect width="200" height="220" fill="${a}"/>${P}<path d="M14 46 L62 18 L50 76 L28 86 Z M186 46 L138 18 L150 76 L172 86 Z" fill="${k.sleeve}"/><rect width="200" height="220" fill="url(#${id}g)"/></g>
- <path d="M84 10 Q100 22 116 10" fill="none" stroke="${b}" stroke-width="5"/><path d="${body}" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="2"/>
- <text x="100" y="62" text-anchor="middle" font-family="Saira Condensed,Arial Narrow,sans-serif" font-weight="800" font-size="${nm.length>8?17:21}" letter-spacing="2" fill="${k.num}" stroke="rgba(0,0,0,.25)" stroke-width=".6">${nm}</text>
- <text x="100" y="158" text-anchor="middle" font-family="Saira Condensed,Arial Narrow,sans-serif" font-weight="800" font-size="88" fill="${k.num}" stroke="rgba(0,0,0,.3)" stroke-width="1.2">${+num||9}</text></svg>`}
-function showShirt(club,name,num,done){const o=document.createElement('div');o.className='shirt-ov';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');
- o.innerHTML=`<div class="shirt-in"><div class="shirt-k">Bienvenido a</div><div class="shirt-club">${crest(club,34)}<span>${esc(club)}</span></div><div class="shirt-wrap">${shirtSVG(club,name,num)}</div><button class="ibtn" type="button">Empezar carrera ⚽</button></div>`;
+// colores de las selecciones: [camiseta, secundario, diseño, número, ribete]
+const NT_KIT={Colombia:['#FCD116','#003893','plain','#003893','#CE1126'],Argentina:['#74ACDF','#ffffff','stripes','#111a33','#111a33'],Brasil:['#FFDF00','#009C3B','plain','#009C3B','#009C3B'],
+ Uruguay:['#5CBFEB','#ffffff','plain','#ffffff','#111111'],Ecuador:['#FFDD00','#034EA2','plain','#034EA2','#ED1C24'],Paraguay:['#ffffff','#D52B1E','stripes','#0038A8','#0038A8'],
+ Venezuela:['#7A1F2B','#FFCC00','plain','#FFCC00','#FFCC00'],Chile:['#D52B1E','#0039A6','plain','#ffffff','#0039A6'],'Perú':['#ffffff','#D91023','band','#D91023','#D91023'],
+ 'México':['#006847','#CE1126','plain','#ffffff','#CE1126'],'Estados Unidos':['#ffffff','#0A3161','plain','#0A3161','#B31942'],'España':['#C60B1E','#F1BF00','plain','#F1BF00','#F1BF00'],
+ Portugal:['#C8102E','#046A38','plain','#F2C500','#046A38'],Inglaterra:['#ffffff','#0b1f4f','plain','#0b1f4f','#CE1124'],Francia:['#0b2a6b','#ffffff','plain','#ffffff','#EF4135'],
+ Italia:['#0064C8','#ffffff','plain','#ffffff','#F2C500'],Alemania:['#ffffff','#111111','plain','#111111','#DD0000'],'Países Bajos':['#F36C21','#111111','plain','#111111','#111111'],
+ 'Bélgica':['#C8102E','#111111','plain','#F2C500','#F2C500'],'Turquía':['#E30A17','#ffffff','plain','#ffffff','#ffffff']};
+function kitClub(club){const [a,b,pat]=kitOf(club),k=a3dKit(club);return{a,b,pat,sleeve:k.sleeve,num:k.num,trim:b}}
+function kitNat(nat){const t=NT_KIT[nat];if(!t){const f=FLAG[nat]||['#ffffff','#111111'];return{a:f[0],b:f[1]||'#111',pat:'plain',sleeve:f[0],num:f[1]||'#111',trim:f[f.length-1]}}return{a:t[0],b:t[1],pat:t[2],sleeve:t[2]==='stripes'?t[0]:t[0],num:t[3],trim:t[4]}}
+function shirtSVG(K,name,num,nat){const id='sh'+(CREST_N++),{a,b,pat}=K;
+ const body='M64 20 L84 11 Q100 24 116 11 L136 20 L184 44 L171 88 L150 79 L150 204 Q100 214 50 204 L50 79 L29 88 L16 44 Z';
+ const P={plain:'',stripes:[64,82,100,118,136].filter((_,i)=>i%2===0).map(x=>`<rect x="${x-8}" y="0" width="16" height="220" fill="${b}"/>`).join(''),half:`<rect x="100" y="0" width="100" height="220" fill="${b}"/>`,
+  band:`<polygon points="40,40 70,30 165,200 135,210" fill="${b}"/>`,hband:`<rect x="0" y="94" width="200" height="32" fill="${b}"/>`,vband:`<rect x="86" y="0" width="28" height="220" fill="${b}"/>`}[pat]||'';
+ const nm=esc(String(name||'').trim().split(/\s+/).pop().toUpperCase().slice(0,12)),fs=nm.length>9?15:nm.length>7?18:21;
+ const T='font-family="Saira Condensed,Arial Narrow,sans-serif" font-weight="800" text-anchor="middle"';
+ return `<svg class="shirt" viewBox="0 0 200 222"><defs><clipPath id="${id}"><path d="${body}"/></clipPath>
+ <pattern id="${id}t" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="none"/><line x1="0" y1="0" x2="0" y2="4" stroke="#000" stroke-opacity=".05" stroke-width="1.4"/></pattern>
+ <linearGradient id="${id}g" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset=".2" stop-color="#000" stop-opacity=".04"/><stop offset=".42" stop-color="#fff" stop-opacity=".09"/><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset=".82" stop-color="#000" stop-opacity=".06"/><stop offset="1" stop-color="#000" stop-opacity=".34"/></linearGradient>
+ <linearGradient id="${id}v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".08"/><stop offset=".5" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></linearGradient></defs>
+ <g clip-path="url(#${id})"><rect width="200" height="222" fill="${a}"/>${P}
+  <path d="M16 44 L64 20 L52 79 L29 88 Z M184 44 L136 20 L148 79 L171 88 Z" fill="${K.sleeve}"/>
+  <path d="M22 76 L31 90 M178 76 L169 90" stroke="${K.trim}" stroke-width="7"/>
+  <rect x="44" y="80" width="10" height="130" fill="#000" opacity=".12"/><rect x="146" y="80" width="10" height="130" fill="#000" opacity=".12"/>
+  <path d="M64 20 Q60 50 52 79 M136 20 Q140 50 148 79" stroke="#000" stroke-opacity=".22" stroke-width="1.2" fill="none"/>
+  <path d="M60 52 Q70 120 64 200 M140 52 Q132 120 138 200" stroke="#000" stroke-opacity=".07" stroke-width="5" fill="none"/>
+  <rect width="200" height="222" fill="url(#${id}t)"/><rect width="200" height="222" fill="url(#${id}g)"/><rect width="200" height="222" fill="url(#${id}v)"/>
+  <path d="M50 200 Q100 209 150 200" stroke="#000" stroke-opacity=".25" stroke-width="1" stroke-dasharray="2.5 2" fill="none"/></g>
+ <path d="M84 11 Q100 26 116 11 L113 9 Q100 20 87 9 Z" fill="${K.trim}"/><path d="M87 9 Q100 18 113 9" fill="none" stroke="#000" stroke-opacity=".3" stroke-width=".8"/>
+ ${nat&&FLAG_SVG[nat]?`<svg x="93" y="25" width="14" height="9" viewBox="0 0 30 20" preserveAspectRatio="none">${FLAG_SVG[nat]}</svg>`:''}
+ <path d="${body}" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="1.6"/>
+ <text x="100.8" y="64.8" ${T} font-size="${fs}" letter-spacing="2" fill="#000" opacity=".25">${nm}</text>
+ <text x="100" y="64" ${T} font-size="${fs}" letter-spacing="2" fill="${K.num}">${nm}</text>
+ <text x="101.5" y="161.5" ${T} font-size="90" fill="#000" opacity=".22">${+num||9}</text>
+ <text x="100" y="160" ${T} font-size="90" fill="${K.num}" stroke="${K.trim===K.num?'rgba(0,0,0,.35)':K.trim}" stroke-width="2.2" paint-order="stroke">${+num||9}</text></svg>`}
+function showShirt(club,name,num,done,nat){const o=document.createElement('div');o.className='shirt-ov';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');
+ o.innerHTML=`<div class="shirt-in"><div class="shirt-k">Bienvenido a</div><div class="shirt-club">${crest(club,34)}<span>${esc(club)}</span></div>
+ <div class="shirt-wrap"><figure>${shirtSVG(kitClub(club),name,num,nat)}<figcaption>${esc(club)}</figcaption></figure>${nat?`<figure class="nt">${shirtSVG(kitNat(nat),name,num,nat)}<figcaption>Selección de ${esc(nat)}</figcaption></figure>`:''}</div>
+ <button class="ibtn" type="button">Empezar carrera ⚽</button></div>`;
  document.body.appendChild(o);const b=o.querySelector('button');let used=false;const go=()=>{if(used)return;used=true;o.classList.add('out');setTimeout(()=>{o.remove();done()},280)};
  b.onclick=go;o.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key==='Escape')go()});setTimeout(()=>b.focus(),50)}
 function anim3d(kind,variant,extra,force){if(window.__NO3D||(!force&&!a3dOn())||!window.THREE)return false;if(!force&&(!S||!S.p))return false;
