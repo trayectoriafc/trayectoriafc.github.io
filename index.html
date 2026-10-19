@@ -628,12 +628,12 @@ const ROLES={
  rotacion:{n:'Rotación',play:.64,start:.5,min:70,mor:0,imp:.4,grow:.4,cls:'warn'},
  suplente:{n:'Suplente',play:.4,start:.18,min:66,mor:-5,imp:.12,grow:-.2,cls:'bad'},
  reserva:{n:'Sin minutos',play:.1,start:.25,min:70,mor:-9,imp:0,grow:-.8,cls:'bad'}};
-let DIFF_START=(()=>{try{const v=localStorage.getItem('tfc-diff');return v!==null&&+v>=0&&+v<=3?+v:1}catch(e){return 1}})();const DF=()=>(S&&S.p&&S.diff!=null)?S.diff:DIFF_START;
+let DIFF_START=(()=>{try{const v=localStorage.getItem('tfc-diff');return v!==null&&+v>=0&&+v<=3?+v:2}catch(e){return 2}})();const DF=()=>(S&&S.p&&S.diff!=null)?S.diff:DIFF_START;
 const DIFFS=[{n:'Fácil',d:'La prensa te ayuda: el Balón de Oro llega 1 de cada 3 carreras'},{n:'Normal',d:'El Balón de Oro lo gana 1 de cada 6 carreras'},{n:'Difícil',d:'Tienes que ser un crack: 1 de cada 12 carreras'},{n:'Leyenda',d:'Tienes que ser Messi: 1 de cada 30 carreras'}];
 // probabilidad del Balón de Oro por posición y dificultad (medida en sim/): 1 de cada N carreras
 function boOdds(pos,d){d=d==null?DF():d;const g=pos==='POR'?3:['DFC','LD','LI'].includes(pos)?2:['MC','MCD'].includes(pos)?1:0;return [[3,3,5,8],[5,6,10,25],[10,12,20,50],[25,30,50,100]][d][g]}
 const boOddsTxt=(pos,d)=>`1 de cada ${boOdds(pos,d)}${pos==='POR'?' porteros':['DFC','LD','LI'].includes(pos)?' defensas':['MC','MCD'].includes(pos)?' mediocentros':' carreras'}`;
-const isYouth=()=>!!(S&&S.p&&S.p.age<=17);
+const isYouth=()=>!!(S&&S.p&&S.p.age<=16);
 // en los gigantes (nivel >90) la media que pide un puesto de titular crece a la mitad: un 92 es titular en el Real Madrid
 function roleKey(p,club){const cs=club.s>90?90+(club.s-90)*.5:club.s;let d=p.ovr-cs+(p.coach-50)/20+(p.morale-60)/60-[-1.5,0,1,2][DF()];if(typeof S!=='undefined'&&S&&S.p&&S.sm&&S.sm.comp&&club.n===S.p.club&&S.sm.comp.ovr>p.ovr)d-=3.5;if(p.age<=19)d-=1;if(p.age<=16)d-=1;if(p.ctier>=1&&club.n===p.cantera&&p.age<=18)d=Math.max(d,p.ctier>=2?-4.5:-8.5);
  if(p.age<=15)d=Math.min(d,-5.1);else if(p.age<=16)d=Math.min(d,-2.1);if(p.pos==='POR'&&p.age<=18)d=Math.min(d,-5.1);
@@ -1034,7 +1034,7 @@ function halfSim(h){
  p.morale=clamp(p.morale+r.mor+(nota&&nota>7?3:0)-(nota&&nota<6.3?3:0),0,100);
  p.coach=clamp(p.coach+(nota?round((nota-6.7)*6):-2),0,100);
  const half={apps,starts,min,g,a,cs,gc,nota,rk,games,club:p.club,x:xs};
- if(p.age<=17){const yt=p.age<=16?'Sub-17':'Sub-20';const ypj=Math.max(0,round(games*rnd(.72,.92)*(1-miss))-apps);const yn=ypj*.9;
+ if(p.age<=16){const yt='Sub-17';const ypj=Math.max(0,round(games*rnd(.72,.92)*(1-miss))-apps);const yn=ypj*.9;
   const P0=POS[p.pos],ym=clamp(Math.exp(.05*(p.ovr-(club.s-14))),.6,2.2);let yg=0,ya=0,ycs=0;
   if(p.pos==='POR')ycs=clamp(round(ypj*clamp(.3+.01*(p.ovr-(club.s-14)),.1,.6)),0,ypj);else{yg=Math.max(0,round(P0.g*yn*ym*(1+.2*gauss())));ya=Math.max(0,round(P0.a*yn*ym*(1+.2*gauss())))}
   const yo={t:yt,pj:ypj,min:ypj*80,g:yg,a:ya,cs:ycs,nota:clamp(6.6+.04*(p.ovr-(club.s-14))+gauss()*.15,5.8,9.2)};half.youth=yo;
@@ -1110,7 +1110,7 @@ function endSeason(){
  if(starter)H('tit','Tu primera temporada como titular',{morale:4,coach:3});
  if(sum.titles.length)H('t1','Tu primer título como profesional',{morale:5});
  if(p.pos==='POR'&&tot.cs>=10)H('cs10','10 vallas invictas en una temporada',{rep:2});
- if(p.age<=17){const Y=S.sm.youth||{t:p.age<=16?'Sub-17':'Sub-20',pj:0,g:0,a:0,cs:0};sum.youth=Y;const yt=Y.t,cn=p.club;const cands=[];
+ if(p.age<=16){const Y=S.sm.youth||{t:'Sub-17',pj:0,g:0,a:0,cs:0};sum.youth=Y;const yt=Y.t,cn=p.club;const cands=[];
   if(Y.pj>0&&!S.ms.ydeb)cands.push(['ydeb',`Debut con la ${yt} de ${cn}`]);
   if(p.pos==='POR'){if(Y.cs>=8)cands.push(['ycs',`Valla menos vencida de la ${yt}: ${Y.cs} partidos sin recibir gol`])}else{if(Y.g>=12)cands.push(['ygol',`Goleador de la ${yt} de ${cn} · ${Y.g} goles`]);if(Y.a>=7)cands.push(['yas',`${Y.a} asistencias con la ${yt} de ${cn}`])}
   if(p.age>=16&&Y.pj>0&&!S.ms.ycap&&((Y.nn&&Y.ns/Y.nn>=7)||p.ovr>=club.s-10))cands.push(['ycap',`Capitán de la ${yt} de ${cn}`]);
@@ -1134,7 +1134,7 @@ function endSeason(){
  p.rep=clamp(round(.7*p.rep+.3*(p.ovr-50)*2.2+(nota?(nota-6.7)*5:0)+sum.titles.length*3+(caps?4:0)),0,100);
  p.money+=p.salary*(p.agentTop?.9:1);
  // crecimiento
- const rks=S.sm.roles;let gB=rks.reduce((s,k)=>s+ROLES[k].grow,0)/Math.max(1,rks.length);if(p.age<=17&&S.sm.youth&&S.sm.youth.pj>0)gB=Math.max(gB,.3);
+ const rks=S.sm.roles;let gB=rks.reduce((s,k)=>s+ROLES[k].grow,0)/Math.max(1,rks.length);if(p.age<=16&&S.sm.youth&&S.sm.youth.pj>0)gB=Math.max(gB,.3);
  const a=p.age;const base=a<=16?1.9:a<=18?2.1:a<=20?1.8:a<=22?1.3:a<=24?.9:a<=27?.5:a<=29?0:a<=31?-1.5:a<=33?-3.5:a<=35?-7:a<=37?-8.5:-9.5;
  let d;if(base>0){d=(base+gB*.6+S.sm.growth*.8+(p.prof-50)/50)*clamp((Math.max(p.pot,p.ovr+2)-p.ovr)/7,.25,1.1)*gf(p.ovr)}
  else{d=base*clamp((p.ovr-40)/90,.25,1.2)+(p.prof-50)/50+(p.staff?.5:0)+S.sm.growth*.5+(S.sm.focus==='fisico'&&a>=29?.6:0)}
@@ -1190,7 +1190,7 @@ function fillOffers(out,min){const p=S.p,cur=CL[p.club],eo=Math.min(p.ovr,99),fr
  const pool=CLUBS.filter(c=>c.n!==p.club&&(!p.loan||c.n!==p.loan.parent)&&!out.some(o=>o.club===c.n)&&accessible(c,p)&&c.s<=eo+1&&(p.age>=18||L[c.l].c===L[cur.l].c)&&!(p.age>=18&&p.age<=23&&c.s<cur.s-2&&!['reserva','suplente'].includes(roleFor(p,cur))));
  const tgt=pool.length?Math.min(eo-2,Math.max(...pool.map(c=>c.s))):0;
  while(out.length<min&&pool.length){const c=wpick(pool,x=>Math.exp(-Math.abs(x.s-tgt)/4)*affinity(x,p));if(!c)break;pool.splice(pool.indexOf(c),1);out.push(makeOffer(c,p,free?'free':'transfer'))}return out}
-function genOffers(kind){const p=S.p,cur=CL[p.club];if(p.age<=17)return[];const jump=-[-1.5,0,1,2][DF()]+Math.min(6,1+p.rep/35+(p.agentTop?1.5:0)+((S.lastNota||6.8)>=7.3?1.5:0));
+function genOffers(kind){const p=S.p,cur=CL[p.club];if(p.age<=16)return[];const jump=-[-1.5,0,1,2][DF()]+Math.min(6,1+p.rep/35+(p.agentTop?1.5:0)+((S.lastNota||6.8)>=7.3?1.5:0));
  const free=kind==='summer'&&p.contract<=0&&!p.loan;
  const sameC=c=>p.age>=18||L[c.l].c===L[cur.l].c;const notLow=c=>!(p.age>=18&&p.age<=23&&c.s<cur.s-2&&!['reserva','suplente'].includes(roleFor(p,cur)));const canPay=c=>true;
  let cand=CLUBS.filter(c=>c.n!==p.club&&(!p.loan||c.n!==p.loan.parent)&&accessible(c,p)&&sameC(c)&&notLow(c)&&canPay(c));
@@ -1248,7 +1248,7 @@ function gala(tr){const p=S.p,b=S.bal||{g:0,titles:0,cont:0,nota:6};
  const needTxt=grp==='POR'?'más de 15 atajadas':grp==='DEF'?'al menos 2 goles':'más de 15 goles';
  const thr=galaThr(p.pos);
  const ok=p.ovr>=thr&&statOk&&titles>=(grp==='POR'?2:1)&&b.starter&&(grp!=='POR'||(b.cs||0)>=14);
- if(!ok){const pod=boPool(false).sort(()=>R()-.5).slice(0,3);const lack=p.age<=18?'todavía en formación':p.ovr<thr?`te faltó media ${thr} (tienes ${p.ovr})`:!statOk?(grp==='POR'?'te faltaron atajadas: necesitas 16':grp==='DEF'?'te faltaron goles: necesitas 2':'te faltaron goles: necesitas 16'):titles<(grp==='POR'?2:1)?(grp==='POR'?'te faltaron títulos':'te faltó un título'):!b.starter?'no fuiste titular':'te faltaron vallas invictas: necesitas 14';
+ if(!ok){const pod=boPool(false).sort(()=>R()-.5).slice(0,3);const lack=p.age<=17?'todavía en formación':p.ovr<thr?`te faltó media ${thr} (tienes ${p.ovr})`:!statOk?(grp==='POR'?'te faltaron atajadas: necesitas 16':grp==='DEF'?'te faltaron goles: necesitas 2':'te faltaron goles: necesitas 16'):titles<(grp==='POR'?2:1)?(grp==='POR'?'te faltaron títulos':'te faltó un título'):!b.starter?'no fuiste titular':'te faltaron vallas invictas: necesitas 14';
   S.galas=S.galas||{};S.galas[S.year]={place:0,podio:pod,lack};S.lastPodio={y:S.year,pod,lack};news(`Balón de Oro ${S.year}: 1º ${pod[0]}, 2º ${pod[1]}, 3º ${pod[2]}. Tú, fuera de los nominados: ${lack}.`);toMarket();return}
  S.lastPodio=null;const nom1=!(S.ms&&S.ms.nom)&&!Object.values(S.galas||{}).some(g=>g&&g.place>0);if(nom1){cnt('primera_gala');S.ms=S.ms||{};S.ms.nom=S.year;news(`Hito: nominado al Balón de Oro ${S.year} por primera vez.`);fx({rep:3,morale:4})}
  const ntW=ntChamp?(/Mundial/.test(tn)?2.5:/Copa Oro/.test(tn)?.5:1.5):0;
@@ -1349,7 +1349,7 @@ function scene(){const p=S.p,st=S.step,club=CL[p.club];let sc;
  case 'pre':{const rk=roleKey(p,club),avg=lgAvg(club.l);S.roleNow=rk;
   const cont=S.cont?(isYouth()?` El club juega la <b>${S.cont.n}</b>; tú la miras desde la tribuna.`:` Este año juegas la <b>${S.cont.n}</b>.`):'';
   sc={kicker:label()+' · Pretemporada',title:`<span class="ctag big">${crest(p.club,40)}<span>${esc(p.club)}</span></span>`,
-   body:`<p>Nivel del club <b>${club.s}</b> · promedio de la ${L[club.l].n} <b>${avg.toFixed(0)}</b> · tu media <b>${p.ovr}</b>. ${isYouth()?`Este año juegas en la <b>${p.age<=16?'Sub-17':'Sub-20'}</b> de ${esc(p.club)}. ${rk==='reserva'?'El primer equipo te mira de lejos.':rk==='suplente'?'Tendrás algún minuto en Primera.':'Ya cuentas para el primer equipo.'}`:`El cuerpo técnico te ve como ${roleChip(rk)}.`}${cont}</p>${S.sm.comp?`<p><b>Competencia:</b> llega ${esc(S.sm.comp.n)}, ${S.sm.comp.nat}, con media <b>${S.sm.comp.ovr}</b>, a pelear tu puesto. ${S.sm.comp.ovr>p.ovr?'<span class="chip bad">Tiene más media que tú: arrancas detrás de él</span>':'<span class="chip good">Le ganas el puesto</span>'}</p>`:''}<p>¿En qué te enfocas esta pretemporada?${S.sm.preAll?'':' <span class="note">Cuatro propuestas; toca «Más opciones» para ver todas.</span>'}</p>`,
+   body:`<p>Nivel del club <b>${club.s}</b> · promedio de la ${L[club.l].n} <b>${avg.toFixed(0)}</b> · tu media <b>${p.ovr}</b>. ${isYouth()?`Este año juegas en la <b>Sub-17</b> de ${esc(p.club)}. ${rk==='reserva'?'El primer equipo te mira de lejos.':rk==='suplente'?'Tendrás algún minuto en Primera.':'Ya cuentas para el primer equipo.'}`:`El cuerpo técnico te ve como ${roleChip(rk)}.`}${cont}</p>${S.sm.comp?`<p><b>Competencia:</b> llega ${esc(S.sm.comp.n)}, ${S.sm.comp.nat}, con media <b>${S.sm.comp.ovr}</b>, a pelear tu puesto. ${S.sm.comp.ovr>p.ovr?'<span class="chip bad">Tiene más media que tú: arrancas detrás de él</span>':'<span class="chip good">Le ganas el puesto</span>'}</p>`:''}<p>¿En qué te enfocas esta pretemporada?${S.sm.preAll?'':' <span class="note">Cuatro propuestas; toca «Más opciones» para ver todas.</span>'}</p>`,
    choices:preChoices(p,club)};break}
  case 'event':{const ev=EVENTS.find(e=>e.id===st.data.id);
   sc={kicker:label()+(st.data.next==='h1'?' · Antes del arranque':' · Segunda mitad'),title:ev.t,body:`<p>${ev.x(p)}</p><p class="note" style="margin:0">Por qué: ${evWhy(ev,p)}.</p>`,
@@ -1458,7 +1458,7 @@ function scene(){const p=S.p,st=S.step,club=CL[p.club];let sc;
 function offerChoice(o,f){const lg=L[o.l];const t=o.type==='home'?(o.past?'Regreso a casa':'Regreso triunfal'):o.type==='loan'?'Préstamo':o.type==='free'?'Libre':'Traspaso';
  return{l:clubTag(o.club,22),d:`${lg.n} · nivel ${o.s} · ${t}${o.fee?` por ${fmtM(o.fee)}`:''}`,meta:`${S.statue?`<span class="chip gold">Leyenda viva</span>`:''}${o.type==='home'?`<span class="chip gold">Regreso triunfal</span>`:''}${rivalOf(o.club)?`<span class="chip bad">Rival de ${esc(rivalOf(o.club))}</span>`:''}${S.p.age>=18&&o.type!=='home'&&L[o.l].c!==L[CL[S.p.club].l].c?'<span class="chip warn largo">Otro país: un año de adaptación posible</span>':''}${o.type==='home'?'':(()=>{const d=o.s-(CL[S.p.club]||{s:o.s}).s;return d>=2?'<span class="chip good">Mejor club</span>':d>=-2?'<span class="chip">Nivel parecido</span>':'<span class="chip warn">Club más chico</span>'})()}${roleChip(o.role)}<span class="chip">${fmtM(o.salary)}/año</span><span class="chip">${o.years} año${o.years>1?'s':''}</span>`,f}}
 function caminoHTML(){const p=S.p,b=S.bal||{},grp=p.pos==='POR'?'POR':['DFC','LD','LI','MCD','MC'].includes(p.pos)?'DEF':'ATA',thr=galaThr(p.pos);
- if(p.age<=17)return `<div class="camino"><b>Camino al Balón de Oro</b><p class="note" style="margin:4px 0 0">Primero: romperla en la ${p.age<=16?'Sub-17':'Sub-20'} y dar el salto al primer equipo.</p></div>`;
+ if(p.age<=16)return `<div class="camino"><b>Camino al Balón de Oro</b><p class="note" style="margin:4px 0 0">Primero: romperla en la Sub-17 y dar el salto al primer equipo a los 17.</p></div>`;
  const g=b.g||0,needG=grp==='DEF'?2:16,cs=b.cs||0,gOk=grp==='POR'?(b.ata||0)>15&&cs>=14:g>=needG,needT=grp==='POR'?2:1,tt=b.titles||0,tOk=tt>=needT,mOk=p.ovr>=thr,sOk=!!b.starter;
  const it=[[mOk,mOk?`Media ${p.ovr} ✓`:`Media ${p.ovr}/${thr}`,`media ${thr} (tienes ${p.ovr})`],[gOk,grp==='POR'?(gOk?`Vallas ${cs} ✓`:`Vallas ${cs}/14`):(gOk?`Goles ${g} ✓`:`Goles ${g}/${needG}`),grp==='POR'?`vallas invictas: 14 (tienes ${cs})`:`${needG-g} gol${needG-g>1?'es':''} más`],[tOk,grp==='POR'?(tOk?`Títulos ${tt} ✓`:`Títulos ${tt}/2`):(tOk?'Título ✓':'Sin título'),needT>1?'dos títulos':'un título'],[sOk,sOk?'Titular ✓':'No titular','ser titular']];
  const met=it.filter(x=>x[0]).length,lack=it.filter(x=>!x[0]).map(x=>x[2]);
@@ -1537,8 +1537,8 @@ function homeOffers(){const p=S.p,cur=CL[p.club];if(p.age<33||p.age>35||L[cur.l]
 function toMarket(){const p=S.p;let msg='';
  if(p.loan){msg=`Terminó tu préstamo en ${p.club}. Vuelves a ${p.loan.parent}. `;p.club=p.loan.parent;p.contract=p.loan.contract;p.salary=p.loan.salary;p.loan=null;p.coach=50}
  if(p.age>=39||(p.age>=34&&p.ovr<72)||(p.contract<=0&&p.ovr<60)){retire(true);return}
- if(p.age<=17){if(p.contract<=1){p.contract=3;p.salary=Math.max(p.salary,salaryFor(p.ovr,p.age,CL[p.club]));S.ms=S.ms||{};if(!S.ms.ypro){S.ms.ypro=S.year;news(`${p.club} te renovó: primer contrato profesional hasta ${S.year+3}.`)}else news(`${p.club} te renovó hasta ${S.year+3}.`)}
-  fastToast('Sigues en '+p.club,p.age<=16?'Un año más de formación en la cantera.':'Último año de formación: el primer equipo te espera a los 18.',[]);nextSeason();return}
+ if(p.age<=16){if(p.contract<=1){p.contract=3;p.salary=Math.max(p.salary,salaryFor(p.ovr,p.age,CL[p.club]));S.ms=S.ms||{};if(!S.ms.ypro){S.ms.ypro=S.year;news(`${p.club} te renovó: primer contrato profesional hasta ${S.year+3}.`)}else news(`${p.club} te renovó hasta ${S.year+3}.`)}
+  fastToast('Sigues en '+p.club,p.age<=15?'Un año más de formación en la cantera.':'Último año de formación: el primer equipo te espera a los 17.',[]);nextSeason();return}
  const free=p.contract<=0;let renew=null;const rk=roleFor(p,CL[p.club]);
  if(!free&&p.contract<=1&&['estrella','titular','rotacion'].includes(rk))renew={years:clamp(p.age>=31?ri(1,2):ri(2,4),1,4),salary:Math.max(round(p.salary*1.1/1000)*1000,salaryFor(p.ovr,p.age,CL[p.club]))};
  if(free&&['estrella','titular'].includes(rk)&&R()<.6)renew={years:p.age>=31?1:2,salary:salaryFor(p.ovr,p.age,CL[p.club])};
@@ -1770,7 +1770,7 @@ function cromo(){const p=S.p,c=CL[p.club];const pr=[Math.max(p.ovr,p.pot-4),p.po
  <div class="num" aria-hidden="true">${p.num}</div><div class="ovr ${tierCls(p.ovr)}" title="${tierName(p.ovr)}"><b>${p.ovr}</b><small>${tierName(p.ovr).toUpperCase()}</small>${p.ovr<99?`<i class="ovrbar" title="Progreso hacia ${p.ovr+1}"><i style="width:${round(clamp(p.ovrFrac||0,0,1)*100)}%"></i></i>`:''}</div></div>
  <div class="body">${flagHTML(p.nat)}<dl class="kv">
   <dt>País</dt><dd>${p.nat}${p.home?` <span class="note">(nacido en ${p.home})</span>`:''}</dd><dt>Edad</dt><dd>${p.age} años</dd><dt>Cantera</dt><dd>${p.cantera?clubTag(p.cantera,16):'—'}${p.prodigy?' <b style="color:var(--accent,#e65100)">· Prodigio</b>':''}</dd><dt>Club</dt><dd>${clubTag(p.club)}${p.loan?' (cedido)':''}</dd><dt>Liga</dt><dd>${L[c.l].n}</dd>
-  <dt>Dificultad</dt><dd>${DIFFS[DF()].n} <span class="note">· Balón de Oro 1 de cada ${[3,6,12,30][DF()]} · tu posición ${boOddsTxt(p.pos)}</span></dd>
+  <dt>Dificultad</dt><dd>${DIFFS[DF()].n}</dd>
   <dt>Salario</dt><dd>${fmtM(p.salary)}/año</dd><dt>Contrato</dt><dd>${p.loan?'préstamo':p.contract+' año'+(p.contract===1?'':'s')}</dd>
   <dt>Ahorros</dt><dd>${fmtM(p.money)}</dd><dt>Selección</dt><dd>${S.nt.caps} PJ · ${S.nt.g} G</dd></dl>
   <div class="meter"><div class="lab"><span>Moral</span><span>${p.morale}</span></div>${m(p.morale,'m1')}</div>
@@ -1855,8 +1855,8 @@ function endView(){const p=S.p;const rows=S.rows;const T=rows.reduce((s,e)=>({pj
 const PROFILES={precoz:{n:'Promesa precoz',d:'Arrancas con más nivel, techo alto',ovr:61,pot:[80,88],prof:55},
  diamante:{n:'Diamante en bruto',d:'Arrancas más abajo, techo de crack',ovr:56,pot:[84,93],prof:50},
  obrero:{n:'Trabajador',d:'Disciplina de hierro, techo medio',ovr:59,pot:[78,86],prof:78}};
-const TIERS=[{k:'Cantera grande',pot:4,prof:4,mor:0,txt:'Mucha competencia: Primera desde los 18, si rindes.'},
- {k:'Club de tu país',pot:3,prof:3,mor:2,txt:'Sub-17 y Sub-20 del club; rotación en Primera a los 18.'},
+const TIERS=[{k:'Cantera grande',pot:4,prof:4,mor:0,txt:'Mucha competencia: minutos en Primera desde los 17, si rindes.'},
+ {k:'Club de tu país',pot:3,prof:3,mor:2,txt:'Sub-17 dos años y rotación en Primera a los 17.'},
  {k:'Cantera pequeña',pot:0,prof:0,mor:6,txt:'Juegas desde antes: minutos en Primera a los 17.'},
  {k:'Club extranjero',pot:2,prof:2,mor:-4,txt:'Un club de otro país apuesta por ti: liga top, lejos de casa.'}];
 let CANT={nat:'Colombia',list:[],tier:[0,1,2,3],sel:2};const cantTier=i=>(CANT.tier||[0,1,2,3])[i];
@@ -1876,7 +1876,7 @@ function startView(){if(!CANT.list.length)rollCanteras('Colombia');
  const chips=(id,items,cur)=>`<div class="ichips" data-for="${id}">${items.map(([v,t,sub])=>`<button type="button" class="ichip" data-v="${v}" aria-pressed="${v===cur}"><b>${t}</b>${sub?`<span>${sub}</span>`:''}</button>`).join('')}</div>`;
  const NUMS=[1,2,3,4,5,6,7,8,9,10,11,14,17,19,20,21,22,23,27,30];
  const sv=load(),canRes=sv&&sv.p&&!sv.retired,hn=loadHist().length;
- return `<div class="intro-wrap"><div class="ihero" id="ihero"><div class="ititle">TRAYECTORIA <span>FC</span></div><div class="itag">De la cantera al Balón de Oro</div><div class="inews">Novedades: el Balón de Oro lo gana 1 de cada 6 carreras · de los 15 a los 17 juegas en las juveniles del club · cromo para compartir</div></div>
+ return `<div class="intro-wrap"><div class="ihero" id="ihero"><div class="ititle">TRAYECTORIA <span>FC</span></div><div class="itag">De la cantera al Balón de Oro</div><div class="inews">Novedades: el Balón de Oro lo gana 1 de cada 6 carreras en Normal · a los 15 y 16 juegas en la Sub-17 del club · cromo para compartir</div></div>
  ${portadaHTML()}
  <div class="iprog" id="wiz-prog"></div>
  <form class="iform" id="f" autocomplete="off"${(load()&&load().p&&!load().retired)||lastPlayer()?' hidden':''}>
@@ -1889,7 +1889,7 @@ function startView(){if(!CANT.list.length)rollCanteras('Colombia');
  ${st('diff','¿Qué tan difícil?',chips('diff',DIFFS.map((d,i)=>[String(i),d.n,d.d]),String(DIFF_START))+`<select id="diff" hidden>${DIFFS.map((d,i)=>`<option value="${i}"${i===DIFF_START?' selected':''}>${d.n}</option>`).join('')}</select>
 `)}
  ${st('prof','¿Qué tipo de jugador eres?',chips('prof',Object.entries(PROFILES).map(([k,v])=>[k,v.n,v.d]),Object.keys(PROFILES)[0])+`<select id="prof" hidden>${Object.keys(PROFILES).map(k=>`<option value="${k}">${k}</option>`).join('')}</select>`)}
- ${st('user','Tu usuario del ranking',`<div class="iline"><input id="rkuser" class="ibig" placeholder="Ej. agusblox" maxlength="20" autocomplete="off"></div>`,'Opcional · para competir en el ranking en línea')}
+ ${st('user','Tu nombre en el ranking',`<div class="iline"><input id="rkuser" class="ibig" placeholder="Ej. agusblox" maxlength="20" autocomplete="off"></div><span id="rkuser-err" class="ierr" hidden>Escribe tu nombre del ranking para seguir</span>`,'Obligatorio · así apareces en el ranking en línea')}
  ${st('cant','Elige tu cantera',`<p class="ihint" style="margin:0 0 6px">Toca un club para empezar tu carrera</p><button class="ilink" type="button" id="reroll">Ver otras canteras ↻</button><p class="ihint" style="margin:4px 0 0">Cambia los clubes que te quieren. A los grandes llegas después, con rendimiento.</p><div class="cants" id="cants" style="margin-top:14px"></div><p class="ihint" style="margin-top:14px">Juego de fans sin relación con los clubes. Niveles aproximados a 2026.</p>`,`<span id="cant-note">Dos clubes de ${esc(CANT.nat)}, uno pequeño y uno extranjero te quieren</span>`)}
  </form>
  <div class="ibar"><button class="ibtn ghost" type="button" id="wiz-back" hidden>←</button><button class="ibtn" type="button" id="wiz-next">Siguiente →</button><button class="ibtn" id="go" hidden>Empezar carrera ⚽</button></div>
@@ -1904,7 +1904,7 @@ function cantsHTML(){const pr=PROFILES[document.getElementById('prof').value];
  return CANT.list.map((n,i)=>{const c=CL[n],t=cantTier(i),T=TIERS[t];const rk18=roleKey({ovr:pr.ovr+8,age:18,coach:50,morale:60+T.mor,ctier:t,cantera:n},c);
   return `<button type="button" class="cant t${t}" data-c="${i}" aria-pressed="${CANT.sel===i}"><div class="top"><span>${T.k}</span><b>${c.s}</b></div>
   <div class="bd"><div class="cn"><span class="ctag big">${crest(n,24)}<span>${esc(n)}</span></span></div><div class="note">${L[BASE_L[n]].n}</div><div><span class="note">A los 18:</span> ${roleChip(rk18)}</div>
-  <ul><li>15-17 años: Sub-17 y Sub-20 del club</li><li>${T.pot?`Potencial +${T.pot} · puedes llegar más alto`:'Potencial normal'}</li></ul><p class="note" style="margin:0">${T.txt}</p></div></button>`}).join('')}
+  <ul><li>15 y 16 años: Sub-17 del club · primer equipo a los 17</li><li>${T.pot?`Potencial +${T.pot} · puedes llegar más alto`:'Potencial normal'}</li></ul><p class="note" style="margin:0">${T.txt}</p></div></button>`}).join('')}
 let REV_FOOT='';
 function newGame(){const v=k=>document.getElementById(k).value;{const sv=load();if(sv&&sv.p&&!sv.retired&&(!S||S.cid!==sv.cid)){const keep=S;S=sv;try{archiveCareer('reinicio')}catch(e){}S=keep}}{const ru=document.getElementById('rkuser');if(ru&&ru.value.trim())rkSetUser(ru.value)}if(!REV_FOOT&&!DAILY){const ks=Object.keys(PROFILES);document.getElementById('prof').value=ks[ri(0,ks.length-1)]}const pr=PROFILES[v('prof')];resetClubs();
  const prod=R()<.01,barca=prod&&NAT[v('nat')]&&NAT[v('nat')].cf==='EU';
@@ -1990,7 +1990,7 @@ function render(){
   const box=document.getElementById('cants'),fb=document.getElementById('flagbox');
   const up=()=>{box.innerHTML=cantsHTML();fb.innerHTML=flagHTML(CANT.nat);box.querySelectorAll('.cant').forEach(b=>b.onclick=()=>{CANT.sel=+b.dataset.c;up();const n=document.getElementById('name');if(!n.value.trim()){document.getElementById('go').click();return}setTimeout(()=>showShirt(CANT.list[CANT.sel],n.value,document.getElementById('num').value||{POR:1,DFC:4,LD:2,LI:3,MCD:5,MC:8,MCO:10,ED:7,EI:11,DC:9}[document.getElementById('pos').value]||9,()=>document.getElementById('go').click(),document.getElementById('nat').value),200)})};up();
   document.getElementById('prof').addEventListener('change',up);
-  document.getElementById('diff').addEventListener('change',e=>{DIFF_START=+e.target.value;up()});
+  document.getElementById('diff').addEventListener('change',e=>{DIFF_START=+e.target.value;try{localStorage.setItem('tfc-diff',String(DIFF_START))}catch(e2){}up()});
   document.getElementById('nat').addEventListener('change',e=>{rollCanteras(e.target.value);document.getElementById('cant-note').textContent=`Dos clubes de ${CANT.nat}, uno pequeño y uno extranjero te quieren`;up()});
   document.getElementById('reroll').onclick=()=>{rollCanteras(CANT.nat);up()};
   const latSync=()=>{document.getElementById('latbox').hidden=!['LD','LI'].includes(document.getElementById('pos').value)};latSync();document.getElementById('pos').addEventListener('change',latSync);
@@ -2003,7 +2003,7 @@ function render(){
   app.querySelectorAll('.ichips').forEach(g=>{const sel=document.getElementById(g.dataset.for);g.querySelectorAll('.ichip').forEach(b=>b.onclick=()=>{sel.value=b.dataset.v;g.querySelectorAll('.ichip').forEach(x=>x.setAttribute('aria-pressed',x===b));sel.dispatchEvent(new Event('change'));if(g.dataset.for!=='gen')adv()})});
   app.querySelectorAll('.iflag').forEach(b=>b.onclick=()=>{const sel=document.getElementById('nat');sel.value=b.dataset.v;app.querySelectorAll('.iflag').forEach(x=>x.setAttribute('aria-pressed',x===b));sel.dispatchEvent(new Event('change'));adv()});
   const ALL=[...app.querySelectorAll('.istep')];let steps=[],NS=0;
-  const calc=()=>{const lat=['LD','LI'].includes(document.getElementById('pos').value);steps=ALL.filter(x=>!['foot','diff','prof','user'].includes(x.dataset.k)&&!(x.dataset.k==='lat'&&!lat));NS=steps.length};calc();
+  const calc=()=>{const lat=['LD','LI'].includes(document.getElementById('pos').value);steps=ALL.filter(x=>!['foot','prof'].includes(x.dataset.k)&&!(x.dataset.k==='user'&&!FB_URL)&&!(x.dataset.k==='lat'&&!lat));NS=steps.length};calc();
   const CHIPK=['pos','lat','foot','nat','diff','prof','cant'];
   const show=()=>{calc();WIZ=Math.max(0,Math.min(NS-1,WIZ));steps.forEach((x,i)=>{const on=i===WIZ;if(on&&x.hidden){x.hidden=false;x.classList.remove('in');void x.offsetWidth;x.classList.add('in')}else if(!on)x.hidden=true});
     app.querySelectorAll('.istep').forEach(x=>{if(!steps.includes(x))x.hidden=true});
@@ -2011,24 +2011,24 @@ function render(){
     document.getElementById('ihero').classList.toggle('small',WIZ>0);document.getElementById('iextra').hidden=WIZ>0;
     document.getElementById('wiz-prog').innerHTML=WIZ?steps.map((_,i)=>`<i class="${i<=WIZ?'on':''}"></i>`).join(''):'';
     document.getElementById('wiz-back').hidden=WIZ===0;document.getElementById('wiz-next').hidden=CHIPK.includes(steps[WIZ].dataset.k);document.getElementById('go').hidden=true;
-    document.getElementById('wiz-next').textContent=steps[WIZ].dataset.k==='user'&&!document.getElementById('rkuser').value.trim()?'Saltar →':'Siguiente →';
+    document.getElementById('wiz-next').textContent='Siguiente →';
     if(steps[WIZ].dataset.k==='diff'){const ps=document.getElementById('pos').value;steps[WIZ].querySelectorAll('.ichip').forEach(b=>{const i=+b.dataset.v,sp=b.querySelector('span');if(sp)sp.textContent=`El Balón de Oro lo gana ${boOddsTxt(ps,i)}`})}
     const f=steps[WIZ].querySelector('input:not([type=number]),select:not([hidden])');if(f&&matchMedia('(pointer:fine)').matches)setTimeout(()=>f.focus(),60)};
   const nameOk=()=>{const n=document.getElementById('name');if(n.value.trim())return true;document.getElementById('name-err').hidden=false;n.focus();return false};
-  document.getElementById('rkuser').addEventListener('input',()=>{if(steps[WIZ].dataset.k==='user')document.getElementById('wiz-next').textContent=document.getElementById('rkuser').value.trim()?'Siguiente →':'Saltar →'});
-  document.getElementById('wiz-next').onclick=()=>{const k=steps[WIZ].dataset.k;if(k==='name'&&!nameOk())return;if(k==='num'){const v=Math.max(1,Math.min(99,Math.round(+numIn.value||{POR:1,DFC:4,LD:2,LI:3,MCD:5,MC:8,MCO:10,ED:7,EI:11,DC:9}[document.getElementById('pos').value]||9)));numIn.value=v;numSync()}WIZ++;show();window.scrollTo({top:0,behavior:'smooth'})};
+  document.getElementById('rkuser').addEventListener('input',()=>{const e=document.getElementById('rkuser-err');if(e)e.hidden=true});
+  document.getElementById('wiz-next').onclick=()=>{const k=steps[WIZ].dataset.k;if(k==='name'&&!nameOk())return;if(k==='user'&&!document.getElementById('rkuser').value.trim()){const e=document.getElementById('rkuser-err');if(e)e.hidden=false;document.getElementById('rkuser').focus();return}if(k==='num'){const v=Math.max(1,Math.min(99,Math.round(+numIn.value||{POR:1,DFC:4,LD:2,LI:3,MCD:5,MC:8,MCO:10,ED:7,EI:11,DC:9}[document.getElementById('pos').value]||9)));numIn.value=v;numSync()}WIZ++;show();window.scrollTo({top:0,behavior:'smooth'})};
   document.getElementById('wiz-back').onclick=()=>{WIZ--;show()};
   app.querySelectorAll('.istep input').forEach(x=>x.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById(WIZ===NS-1?'go':'wiz-next').click()}}));
   // la posición elige el dorsal típico y sincroniza los botones
   document.getElementById('pos').addEventListener('change',()=>{const g=app.querySelector('.ichips[data-for=pos]');g.querySelectorAll('.ichip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===document.getElementById('pos').value))});
   show();window.__wizShow=show;
-  if(REV){const r=REV;REV=null;const po=document.getElementById('portada');if(po)po.hidden=true;document.getElementById('f').hidden=false;document.querySelector('.ibar').hidden=false;try{REV_FOOT=r.foot||'';document.getElementById('foot').value=r.foot||'Derecho';document.getElementById('gen').value=r.gen||'m';app.querySelectorAll('.ichips[data-for=gen] .ichip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===(r.gen||'m')));document.getElementById('name').value=r.name;document.getElementById('pos').value=r.pos;document.getElementById('pos').dispatchEvent(new Event('change'));if(r.lat)document.getElementById('lat').value=r.lat;document.getElementById('foot').value=r.foot;numIn.value=r.num;numSync();document.getElementById('nat').value=r.nat;app.querySelectorAll('.iflag').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===r.nat));DIFF_START=r.diff;document.getElementById('diff').value=String(r.diff);app.querySelectorAll('.ichips[data-for=diff] .ichip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===String(r.diff)));if(r.prof){document.getElementById('prof').value=r.prof;app.querySelectorAll('.ichips[data-for=prof] .ichip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===r.prof))}rollCanteras(r.nat);document.getElementById('cant-note').textContent=`Dos clubes de ${CANT.nat}, uno pequeño y uno extranjero te quieren`;up();calc();WIZ=steps.findIndex(x=>x.dataset.k==='cant');show()}catch(e){console.warn('revancha',e)}}
+  if(REV){const r=REV;REV=null;const po=document.getElementById('portada');if(po)po.hidden=true;document.getElementById('f').hidden=false;document.querySelector('.ibar').hidden=false;try{REV_FOOT=r.foot||'';document.getElementById('foot').value=r.foot||'Derecho';document.getElementById('gen').value=r.gen||'m';app.querySelectorAll('.ichips[data-for=gen] .ichip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===(r.gen||'m')));document.getElementById('name').value=r.name;document.getElementById('pos').value=r.pos;document.getElementById('pos').dispatchEvent(new Event('change'));if(r.lat)document.getElementById('lat').value=r.lat;document.getElementById('foot').value=r.foot;numIn.value=r.num;numSync();document.getElementById('nat').value=r.nat;app.querySelectorAll('.iflag').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===r.nat));DIFF_START=r.diff;document.getElementById('diff').value=String(r.diff);app.querySelectorAll('.ichips[data-for=diff] .ichip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===String(r.diff)));if(r.prof){document.getElementById('prof').value=r.prof;app.querySelectorAll('.ichips[data-for=prof] .ichip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===r.prof))}rollCanteras(r.nat);document.getElementById('cant-note').textContent=`Dos clubes de ${CANT.nat}, uno pequeño y uno extranjero te quieren`;up();calc();if(r.user&&document.getElementById('rkuser'))document.getElementById('rkuser').value=r.user;WIZ=steps.findIndex(x=>x.dataset.k===((rkUser()||r.user)||!FB_URL?'cant':'user'));show()}catch(e){console.warn('revancha',e)}}
   document.getElementById('f').addEventListener('submit',e=>e.preventDefault());
   app.querySelectorAll('[data-hdel]').forEach(bt=>bt.onclick=()=>{const id=bt.dataset.hdel;try{localStorage.setItem(HKEY,JSON.stringify(loadHist().filter(x=>x.id!==id)))}catch(e){}render()});
   document.getElementById('go').onclick=()=>{const n=document.getElementById('name');if(!n.value.trim()){WIZ=0;show();nameOk();return}newGame()};
   document.getElementById('name').addEventListener('input',()=>{document.getElementById('name-err').hidden=true});
   const rs=document.getElementById('resume');if(rs)rs.onclick=()=>{S=load();restoreClubs();migrate();render();if(pendingOrder)applyOrder(pendingOrder)};
-  const jy=document.getElementById('jugar-ya');if(jy)jy.onclick=()=>{const l=lastPlayer();if(!l)return;REV=l;render()};
+  const jy=document.getElementById('jugar-ya');if(jy)jy.onclick=()=>{const l=lastPlayer();if(!l)return;REV=Object.assign({user:rkUser()},l);render()};
   const dl=document.getElementById('daily');if(dl)dl.onclick=()=>{location.href=dailyURL()};
   const cr=document.getElementById('crear');if(cr)cr.onclick=()=>{const po=document.getElementById('portada');if(po)po.hidden=true;document.getElementById('f').hidden=false;document.querySelector('.ibar').hidden=false;WIZ=0;window.__wizShow&&window.__wizShow();const n=document.getElementById('name');if(n)setTimeout(()=>n.focus(),60)};
   {const ib=document.querySelector('.ibar'),fm=document.getElementById('f');if(ib&&fm)ib.hidden=fm.hidden}return}
