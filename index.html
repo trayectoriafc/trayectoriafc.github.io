@@ -3057,7 +3057,7 @@ function sceneTrain(L,variant){
   }
   if(variant==='tecnica'&&L.play)return dribblePlay();
   // ===== entrenamientos jugables: te mueves tú (WASD / stick) y actúas con B/E =====
-  function drillPlay(){
+  function drillPlay(){const TOUCH=matchMedia('(pointer:coarse)').matches;
     const ball=ballMesh();sc.add(ball);const bp=V(0,.11,0),bv=V(0,0,0);
     const mk=o=>{const q=person(Object.assign({shirt:kit.shirt,sleeve:kit.sleeve,shorts:kit.shorts,socks:kit.socks,numColor:kit.num,name:''},o));sc.add(q.root);return q};
     const rival=o=>mk(Object.assign({shirt:'#ff8a1f',sleeve:'#ff8a1f',shorts:'#1b1b1f',socks:'#ff8a1f',num:9,numColor:'#111',hair:'#2a1a12',skin:'#c08a5f'},o||{}));
@@ -3149,15 +3149,19 @@ function sceneTrain(L,variant){
         if(live&&P.rt<1.2)cap(keys.sprint?'':'Tip: Shift / RT para sprintar',false)}
       if(variant==='cabeza'){const m=NPC[0];lim(4.2);
         if(D.k<0&&P.rt>.7){D.k=0}
-        if(D.k>=0&&D.k<1){D.k+=dt/.42;kickPose(m,Math.min(1,D.k));if(D.k>=.55&&!D.cr){const dist=D.from.distanceTo(D.land);D.cr={t:0,T:Math.max(1.05,dist/10),hgt:2.6+dist*.1}}}else idle(m,t);
+        if(D.k>=0&&D.k<1){D.k+=dt/.42;kickPose(m,Math.min(1,D.k));if(D.k>=.55&&!D.cr){const dist=D.from.distanceTo(D.land);D.cr={t:0,T:Math.max(1.05,dist/10)*(TOUCH?1.25:1.1),hgt:2.6+dist*.1}}}else idle(m,t);
         m.root.rotation.y=Math.atan2(D.land.x-m.root.position.x,D.land.z-m.root.position.z);
-        if(act&&P.jT<0)P.jT=0;
+        // salto con memoria: si aprietas antes de tiempo, saltas solo en el momento justo
+        const uu=D.cr?D.cr.t/D.cr.T:0;if(act&&P.jT<0){if(!D.cr||uu<.66){D.armed=true;cap('¡Listo para saltar!',true)}else P.jT=0}
+        if(D.armed&&D.cr&&uu>=.7&&P.jT<0){D.armed=false;P.jT=0}
+        // ayuda: si estás cerca, te acomodas solo bajo el balón
+        if(D.cr&&!D.head&&live){const dl=Math.hypot(D.land.x-P.pos.x,D.land.z-P.pos.z);if(dl<(TOUCH?3.2:2.2)&&dl>.05){const k=Math.min(1,dt*(TOUCH?3.2:2));P.pos.x+=(D.land.x-P.pos.x)*k;P.pos.z+=(D.land.z-.2-P.pos.z)*k}}
         if(D.cr&&!D.head){const R2=D.cr;R2.t+=dt;const u=R2.t/R2.T;mark.visible=u<1;mark.position.set(D.land.x,.025,D.land.z);
           if(u<=1){const uh=(1-Math.exp(-1.3*u))/(1-Math.exp(-1.3));bp.copy(D.from).lerp(D.land.clone().setY(2.05),uh);bp.y=lerp(.11,2.05,u)+R2.hgt*4*u*(1-u)*(1-.18*u)}
           else{bp.y-=dt*7*(u-1+.3);bp.addScaledVector(D.land.clone().sub(D.from).setY(0).normalize(),dt*4);bp.y=Math.max(.11,bp.y)}
           // cabezazo: en el aire, con la cabeza cerca del balón
           const hd=P.pos.clone().setY(1.75+(P.jT>=0?Math.sin(Math.PI*Math.min(1,P.jT/.62))*.55:0));
-          if(live&&P.jT>.06&&P.jT<.52&&Math.hypot(bp.x-hd.x,bp.z-hd.z)<.8&&Math.abs(bp.y-hd.y)<.7){D.head={t:0,v:fw().multiplyScalar(11).add(V((Math.random()-.5)*4,5.5,0))};P.hit=P.jT;win(true,'¡Despeje de cabeza!')}
+          if(live&&P.jT>.04&&P.jT<.58&&Math.hypot(bp.x-hd.x,bp.z-hd.z)<(TOUCH?1.15:.9)&&Math.abs(bp.y-hd.y)<.85){D.head={t:0,v:fw().multiplyScalar(11).add(V((Math.random()-.5)*4,5.5,0))};P.hit=P.jT;win(true,'¡Despeje de cabeza!')}
           else if(live&&bp.y<=.12){win(false,P.pos.distanceTo(D.land)<1?'¡Saltaste a destiempo!':'No llegaste al balón')}}
         if(D.head){D.head.v.y-=9.8*dt;bp.addScaledVector(D.head.v,dt);if(bp.y<.11){bp.y=.11;D.head.v.y*=-.4;D.head.v.x*=.8;D.head.v.z*=.8}}}
       if(variant==='barrida'){const a=NPC[0],ap=a.root.position;lim(9);
