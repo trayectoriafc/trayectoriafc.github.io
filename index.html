@@ -1001,6 +1001,23 @@ function endSeason(){
   ntg=p.pos==='POR'?0:Math.max(0,round(POS[p.pos].g*caps*.8*Math.exp(.06*(p.ovr-82))*(1+.25*gauss())));S.nt.caps+=caps;S.nt.g+=ntg;sum.nt={caps,g:ntg}}
  sum.called=p.ovr>=nat.t-1&&(caps>0);
  S.bal={ata:(xsum(entries.map(e=>e.x)).ata||0),cs:tot.cs,lgT:sum.titles.some(t=>t===lg.n||(lg.split||[]).includes(t)),star:sum.awards.some(t=>/^(Goleador|Mejor jugador) de la/.test(t)),g:tot.g,titles:sum.titles.length,cont:sum.titles.filter(t=>t===CONT.EU.main||t===CONT.SA.main).length,nota:nota||6,starter,eu:lg.cf==='EU'};
+ // ---- hitos y selecciones juveniles: recompensas tempranas ----
+ sum.hitos=[];S.ms=S.ms||{};const H=(k,t,f)=>{if(S.ms[k])return;S.ms[k]=S.year;sum.hitos.push(t);news(t+'.');if(f)fx(f)};
+ const car=S.rows.reduce((q,e)=>({pj:q.pj+e.pj,g:q.g+e.g}),{pj:0,g:0});
+ if(tot.pj>0)H('debut',`Debut profesional con ${p.club} a los ${p.age} años`,{morale:5,rep:2});
+ if(car.g>=1&&p.pos!=='POR')H('g1','Tu primer gol como profesional',{morale:4,rep:1});
+ [10,25,50,100,200,300,500,750,1000].forEach(n=>{if(car.g>=n)H('g'+n,`${n} goles en tu carrera`,{rep:n>=100?3:1,morale:2})});
+ [50,100,250,500,750].forEach(n=>{if(car.pj>=n)H('pj'+n,`${n} partidos como profesional`,{rep:1})});
+ if(starter)H('tit','Tu primera temporada como titular',{morale:4,coach:3});
+ if(sum.titles.length)H('t1','Tu primer título como profesional',{morale:5});
+ if(p.pos==='POR'&&tot.cs>=10)H('cs10','10 vallas invictas en una temporada',{rep:2});
+ if(p.age<=21&&starter&&nota&&nota>=7.1&&R()<.35){const a='Revelación de la '+lg.n;award(a);sum.awards.push(a)}
+ {const yt=p.age<=17?'Sub-17':p.age<=20?'Sub-20':null;
+  if(yt&&!caps){const need=nat.t-(yt==='Sub-17'?20:13);
+   if(p.ovr>=need&&R()<clamp(.35+(p.ovr-need)*.06,.35,.9)){const yg=p.pos==='POR'?0:Math.max(0,round(POS[p.pos].g*ri(3,6)*rnd(.4,1.4)));
+    sum.hitos.push(`Convocado a la ${yt} de ${p.nat}${yg?` · ${yg} gol${yg>1?'es':''}`:''}`);news(`Convocado a la ${yt} de ${p.nat}.`);fx({rep:2,morale:4});
+    // el Mundial juvenil se juega en años impares; ganarlo es raro (2-16% según el país)
+    if(S.year%2===1&&R()<clamp(.04+(nat.t-80)*.012,.02,.16)){const tn=`Mundial ${yt} ${S.year}`;trophy(tn,'juv');sum.titles.push(tn);news(`¡Campeón del ${tn} con ${p.nat}!`);fx({rep:4,morale:8})}}}}
  /* balón antiguo desactivado */
  if(false){
  const big=sum.titles.some(t=>t===CONT.EU.main)?4:sum.titles.length?1.5:0;
@@ -1282,6 +1299,7 @@ function scene(){const p=S.p,st=S.step,club=CL[p.club];let sc;
     ${s.titles.map(t=>`<li><span class="chip gold">Título</span> ${t}</li>`).join('')}
     ${s.awards.map(t=>`<li><span class="chip gold">Premio</span> ${t}</li>`).join('')}
     ${s.nt?`<li>Selección de ${p.nat}: ${s.nt.caps} partidos, ${s.nt.g} goles.</li>`:(p.ovr>=nat.t-4?`<li>La selección de ${p.nat} te sigue de cerca (convoca desde ${nat.t} de media).</li>`:'')}
+    ${(s.hitos||[]).map(t=>`<li><span class="chip good">🎉 Hito</span> ${t}</li>`).join('')}
     ${s.notes.map(t=>`<li>${t}</li>`).join('')}
     ${(S.sm.tUp||[]).length?`<li>Media por títulos: ${S.sm.tUp.map(t=>`<span class="chip ${t.up>0?'up':''}">${esc(t.n)} ${t.up>0?'+'+t.up:'+0'}</span>`).join(' ')}</li>`:''}
     <li>Media: ${s.ovr0} → <b>${s.ovr1}</b> <span class="chip ${ch>0?'good':ch<0?'bad':''}">${ch>0?'+':''}${ch}</span> · Valor de mercado: <b>${fmtM(marketValue(p.ovr,p.age+1))}</b></li>
@@ -1318,12 +1336,17 @@ function statsHTML(h){const por=S.p.pos==='POR';return `<div class="statline">
  <div class="stat"><b>${h.nota?h.nota.toFixed(2).replace('.',','):'—'}</b><span>Nota media</span></div></div>`}
 
 function pickEvent(){const p=S.p;const el=EVENTS.filter(e=>(!e.w||e.w(p))&&!S.sm.used.includes(e.id)&&!(S.recent||[]).includes(e.id));const e=pick(el.length?el:EVENTS);if(e.pre)e.pre(p);S.sm.used.push(e.id);S.recent=[e.id].concat(S.recent||[]).slice(0,6);return e.id}
-function nextAfterPre(){if(isFast()){go('h1');return}show('event',{id:pickEvent(),next:'h1'})}
+function nextAfterPre(){if(isFast()){go('h1');return}askOrAuto(pickEvent(),'h1')}
+// el destino decide: si el evento no tiene jugable, el 70% de las veces se resuelve solo con una opción al azar
+function askOrAuto(id,next){const ev=EVENTS.find(e=>e.id===id);if(!ev||ev.o.some(o=>/jugable|🎮/.test(o.l))||R()>=.7){show('event',{id,next});return}autoEvent(ev,next)}
+function autoEvent(ev,next){const p=S.p,opts=ev.o.filter(o=>!/jugable|🎮/.test(o.l)),o=pick(opts.length?opts:ev.o);S.sm.pcSaved=null;
+  let r=o.f(p);if(r&&r.play)r=r.done(R()<(r.prob||.5),'auto');const [t,ch]=r||['',[]];
+  show('result',{title:'🎲 '+ev.t,t:`${ev.x(p)} <b>Pasó esto:</b> ${o.l.replace(/\s*\(rápido\)/,'')}. ${t}`,ch,next})}
 function preDone(t,ch){show('result',{title:'Pretemporada',t,ch,next:'evA'});const f=S.sm.focus,DEFV=['cabeza','barrida','anticipo','centro','presion'].includes(f),v=DEFV?f:f==='fisico'||f==='doble'?'fisico':f==='tecnica'?(S.p.pos==='POR'?'portero':'tecnica'):f==='vision'?'notas':f==='descanso'?'descanso':null;if(f==='pases')anim3d('pass',null);else if(v&&!['notas','descanso'].includes(v))anim3d('train',v,{play:true,onDone:(h,n)=>{const ch=h===n?fx({ovr:1,morale:4}):h*2>=n?fx({morale:3}):fx({morale:-2});save();fastToast('Entrenamiento '+h+'/'+n,h===n?'¡Perfecto! Te ganaste +1 de media extra.':h*2>=n?'Buen entrenamiento.':'Te costó: hay que mejorar.',ch)}});else if(v&&!isFast())anim3d('train',v)}
 function go(k){if(k==='pre'){show('pre');return}if(k==='season'){nextSeason();return}
  if(k==='evA'){go('wheel');return}
  if(k==='wheel'){if(!S.sm.wheelDone){S.sm.wheelDone=1;show('ruleta',{segs:wheelSegs(),res:null,next:'evA2'});return}go('evA2');return}
- if(k==='evA2'){nextAfterPre();return}if(k==='h1'){halfSim(0);if(isFast()){midDecision();return}show('half',{h:0})}else if(k==='h2'){halfSim(1);if(isFast()){show('summary',{sum:endSeason()});return}show('half',{h:1})}else if(k==='evB'){show('event',{id:pickEvent(),next:'h2'})}}
+ if(k==='evA2'){nextAfterPre();return}if(k==='h1'){halfSim(0);if(isFast()){midDecision();return}show('half',{h:0})}else if(k==='h2'){halfSim(1);if(isFast()){show('summary',{sum:endSeason()});return}show('half',{h:1})}else if(k==='evB'){askOrAuto(pickEvent(),'h2')}}
 function midDecision(){const p=S.p;
  if(['ED','EI','MCO','DC'].includes(p.pos)&&!S.sm.ocRoll){S.sm.ocRoll=1;if(R()<.3){show('event',{id:'ocasion',next:'h2'});return}}
  if(p.pos==='POR'&&!S.sm.jpRoll){S.sm.jpRoll=1;if(R()<.2){show('event',{id:'jugadapeligrosa',next:'h2'});return}}
@@ -1818,7 +1841,7 @@ function rkClean(u){return String(u||'').toLowerCase().replace(/[^a-z0-9_]/g,'')
 function rkSetUser(u){u=rkClean(u);try{localStorage.setItem(RK_USER,u)}catch(e){}return u}
 function careerPts(st){if(!st||!st.p)return 0;const por=st.p.pos==='POR';let pts=0;
  (st.rows||[]).forEach(e=>{pts+=(e.g||0)+(e.a||0)*.5+(por?(e.cs||0):0)});
- (st.trophies||[]).forEach(t=>{pts+=t.cat==='liga'?10:t.cat==='copa'?5:t.cat==='asc'?3:t.cat==='int'?(/Champions|Libertadores/.test(t.n)?25:10):t.cat==='sel'?(/Mundial/.test(t.n)?40:20):0});
+ (st.trophies||[]).forEach(t=>{pts+=t.cat==='liga'?10:t.cat==='copa'?5:t.cat==='asc'?3:t.cat==='int'?(/Champions|Libertadores/.test(t.n)?25:10):t.cat==='sel'?(/Mundial/.test(t.n)?40:20):t.cat==='juv'?8:0});
  (st.awards||[]).forEach(a=>{pts+=/^(Balón de Oro|Trofeo Yashin)$/.test(a.n)?50:/· 2º/.test(a.n)?15:/· 3º/.test(a.n)?10:5});
  const md=st.minDiff!=null?st.minDiff:(st.diff!=null?st.diff:2);return Math.round(pts*[.7,.9,1,1][md])}
 function rkPush(){if(S&&S.p)S.minDiff=Math.min(S.minDiff!=null?S.minDiff:DF(),DF());if(!FB_URL||!rkUser()||!S||!S.cid)return Promise.resolve();
