@@ -56,7 +56,7 @@
   --bg:#050505; --surface:#101010; --sunk:#181818; --ink:#f4f4f4; --muted:#8c8c8c; --line:#242424;
   --pitch:#1c1c1c; --pitch2:#232323; --pitch-ink:#ffffff; --gold:#f2b705; --gold-ink:#111;
   --sky:#6aa6ff; --coral:#f2b705; --teal:#40c9d3; --rose:#ff7aa5;
-  --gold-soft:#2a2306; --sky-soft:#10203a; --coral-soft:#2a2306; --teal-soft:#0c2a2e; --green-soft:#0f2a1a; --rose-soft:#2e1220;
+  --gold-soft:#151515; --sky-soft:#151515; --coral-soft:#151515; --teal-soft:#151515; --green-soft:#151515; --rose-soft:#151515;
   --good:#5fd08f; --warn:#f0ad45; --bad:#ff7d72; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -433,6 +433,8 @@ body.pad :focus{outline:3px solid #f2b705!important;outline-offset:3px}
 @media (pointer:coarse){.qte-btn{display:block}.qte-help{white-space:normal;width:80%;text-align:center}}
 .anim-h{font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin:12px 0 4px;color:var(--muted,#555)}
 
+:root[data-theme="black"] .choice{border:1px solid #232323!important}:root[data-theme="black"] .choice:hover{border-color:#f2b705!important}
+:root[data-theme="black"] .stat{border:1px solid #1f1f1f}
 /* ---- tema negro (por defecto): mismo estilo que la pantalla de inicio ---- */
 :root[data-theme="black"] body{background:#050505}
 :root[data-theme="black"] .band{background:#050505!important;border-bottom:1px solid #1e1e1e!important}
