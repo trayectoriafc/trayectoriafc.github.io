@@ -113,7 +113,7 @@ input,select{background:var(--bg);border:2px solid var(--line);border-radius:8px
 .note{color:var(--muted);font-size:15px}
 .rules{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
 .flag{display:flex;height:12px;border-radius:3px;overflow:hidden;box-shadow:0 0 0 1px var(--line)}
-.flag i{flex:1}.flag.h{flex-direction:column}
+.flag i{flex:1}.flag.fsvg{display:block;width:100%}
 .cants-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap}
 .cants{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 @media (max-width:1250px){.cants{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -540,8 +540,32 @@ const FLAG={Colombia:['#FCD116','#FCD116','#003893','#CE1126'],Argentina:['#74AC
  Ecuador:['#FFDD00','#FFDD00','#034EA2','#ED1C24'],Paraguay:['#D52B1E','#FFFFFF','#0038A8'],Venezuela:['#FFCC00','#00247D','#CF142B'],Chile:['#FFFFFF','#0039A6','#D52B1E'],'Perú':['#D91023','#FFFFFF','#D91023'],
  'México':['#006847','#FFFFFF','#CE1126'],'Estados Unidos':['#B22234','#FFFFFF','#3C3B6E'],'España':['#AA151B','#F1BF00','#F1BF00','#AA151B'],Portugal:['#006600','#FF0000','#FF0000'],
  Inglaterra:['#FFFFFF','#CE1124','#FFFFFF'],Francia:['#0055A4','#FFFFFF','#EF4135'],Italia:['#009246','#FFFFFF','#CE2B37'],Alemania:['#000000','#DD0000','#FFCE00'],'Países Bajos':['#AE1C28','#FFFFFF','#21468B'],'Bélgica':['#000000','#FDDA24','#EF3340'],'Turquía':['#E30A17','#FFFFFF','#E30A17']};
-const FLAG_H=['Colombia','Argentina','Uruguay','Ecuador','Paraguay','Venezuela','Chile','Estados Unidos','España','Alemania','Países Bajos'];
-const flagHTML=n=>`<div class="flag${FLAG_H.includes(n)?' h':''}" aria-hidden="true">${(FLAG[n]||[]).map(c=>`<i style="background:${c}"></i>`).join('')}</div>`;
+// banderas reales simplificadas (SVG 30x20)
+const FSTAR=(cx,cy,r,c)=>`<polygon fill="${c}" points="${Array.from({length:10},(_,i)=>{const a=-Math.PI/2+i*Math.PI/5,q=i%2?r*.4:r;return(cx+q*Math.cos(a)).toFixed(2)+','+(cy+q*Math.sin(a)).toFixed(2)}).join(' ')}"/>`;
+const FH=(...c)=>{const h=20/c.length;return c.map((x,i)=>`<rect y="${i*h}" width="30" height="${h+.05}" fill="${x}"/>`).join('')};
+const FV=(...c)=>{const w=30/c.length;return c.map((x,i)=>`<rect x="${i*w}" width="${w+.05}" height="20" fill="${x}"/>`).join('')};
+const FLAG_SVG={
+ Colombia:`<rect width="30" height="10" fill="#FCD116"/><rect y="10" width="30" height="5" fill="#003893"/><rect y="15" width="30" height="5" fill="#CE1126"/>`,
+ Argentina:FH('#74ACDF','#fff','#74ACDF')+`<circle cx="15" cy="10" r="2" fill="#F6B40E"/>`,
+ Brasil:`<rect width="30" height="20" fill="#009C3B"/><polygon points="15,2.2 27.4,10 15,17.8 2.6,10" fill="#FFDF00"/><circle cx="15" cy="10" r="4.4" fill="#002776"/><path d="M10.8 9.2 Q15 7.6 19.2 10.6" stroke="#fff" stroke-width=".9" fill="none"/>`,
+ Uruguay:Array.from({length:9},(_,i)=>`<rect y="${i*20/9}" width="30" height="${20/9+.05}" fill="${i%2?'#0038A8':'#fff'}"/>`).join('')+`<rect width="11.1" height="11.1" fill="#fff"/><circle cx="5.55" cy="5.55" r="2.6" fill="#FCD116"/>`,
+ Ecuador:`<rect width="30" height="10" fill="#FFDD00"/><rect y="10" width="30" height="5" fill="#034EA2"/><rect y="15" width="30" height="5" fill="#ED1C24"/><ellipse cx="15" cy="10" rx="2.2" ry="2.8" fill="#6b4f1d" opacity=".85"/>`,
+ Paraguay:FH('#D52B1E','#fff','#0038A8')+`<circle cx="15" cy="10" r="2.2" fill="none" stroke="#0038A8" stroke-width=".6"/><circle cx="15" cy="10" r=".9" fill="#FCD116"/>`,
+ Venezuela:FH('#FFCC00','#00247D','#CF142B')+Array.from({length:8},(_,i)=>{const a=Math.PI*(1.15+i*.1);return FSTAR(15+5.2*Math.cos(a),11.6+5.2*Math.sin(a),.75,'#fff')}).join(''),
+ Chile:`<rect width="30" height="10" fill="#fff"/><rect y="10" width="30" height="10" fill="#D52B1E"/><rect width="10" height="10" fill="#0039A6"/>`+FSTAR(5,5,2.6,'#fff'),
+ 'Perú':FV('#D91023','#fff','#D91023'),
+ 'México':FV('#006847','#fff','#CE1126')+`<circle cx="15" cy="10" r="2.4" fill="#8B5A2B"/><path d="M12.8 11.6 Q15 13.4 17.2 11.6" stroke="#006847" stroke-width=".7" fill="none"/>`,
+ 'Estados Unidos':Array.from({length:13},(_,i)=>`<rect y="${i*20/13}" width="30" height="${20/13+.05}" fill="${i%2?'#fff':'#B22234'}"/>`).join('')+`<rect width="12" height="${20*7/13}" fill="#3C3B6E"/>`+Array.from({length:20},(_,i)=>`<circle cx="${1.3+(i%5)*2.35+((i/5|0)%2)*1.1}" cy="${1.4+(i/5|0)*2.5}" r=".45" fill="#fff"/>`).join(''),
+ 'España':`<rect width="30" height="5" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/><rect y="15" width="30" height="5" fill="#AA151B"/><rect x="7.5" y="7.2" width="3.4" height="5" rx=".6" fill="#AA151B"/>`,
+ Portugal:`<rect width="12" height="20" fill="#006600"/><rect x="12" width="18" height="20" fill="#FF0000"/><circle cx="12" cy="10" r="3.6" fill="#FFCC00"/><circle cx="12" cy="10" r="2.2" fill="#fff" stroke="#FF0000" stroke-width=".7"/>`,
+ Inglaterra:`<rect width="30" height="20" fill="#fff"/><rect x="13" width="4" height="20" fill="#CE1124"/><rect y="8" width="30" height="4" fill="#CE1124"/>`,
+ Francia:FV('#0055A4','#fff','#EF4135'),
+ Italia:FV('#009246','#fff','#CE2B37'),
+ Alemania:FH('#000','#DD0000','#FFCE00'),
+ 'Países Bajos':FH('#AE1C28','#fff','#21468B'),
+ 'Bélgica':FV('#000','#FAE042','#ED2939'),
+ 'Turquía':`<rect width="30" height="20" fill="#E30A17"/><circle cx="11" cy="10" r="5" fill="#fff"/><circle cx="12.3" cy="10" r="4" fill="#E30A17"/>`+FSTAR(17.6,10,2.1,'#fff')};
+const flagHTML=n=>FLAG_SVG[n]?`<svg class="flag fsvg" viewBox="0 0 30 20" preserveAspectRatio="none" aria-hidden="true">${FLAG_SVG[n]}</svg>`:`<div class="flag" aria-hidden="true">${(FLAG[n]||[]).map(c=>`<i style="background:${c}"></i>`).join('')}</div>`;
 
 const CONT={SA:{lg:['COL1','ARG','BRA','ECU','URU','CHI','PER','PAR','VEN'],main:'Copa Libertadores',sec:'Copa Sudamericana',mainN:16},
  EU:{lg:['ESP','ENG','ITA','GER','FRA','POR','NED','BEL','TUR'],main:'Champions League',sec:'Europa League',mainN:24},
