@@ -1215,7 +1215,7 @@ function genOffers(kind){const p=S.p,cur=CL[p.club];if(p.age<=17)return[];const 
 
 
 /* ---------- Balón de Oro ---------- */
-let BO_B=[8.2,8.3,9.3,12],YA_B=[6.5,8.8,10.5,12.5];
+let BO_B=[8.2,8.5,9.3,12],YA_B=[6.5,8.8,10.5,12.5];
 const galaThr=pos=>(pos==='POR'?88:['DFC','LD','LI'].includes(pos)?88:['MC','MCD'].includes(pos)?89:90)+[0,0,-2,0][DF()];
 const BO_RIVALS=[['Erling Haaland',2000],['Kylian Mbappé',1998],['Lamine Yamal',2007],['Jude Bellingham',2003],['Vinícius Júnior',2000],['Pedri',2002],['Florian Wirtz',2003],['Jamal Musiala',2003],['Endrick',2006],['Franco Mastantuono',2007],['Kenan Yıldız',2005],['Warren Zaïre-Emery',2006],['Pau Cubarsí',2007],['Désiré Doué',2005],['Michael Olise',2001],['Cole Palmer',2002],['Estêvão',2007],['Arda Güler',2005]];
 // candidatos vivos: reales de 20 a 33 años + promesas inventadas (con país coherente) que el juego va creando
@@ -1257,7 +1257,7 @@ function gala(tr){const p=S.p,b=S.bal||{g:0,titles:0,cont:0,nota:6};
  // temporada histórica (muchos goles/atajadas y títulos): pesa mucho más en la votación
  const hist=titles>=3&&(grp==='ATA'?goals>=40:grp==='DEF'?goals>=10:(b.ata||0)>=80);
  const isDF=['DFC','LD','LI'].includes(p.pos),ageAdj=p.age<23?-7:p.age<25?-3:0;
- const score=(p.ovr-thr)*.6+prod+clubT*1.5+b.cont*3+(b.nota-7)*2+(b.eu?1:-2)+ntW-polPen+(hist?3:0)-(grp==='POR'?3.5:0)+(isDF?-1.3:0)+(grp==='ATA'?.4:0)+(['MC','MCD'].includes(p.pos)?.9:0)+ageAdj+[0,0,1,0][DF()];
+ const score=(p.ovr-thr)*.6+prod+clubT*1.5+b.cont*3+(b.nota-7)*2+(b.eu?1:-2)+ntW-polPen+(hist?3:0)-(grp==='POR'?3.5:0)+(isDF?-2.5:0)+(grp==='ATA'?.6:0)+(['MC','MCD'].includes(p.pos)?.8:0)+ageAdj+[0,0,1,0][DF()];
  const polPen0=0;
  const mode=R()<.2?'abierta':!hist&&R()<.15?'renida':'normal';
  const rivals=boPool(false).sort(()=>R()-.5).slice(0,4).map((n,i)=>({n,v:mode==='abierta'?BO_B[DF()]-4+gauss()*2.5:mode==='renida'?score+gauss()*1.5:BO_B[DF()]+[1.8,1.2,.6,-1.2][i]+gauss()*1.0}));
