@@ -113,7 +113,7 @@ input,select{background:var(--bg);border:2px solid var(--line);border-radius:8px
 .note{color:var(--muted);font-size:15px}
 .rules{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
 .flag{display:flex;height:12px;border-radius:3px;overflow:hidden;box-shadow:0 0 0 1px var(--line)}
-.flag i{flex:1}
+.flag i{flex:1}.flag.h{flex-direction:column}
 .cants-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap}
 .cants{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 @media (max-width:1250px){.cants{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -158,6 +158,10 @@ body.intro .cant{color:var(--ink)}
 .ierr{display:block;color:#ff6a5a;font-size:14px;margin-top:10px}
 .isel{width:100%;background:#111;color:#fff;border:1px solid #2b2b2b;border-radius:12px;padding:12px 14px;font-size:16px}.ibigsel{font-size:22px;font-weight:700;text-align:center}
 .ilab{display:flex;flex-direction:column;gap:6px;margin-top:16px;color:#8a8a8a;font-size:12px;letter-spacing:.15em;text-transform:uppercase;text-align:left}
+.iflags{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;max-height:58vh;overflow:auto;padding:4px}
+.iflag{background:#111;border:1px solid #2b2b2b;border-radius:14px;padding:12px 8px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:7px;color:#bbb;transition:.15s}
+.iflag .flag{width:72px;height:48px;border-radius:6px;box-shadow:0 0 0 1px #333}.iflag span{font-size:11px;line-height:1.15;text-align:center}
+.iflag:hover{border-color:#555}.iflag[aria-pressed="true"]{border-color:#f2b705;background:#1d1a0d;color:#fff}
 .ichips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .ichip{background:#111;border:1px solid #2b2b2b;color:#ddd;border-radius:14px;padding:10px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:86px;transition:.15s}
 .ichip b{font-family:var(--f-display);font-size:22px;color:#fff}.ichip span{font-size:12px;color:#888;max-width:200px}
@@ -536,7 +540,8 @@ const FLAG={Colombia:['#FCD116','#FCD116','#003893','#CE1126'],Argentina:['#74AC
  Ecuador:['#FFDD00','#FFDD00','#034EA2','#ED1C24'],Paraguay:['#D52B1E','#FFFFFF','#0038A8'],Venezuela:['#FFCC00','#00247D','#CF142B'],Chile:['#FFFFFF','#0039A6','#D52B1E'],'Perú':['#D91023','#FFFFFF','#D91023'],
  'México':['#006847','#FFFFFF','#CE1126'],'Estados Unidos':['#B22234','#FFFFFF','#3C3B6E'],'España':['#AA151B','#F1BF00','#F1BF00','#AA151B'],Portugal:['#006600','#FF0000','#FF0000'],
  Inglaterra:['#FFFFFF','#CE1124','#FFFFFF'],Francia:['#0055A4','#FFFFFF','#EF4135'],Italia:['#009246','#FFFFFF','#CE2B37'],Alemania:['#000000','#DD0000','#FFCE00'],'Países Bajos':['#AE1C28','#FFFFFF','#21468B'],'Bélgica':['#000000','#FDDA24','#EF3340'],'Turquía':['#E30A17','#FFFFFF','#E30A17']};
-const flagHTML=n=>`<div class="flag" aria-hidden="true">${(FLAG[n]||[]).map(c=>`<i style="background:${c}"></i>`).join('')}</div>`;
+const FLAG_H=['Colombia','Argentina','Uruguay','Ecuador','Paraguay','Venezuela','Chile','Estados Unidos','España','Alemania','Países Bajos'];
+const flagHTML=n=>`<div class="flag${FLAG_H.includes(n)?' h':''}" aria-hidden="true">${(FLAG[n]||[]).map(c=>`<i style="background:${c}"></i>`).join('')}</div>`;
 
 const CONT={SA:{lg:['COL1','ARG','BRA','ECU','URU','CHI','PER','PAR','VEN'],main:'Copa Libertadores',sec:'Copa Sudamericana',mainN:16},
  EU:{lg:['ESP','ENG','ITA','GER','FRA','POR','NED','BEL','TUR'],main:'Champions League',sec:'Europa League',mainN:24},
@@ -1630,22 +1635,23 @@ function startView(){if(!CANT.list.length)rollCanteras('Colombia');
  <div class="iprog" id="wiz-prog"></div>
  <form class="iform" id="f" autocomplete="off">
  ${st('name','¿Cómo se llama tu jugador?',`<div class="iline"><input id="name" class="ibig" placeholder="Tu nombre" maxlength="28" autocomplete="off"></div><span id="name-err" class="ierr" hidden>Escribe un nombre para seguir</span>`)}
- ${st('pos','<span class="iname"></span>¿En qué posición juegas?',chips('pos',Object.entries(POS).map(([k,v])=>[k,k,v.n]),'DC')+`<select id="pos" hidden>${Object.keys(POS).map(k=>`<option value="${k}"${k==='DC'?' selected':''}>${k}</option>`).join('')}</select>
-  <label id="latbox" class="ilab" hidden>Rol de lateral<select id="lat" class="isel">${Object.entries(LATR).map(([k,v])=>`<option value="${k}">${v.n}: ${v.d}</option>`).join('')}</select></label>
-  <p class="isub">Pie hábil</p>${chips('foot',[['Derecho','Derecho'],['Zurdo','Zurdo'],['Ambidiestro','Ambidiestro']],'Derecho')}<select id="foot" hidden><option>Derecho</option><option>Zurdo</option><option>Ambidiestro</option></select>`)}
+ ${st('pos','<span class="iname"></span>¿En qué posición juegas?',chips('pos',Object.entries(POS).map(([k,v])=>[k,k,v.n]),'DC')+`<select id="pos" hidden>${Object.keys(POS).map(k=>`<option value="${k}"${k==='DC'?' selected':''}>${k}</option>`).join('')}</select>`)}
+ ${st('lat','¿Qué tipo de lateral eres?',chips('lat',Object.entries(LATR).map(([k,v])=>[k,v.n,v.d]),Object.keys(LATR)[0])+`<span id="latbox" hidden></span><select id="lat" hidden>${Object.keys(LATR).map(k=>`<option value="${k}">${k}</option>`).join('')}</select>`)}
+ ${st('foot','¿Con qué pie le pegas?',chips('foot',[['Derecho','Derecho'],['Zurdo','Zurdo'],['Ambidiestro','Ambidiestro']],'Derecho')+`<select id="foot" hidden><option>Derecho</option><option>Zurdo</option><option>Ambidiestro</option></select>`)}
  ${st('num','Elige tu dorsal',`<div class="numgrid" id="numgrid">${NUMS.map(n=>`<button type="button" class="numb" data-n="${n}">${n}</button>`).join('')}</div><label class="ilab">Otro<input id="num" class="isel" type="number" min="1" max="99" value="9"></label>`)}
- ${st('nat','¿De dónde eres?',`<select id="nat" class="isel ibigsel">${Object.keys(NAT).map(n=>`<option${n===CANT.nat?' selected':''}>${n}</option>`).join('')}</select><div id="flagbox" style="margin-top:16px"></div>`,'Define tus canteras y tu selección')}
+ ${st('nat','¿De dónde eres?',`<div class="iflags">${Object.keys(NAT).map(n=>`<button type="button" class="iflag" data-v="${esc(n)}" aria-pressed="${n===CANT.nat}">${flagHTML(n)}<span>${esc(n)}</span></button>`).join('')}</div><select id="nat" hidden>${Object.keys(NAT).map(n=>`<option${n===CANT.nat?' selected':''}>${n}</option>`).join('')}</select><div id="flagbox" hidden></div>`)}
  ${st('diff','¿Qué tan difícil?',chips('diff',DIFFS.map((d,i)=>[String(i),d.n,d.d]),String(DIFF_START))+`<select id="diff" hidden>${DIFFS.map((d,i)=>`<option value="${i}"${i===DIFF_START?' selected':''}>${d.n}</option>`).join('')}</select>
-  <p class="isub">Perfil</p><select id="prof" class="isel">${Object.entries(PROFILES).map(([k,v])=>`<option value="${k}">${v.n}: ${v.d}</option>`).join('')}</select>`)}
+`)}
+ ${st('prof','¿Qué tipo de jugador eres?',chips('prof',Object.entries(PROFILES).map(([k,v])=>[k,v.n,v.d]),Object.keys(PROFILES)[0])+`<select id="prof" hidden>${Object.keys(PROFILES).map(k=>`<option value="${k}">${k}</option>`).join('')}</select>`)}
  ${st('user','Tu usuario del ranking',`<div class="iline"><input id="rkuser" class="ibig" placeholder="Ej. agusblox" maxlength="20" autocomplete="off"></div>`,'Opcional · para competir en el ranking en línea')}
- ${st('cant','Elige tu cantera',`<button class="ilink" type="button" id="reroll">Ver otras canteras ↻</button><div class="cants" id="cants" style="margin-top:14px"></div><p class="ihint" style="margin-top:14px">Juego de fans sin relación con los clubes. Niveles aproximados a 2026.</p>`,`<span id="cant-note">Tres clubes de ${esc(CANT.nat)} y uno de otro país te quieren</span>`)}
+ ${st('cant','Elige tu cantera',`<p class="ihint" style="margin:0 0 6px">Toca un club para empezar tu carrera</p><button class="ilink" type="button" id="reroll">Ver otras canteras ↻</button><div class="cants" id="cants" style="margin-top:14px"></div><p class="ihint" style="margin-top:14px">Juego de fans sin relación con los clubes. Niveles aproximados a 2026.</p>`,`<span id="cant-note">Tres clubes de ${esc(CANT.nat)} y uno de otro país te quieren</span>`)}
  </form>
  <div class="ibar"><button class="ibtn ghost" type="button" id="wiz-back" hidden>←</button><button class="ibtn" type="button" id="wiz-next">Siguiente →</button><button class="ibtn" id="go" hidden>Empezar carrera ⚽</button></div>
  <div class="iextra" id="iextra">${canRes?'<button class="ilink" type="button" id="resume">Seguir carrera guardada →</button>':''}${hn?`<details class="ihist"><summary>Carreras anteriores (${hn})</summary>${histHTML()}</details>`:''}</div></div>`}
 function cantsHTML(){const pr=PROFILES[document.getElementById('prof').value];
  return CANT.list.map((n,i)=>{const c=CL[n],T=TIERS[i];const rk=roleKey({ovr:pr.ovr,age:15,coach:50,morale:60+T.mor,ctier:i,cantera:n},c);
   return `<button type="button" class="cant t${i}" data-c="${i}" aria-pressed="${CANT.sel===i}"><div class="top"><span>${T.k}</span><b>${c.s}</b></div>
-  <div class="bd"><div class="cn"><span class="ctag big">${crest(n,36)}<span>${esc(n)}</span></span></div><div class="note">${L[BASE_L[n]].n}</div><div>${roleChip(rk)}</div>
+  <div class="bd"><div class="cn"><span class="ctag big">${crest(n,24)}<span>${esc(n)}</span></span></div><div class="note">${L[BASE_L[n]].n}</div><div>${roleChip(rk)}</div>
   <ul><li>Progresión ${T.pot?'+'+T.pot*10+'%':'normal'}</li><li>Salario juvenil ${fmtM(salaryFor(pr.ovr,15,c)*.6)}/año</li></ul><p class="note" style="margin:0">${T.txt}</p></div></button>`}).join('')}
 function newGame(){const v=k=>document.getElementById(k).value;{const ru=document.getElementById('rkuser');if(ru&&ru.value.trim())rkSetUser(ru.value)}const pr=PROFILES[v('prof')];resetClubs();
  const prod=R()<.01,barca=prod&&NAT[v('nat')]&&NAT[v('nat')].cf==='EU';
@@ -1724,7 +1730,7 @@ function render(){
  document.body.classList.toggle('intro',!S||!S.p);
  if(!S||!S.p){godMode(false);galaxy(false);app.innerHTML=startView();{const ru=document.getElementById('rkuser');if(ru){ru.value=rkUser();const lb=ru.closest('label');if(!FB_URL&&lb)lb.hidden=true}}
   const box=document.getElementById('cants'),fb=document.getElementById('flagbox');
-  const up=()=>{box.innerHTML=cantsHTML();fb.innerHTML=flagHTML(CANT.nat);box.querySelectorAll('.cant').forEach(b=>b.onclick=()=>{CANT.sel=+b.dataset.c;up()})};up();
+  const up=()=>{box.innerHTML=cantsHTML();fb.innerHTML=flagHTML(CANT.nat);box.querySelectorAll('.cant').forEach(b=>b.onclick=()=>{CANT.sel=+b.dataset.c;up();setTimeout(()=>document.getElementById('go').click(),250)})};up();
   document.getElementById('prof').addEventListener('change',up);
   document.getElementById('diff').addEventListener('change',e=>{DIFF_START=+e.target.value;up()});
   document.getElementById('nat').addEventListener('change',e=>{rollCanteras(e.target.value);document.getElementById('cant-note').textContent=`Tres clubes de ${CANT.nat} y uno de otro país te quieren`;up()});
@@ -1733,15 +1739,20 @@ function render(){
   document.getElementById('pos').addEventListener('change',e=>{document.getElementById('num').value={POR:1,DFC:4,LD:2,LI:3,MCD:5,MC:8,MCO:10,ED:7,EI:11,DC:9}[e.target.value];numSync()});
   // ---- inicio por pasos: una pregunta a la vez ----
   const numIn=document.getElementById('num'),numSync=()=>app.querySelectorAll('.numb').forEach(b=>b.setAttribute('aria-pressed',b.dataset.n===String(+numIn.value)));
-  app.querySelectorAll('.numb').forEach(b=>b.onclick=()=>{numIn.value=b.dataset.n;numSync()});numIn.addEventListener('input',numSync);numSync();
-  app.querySelectorAll('.ichips').forEach(g=>{const sel=document.getElementById(g.dataset.for);g.querySelectorAll('.ichip').forEach(b=>b.onclick=()=>{sel.value=b.dataset.v;g.querySelectorAll('.ichip').forEach(x=>x.setAttribute('aria-pressed',x===b));sel.dispatchEvent(new Event('change'))})});
-  const steps=[...app.querySelectorAll('.istep')].filter(x=>!(x.dataset.k==='user'&&!FB_URL));const NS=steps.length;
-  const show=()=>{WIZ=Math.max(0,Math.min(NS-1,WIZ));steps.forEach((x,i)=>{const on=i===WIZ;if(on&&x.hidden){x.hidden=false;x.classList.remove('in');void x.offsetWidth;x.classList.add('in')}else if(!on)x.hidden=true});
+  app.querySelectorAll('.numb').forEach(b=>b.onclick=()=>{numIn.value=b.dataset.n;numSync();if(typeof adv==='function')adv()});numIn.addEventListener('input',numSync);numSync();
+  // elegir = avanzar: no hace falta tocar "Siguiente"
+  const adv=()=>setTimeout(()=>{WIZ++;show();window.scrollTo({top:0,behavior:'smooth'})},230);
+  app.querySelectorAll('.ichips').forEach(g=>{const sel=document.getElementById(g.dataset.for);g.querySelectorAll('.ichip').forEach(b=>b.onclick=()=>{sel.value=b.dataset.v;g.querySelectorAll('.ichip').forEach(x=>x.setAttribute('aria-pressed',x===b));sel.dispatchEvent(new Event('change'));adv()})});
+  app.querySelectorAll('.iflag').forEach(b=>b.onclick=()=>{const sel=document.getElementById('nat');sel.value=b.dataset.v;app.querySelectorAll('.iflag').forEach(x=>x.setAttribute('aria-pressed',x===b));sel.dispatchEvent(new Event('change'));adv()});
+  const ALL=[...app.querySelectorAll('.istep')];let steps=[],NS=0;
+  const calc=()=>{const lat=['LD','LI'].includes(document.getElementById('pos').value);steps=ALL.filter(x=>!(x.dataset.k==='user'&&!FB_URL)&&!(x.dataset.k==='lat'&&!lat));NS=steps.length};calc();
+  const CHIPK=['pos','lat','foot','nat','diff','prof','cant'];
+  const show=()=>{calc();WIZ=Math.max(0,Math.min(NS-1,WIZ));steps.forEach((x,i)=>{const on=i===WIZ;if(on&&x.hidden){x.hidden=false;x.classList.remove('in');void x.offsetWidth;x.classList.add('in')}else if(!on)x.hidden=true});
     app.querySelectorAll('.istep').forEach(x=>{if(!steps.includes(x))x.hidden=true});
     const nm=document.getElementById('name').value.trim();app.querySelectorAll('.iname').forEach(e=>e.textContent=nm?`Hola, ${nm}. `:'');
     document.getElementById('ihero').classList.toggle('small',WIZ>0);document.getElementById('iextra').hidden=WIZ>0;
     document.getElementById('wiz-prog').innerHTML=WIZ?steps.map((_,i)=>`<i class="${i<=WIZ?'on':''}"></i>`).join(''):'';
-    document.getElementById('wiz-back').hidden=WIZ===0;document.getElementById('wiz-next').hidden=WIZ===NS-1;document.getElementById('go').hidden=WIZ!==NS-1;
+    document.getElementById('wiz-back').hidden=WIZ===0;document.getElementById('wiz-next').hidden=CHIPK.includes(steps[WIZ].dataset.k);document.getElementById('go').hidden=true;
     document.getElementById('wiz-next').textContent=steps[WIZ].dataset.k==='user'&&!document.getElementById('rkuser').value.trim()?'Saltar →':'Siguiente →';
     const f=steps[WIZ].querySelector('input:not([type=number]),select:not([hidden])');if(f&&matchMedia('(pointer:fine)').matches)setTimeout(()=>f.focus(),60)};
   const nameOk=()=>{const n=document.getElementById('name');if(n.value.trim())return true;document.getElementById('name-err').hidden=false;n.focus();return false};
