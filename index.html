@@ -35,6 +35,9 @@ h1,h2,h3,.disp{font-family:var(--f-display);text-transform:uppercase;letter-spac
 .tm{display:flex;align-items:center;gap:10px;background:var(--card2);border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;text-align:left;font-weight:700;font-size:15px;min-height:46px}
 .tm[aria-pressed=true]{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
 .tm small{display:block;color:var(--muted);font-weight:600;font-size:12px}
+.fl{width:33px;height:22px;flex:none;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.28)}
+.sbt .fl{width:36px;height:24px}
+.lst{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px;text-align:center;font-size:13px;color:var(--muted)}.lst b{display:block;color:var(--ink);font-size:16px;font-variant-numeric:tabular-nums}
 .sw{width:26px;height:26px;border-radius:50%;flex:none;border:2px solid rgba(255,255,255,.35);background:linear-gradient(135deg,var(--a) 50%,var(--b) 50%)}
 label.f{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:14px;color:var(--muted);flex:1;min-width:140px}
 input.in{background:var(--card2);border:1.5px solid var(--line);border-radius:10px;color:var(--ink);padding:11px 12px;font:inherit;font-size:17px;font-weight:700}
@@ -477,7 +480,7 @@ function scenePenPlay(L,opt){
   const uFx=ui.querySelector('.pp-fx');A.fx=false;A.shot='normal';const SHOTS=[['normal','🎯 Tiro: Normal'],['efecto','🌀 Tiro: Efecto'],['trivela','↪️ Tiro: Trivela'],['knuckle','🪶 Tiro: Knuckleball']];
   const setFx=v=>{if(A.ph!=='aim'&&A.ph!=='power')return;
     if(FK){const i=(SHOTS.findIndex(x=>x[0]===A.shot)+1)%SHOTS.length;A.shot=SHOTS[i][0];A.fx=A.shot!=='normal';uFx.textContent=SHOTS[i][1]+(A.shot==='trivela'&&S&&S.p&&S.p.foot==='Zurdo'?' (difícil: eres zurdo)':'');uFx.classList.toggle('on',A.fx);return}
-    if(opt.para===false)return;A.fx=v;uFx.textContent='🕺 Paradinha: '+(v?'SÍ':'NO')+(v?' · 5 partidos de sanción':'');uFx.classList.toggle('on',v)};
+    if(opt.para===false)return;A.fx=v;uFx.textContent='🕺 Paradinha: '+(v?'SÍ':'NO')+(v?' · amarilla segura y penal para el rival':'');uFx.classList.toggle('on',v)};
   if(FK||opt.para!==false){uFx.textContent=FK?'🎯 Tiro: Normal':'🕺 Paradinha: NO';uFx.hidden=false;uFx.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();setFx(!A.fx)})}
   uFire.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fire=true});
   const toGoal=e=>{const r=stageEl.getBoundingClientRect();const u=(e.clientX-r.left)/r.width,v=(e.clientY-r.top)/r.height;
@@ -1203,7 +1206,7 @@ function sceneTrain(L,variant){
   const me=person(gkMode?{shirt:'#ff8c1a',sleeve:'#ff8c1a',shorts:'#111',socks:'#ff8c1a',gloves:'#f4f4f4',longSleeve:true,num:L.num,name:L.name,numColor:'#111'}:{shirt:kit.shirt,sleeve:kit.sleeve,shorts:kit.shorts,socks:kit.socks,num:L.num,name:L.name,numColor:kit.num});
   sc.add(me.root);
   const camPos=V(4,3,6),look=V(0,1,0);let heading=0,upd;
-  if(L.play&&['fisico','cabeza','barrida','anticipo','centro','presion'].includes(variant))return drillPlay();
+  if(L.play&&['fisico','cabeza','barrida','anticipo','centro','presion','contra','recibe'].includes(variant))return drillPlay();
   if(variant==='fisico'){
     const bar=new T.Group();const bm=M('#9aa3ad',{metalness:.8,roughness:.3});const rod=cyl(.025,.025,2.1,bm,8);rod.rotation.z=Math.PI/2;bar.add(rod);
     [-1,1].forEach(s=>{const p=cyl(.22,.22,.07,M('#1b1d22'),16);p.rotation.z=Math.PI/2;p.position.x=s*.82;bar.add(p);const p2=cyl(.17,.17,.06,M('#c0262f'),16);p2.rotation.z=Math.PI/2;p2.position.x=s*.89;bar.add(p2)});
@@ -1234,13 +1237,15 @@ function sceneTrain(L,variant){
       barrida:{n:3,tag:'Entrenamiento · Barridas',help:'Acércate y bárrete con <b>E</b>/<b>B</b> al balón, no al rival'},
       anticipo:{n:3,tag:'Entrenamiento · Anticipo',help:'Lee el pase y córtalo antes que el 9 · <b>E</b>/<b>B</b> estirarte'},
       centro:{n:3,tag:'Entrenamiento · Centros por banda',help:'Sube por la banda y centra con <b>R</b>/<b>X</b> (o <b>E</b>/<b>B</b>) cerca del área'},
-      presion:{n:3,tag:'Entrenamiento · Presión',help:'Presiona al rival y quítale el balón con <b>E</b>/<b>B</b>'}}[variant];
+      presion:{n:3,tag:'Entrenamiento · Presión',help:'Presiona al rival y quítale el balón con <b>E</b>/<b>B</b>'},
+      contra:{n:1,tag:'Contraataque · 3 contra 2',help:'Corta el pase o bárrete al balón con <b>ENTRAR</b>'},
+      recibe:{n:1,tag:'Recibes el balón',help:'Llega al círculo antes que el rival y pasa con <b>PASE</b>'}}[variant];
     const P={pos:V(0,0,0),vel:V(0,0,0),h:0,ph:0,act:-1,res:[],done:false,sent:false,rt:0,round:-1,wait:0,jT:-1,sl:-1,lu:-1,kick:-1};
     const keys={};let actReq=false,crossReq=false,tx=0,ty=0,pB=false,pA=false,pX=false;
     const kd=e=>{const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[k]=true;if(!e.repeat){if(k==='e'||k===' ')actReq=true;if(k==='r'||k==='q')crossReq=true}};
     const ku=e=>{keys[e.key.toLowerCase()]=false};addEventListener('keydown',kd);addEventListener('keyup',ku);window.__padGame=true;
     const ui=document.createElement('div');ui.className='pg-ui';
-    ui.innerHTML='<div class="pg-joy"><i></i></div><button type="button" class="pg-pass">'+(variant==='centro'?'CENTRO':variant==='cabeza'?'SALTAR':variant==='fisico'?'SPRINT':'¡YA!')+'</button><div class="pg-help">Joystick para moverte · '+CFG.help+'</div><div class="pp-top" style="top:44px"><span class="dr-dots"></span><span class="pp-time"></span></div>';if(simple())trDOM(ui);
+    ui.innerHTML='<div class="pg-joy"><i></i></div><button type="button" class="pg-pass">'+(variant==='centro'?'CENTRO':variant==='contra'?'ENTRAR':variant==='recibe'?'PASE':variant==='cabeza'?'SALTAR':variant==='fisico'?'SPRINT':'¡YA!')+'</button><div class="pg-help">Joystick para moverte · '+CFG.help+'</div><div class="pp-top" style="top:44px"><span class="dr-dots"></span><span class="pp-time"></span></div>';if(simple())trDOM(ui);
     stageEl.appendChild(ui);const joy=ui.querySelector('.pg-joy'),knob=joy.querySelector('i'),uTime=ui.querySelector('.pp-time'),uDots=ui.querySelector('.dr-dots');
     const bar3d=document.querySelector('.a3d .a3d-bar');if(bar3d)bar3d.style.visibility='hidden';
     ui.querySelector('.pg-pass').addEventListener('pointerdown',e=>{e.preventDefault();actReq=true;crossReq=true});
@@ -1267,6 +1272,8 @@ function sceneTrain(L,variant){
     if(variant==='centro'){G=goal(sc,16.5,7.32,2.44,1);NFX=netFx(G);NPC.push(mk({num:9,hair:'#3a2616',skin:'#8d5a3b'}));
       const gk=person({shirt:'#20c060',sleeve:'#20c060',shorts:'#111',socks:'#20c060',gloves:'#f4f4f4',longSleeve:true,hair:'#3a2616',skin:'#e0b48c',num:1,name:'',numColor:'#0b3d1e'});sc.add(gk.root);NPC.push(gk);gk._noSep=true}
     if(variant==='presion'){NPC.push(rival({num:6}))}
+    if(variant==='contra'){NPC.push(rival({num:10}),rival({num:7,hair:'#0e0b09',skin:'#e0b48c'}),rival({num:11,hair:'#3a2616',skin:'#8d5a3b'}),mk({num:4,hair:'#1d130c',skin:'#a87050'}));G=goal(sc,-4,7.32,2.44,-1);mark=ring('#ffd23f',.6);mark.visible=false}
+    if(variant==='recibe'){NPC.push(mk({num:6,hair:'#3a2616',skin:'#8d5a3b'}),rival({num:8}),mk({num:9,hair:'#0e0b09',skin:'#e0b48c'}));mark=ring('#ffd23f',.7)}
     function startRound(i){P.round=i;P.rt=0;P.jT=-1;P.sl=-1;P.lu=-1;D={};bv.set(0,0,0);cap('',false);
       if(variant==='fisico'){let q;do{q=V((Math.random()*2-1)*6,0,-1+Math.random()*11)}while(q.distanceTo(P.pos)<4.5);D.tg=q;D.lim=1.2+q.distanceTo(P.pos)/5.2;mark.position.set(q.x,.025,q.z);
         if(!P.cn){P.cn=cone(q.x,q.z)}else P.cn.position.set(q.x,.19,q.z);P.cn.material=M('#ffd23f')}
@@ -1275,10 +1282,12 @@ function sceneTrain(L,variant){
       if(variant==='anticipo'){P.pos.set(1.6,0,2.2);P.h=Math.PI*.15;const [pa,st]=NPC;const sx=(Math.random()*2-1)*1.2;st.root.position.set(sx,0,4.6);pa.root.position.set(-6+Math.random()*12*(i===1?1:.4),0,10.5);
         D.from=pa.root.position.clone().add(V(0,.11,-.4));D.to=st.root.position.clone().add(V(0,.11,.45));D.kick=.9+Math.random()*.5;D.T=Math.max(.8,D.from.distanceTo(D.to)/9.5);bp.copy(D.from)}
       if(variant==='centro'){P.pos.set(5.8,0,-1);P.h=0;const [st,gk]=NPC;st.root.position.set(-2.2,0,7.5);gk.root.position.set(0,0,16);D.own=true;D.gx=0}
+      if(variant==='contra'){P.pos.set(1.3,0,2.4);P.h=0;const [C,Lw,Rw,Tm]=NPC;C.root.position.set((Math.random()-.5)*2,0,15);Lw.root.position.set(-3.6,0,14);Rw.root.position.set(3.6,0,14);Tm.root.position.set(-2.2,0,2.4);[C,Lw,Rw].forEach(q=>q.root.rotation.y=Math.PI);D.st='drive';D.own=C;D.passT=1.2+Math.random()*1.6}
+      if(variant==='recibe'){P.pos.set(0,0,3);P.h=0;const [mt,rv,st]=NPC;mt.root.position.set(-6,0,8);rv.root.position.set(2.5+Math.random()*1.5,0,9);st.root.position.set(2.5,0,15);D.land=V((Math.random()*2-1)*2.2,0,4.6+Math.random()*2.4);mark.position.set(D.land.x,.025,D.land.z);mark.visible=true;D.from=mt.root.position.clone().add(V(.4,.11,0));D.to=D.land.clone().setY(.11);D.kick=.8;D.T=D.from.distanceTo(D.to)/8.5;bp.copy(D.from);D.st='wait'}
       if(variant==='presion'){P.pos.set(0,0,1);P.h=0;const a=NPC[0];a.root.position.set((Math.random()*2-1)*3,0,8);D.dir=Math.random()*6.28;D.chg=0;D.near=0}
       draw()}
     function end(){if(P.done)return;P.done=true;const n=CFG.n,h=P.res.filter(Boolean).length;P.hits=h;
-      cap(h===n?'¡Entrenamiento perfecto!':h*2>=n?'Buen entrenamiento '+h+'/'+n:'Te costó: '+h+'/'+n,h*2>=n);ui.querySelector('.pg-joy').style.display='none';
+      cap(['contra','recibe'].includes(variant)?(h?'¡Jugada ganada!':'Jugada perdida'):h===n?'¡Entrenamiento perfecto!':h*2>=n?'Buen entrenamiento '+h+'/'+n:'Te costó: '+h+'/'+n,h*2>=n);ui.querySelector('.pg-joy').style.display='none';
       setTimeout(()=>{if(bar3d)bar3d.style.visibility='';if(!P.sent){P.sent=true;L.onDone&&L.onDone(h,n)}},1500)}
     // salto / cabezazo natural: mira el balón al subir y lo golpea con la frente (cuello hacia delante)
     function headPose(Q,u,hit){const j=Math.sin(Math.PI*Math.min(1,Math.max(0,u)));Q.root.position.y=j*.55;legA(Q,0,.35*j,1.05*j);legA(Q,1,.15*j,.8*j);armA(Q,0,1.25*j,.6,.55*j);armA(Q,1,1.25*j,.6,.55*j);
@@ -1348,6 +1357,36 @@ function sceneTrain(L,variant){
           const reach=P.lu>=0?1.05:.55;if(live&&bp.distanceTo(P.pos.clone().addScaledVector(fw(),.35).setY(.11))<reach){D.cut=true;bv.copy(fw().multiplyScalar(6));win(true,'¡Anticipo! Corte limpio')}
           else if(u>=1&&live){D.arr=true;win(false,'El pase le llegó al 9')}}}
         if(D.cut){bp.addScaledVector(bv,dt);bv.multiplyScalar(1-dt*1.2)}if(D.arr){bp.copy(st.root.position).add(V(0,.11,.45))}}
+      if(variant==='contra'){const [C,Lw,Rw,Tm]=NPC;lim(10);const goalZ=-3.4;
+        const toGoal=(q,sp,dx)=>npcRun(q,V(dx!=null?dx:q.root.position.x*.92,0,Math.max(goalZ,q.root.position.z-3)),sp,dt);
+        const reachBall=r=>{let fd=9;for(let k=.2;k<=1.05;k+=.1)fd=Math.min(fd,P.pos.clone().addScaledVector(fw(),k).setY(.11).distanceTo(bp));return fd<r};
+        if(act&&P.sl<0&&P.lu<0){if(D.st==='pass')P.lu=0;else P.sl=0}
+        if(live){Tm.root.position.z>Lw.root.position.z-1?npcRun(Tm,Lw.root.position.clone().add(V(.8,0,-1.4)),4.4,dt):npcRun(Tm,Lw.root.position.clone().add(V(.6,0,-1)),4.6,dt)}else idle(Tm,t);
+        if(D.st==='drive'||D.st==='recv'){const o=D.own,op=o.root.position;
+          if(live){toGoal(o,o===C?4.2:4.6,o===C?op.x*.9:op.x*.82);[C,Lw,Rw].filter(q=>q!==o).forEach(q=>toGoal(q,4.3,q===Lw?-3.4:q===Rw?3.4:0))}
+          bp.copy(op).addScaledVector(V(Math.sin(o.root.rotation.y),0,Math.cos(o.root.rotation.y)),.5).setY(.11);ball.rotation.x+=dt*10;
+          if(live&&P.sl>.08&&P.sl<.8){if(reachBall(.55)){D.st='won';bv.copy(fw().multiplyScalar(5)).add(V((Math.random()-.5)*4,0,0));win(true,'¡Barrida limpia!')}else if(P.pos.distanceTo(op)<.75){D.st='foul';o.spine.rotation.x=-.4;win(false,'¡Falta!')}}
+          if(live&&D.st==='drive'&&op.z<12&&(P.rt>D.passT||P.pos.distanceTo(op)<3.4)){
+            const open=q=>Math.min(P.pos.distanceTo(q.root.position),Tm.root.position.distanceTo(q.root.position));const rc=open(Lw)>open(Rw)?Lw:Rw;
+            D.st='pass';D.rc=rc;D.from=bp.clone();D.to=rc.root.position.clone().add(V(0,.11,-1.6));D.T=Math.max(.55,D.from.distanceTo(D.to)/10);D.t0=P.rt}
+          if(live&&op.z<4.2){D.st='shot';D.sv=bp.clone();D.sto=V((Math.random()<.5?-1:1)*2.6,.6,-4.3);D.t0=P.rt;win(false,'¡Gol del rival!')}}
+        else if(D.st==='pass'){const u=Math.min(1,(P.rt-D.t0)/D.T);if(P.rt-D.t0<.35)passPose(C,(P.rt-D.t0)/.35);else idle(C,t);
+          [Lw,Rw].forEach(q=>toGoal(q,q===D.rc?2.5:4.2,q===Lw?-3.4:3.4));bp.copy(D.from).lerp(D.to,u);ball.rotation.x+=dt*14;
+          if(live&&reachBall(P.lu>=0?1.05:.55)){D.st='won';bv.copy(fw().multiplyScalar(6));win(true,'¡Cortaste el pase!')}
+          else if(u>=1){if(D.rc===Lw&&Tm.root.position.distanceTo(D.to)<1.6&&Math.random()<.55){D.st='won';bv.set(3,0,4);win(true,'¡Tu compañero cortó!')}else{D.st='recv';D.own=D.rc}}}
+        else if(D.st==='shot'){const u=Math.min(1,(P.rt-D.t0)/.45);bp.copy(D.sv).lerp(D.sto,u)}
+        else{if(D.st==='won'){bp.addScaledVector(bv,dt);bv.multiplyScalar(1-dt*1.3)}[C,Lw,Rw].forEach(q=>idle(q,t))}}
+      if(variant==='recibe'){const [mt,rv,st]=NPC;lim(7);mark.scale.setScalar(1+.1*Math.sin(t*8));idle(st,t);st.root.rotation.y=Math.PI;
+        if(D.st==='wait'){const k=(P.rt-D.kick)/.42;if(k>=0&&k<1)passPose(mt,k);else idle(mt,t);mt.root.rotation.y=Math.atan2(D.land.x-mt.root.position.x,D.land.z-mt.root.position.z);
+          if(live)npcRun(rv,D.land,2.8,dt);const bt=P.rt-D.kick-.2;
+          if(bt<0)bp.copy(D.from);else{const u=Math.min(1,bt/D.T);bp.copy(D.from).lerp(D.to,u);ball.rotation.x+=dt*14;
+            if(u>=1&&live){mark.visible=false;const me_=P.pos.distanceTo(D.land),them=rv.root.position.distanceTo(D.land);
+              if(me_<1.1&&me_<=them+.2){D.st='own';D.t1=P.rt;cap('¡Controlada! Ahora PASE',true)}else if(them<1.1){D.st='lost';win(false,'El rival ganó el balón')}else{D.st='lost';win(false,'No llegaste al pase')}}}}
+        else if(D.st==='own'){idle(mt,t);bp.lerp(P.pos.clone().addScaledVector(fw(),.45).setY(.11),Math.min(1,dt*14));if(live)npcRun(rv,P.pos,4.4,dt);
+          if(act&&live){P.kick=0;D.st='pass';D.from=bp.clone();D.to=st.root.position.clone().add(V(0,.11,-.5));D.t0=P.rt;win(true,'¡Pase al 9!')}
+          else if(live&&rv.root.position.distanceTo(P.pos)<.8){D.st='lost';win(false,'Te robaron el balón')}else if(live&&P.rt-D.t1>2.6){D.st='lost';win(false,'Tardaste en pasar')}}
+        else if(D.st==='pass'){const u=Math.min(1,(P.rt-D.t0)/.6);bp.copy(D.from).lerp(D.to,u);idle(mt,t);idle(rv,t)}
+        else{idle(mt,t);idle(rv,t)}}
       if(variant==='centro'){const [st,gk]=NPC;lim(9);
         if(D.own){bp.lerp(P.pos.clone().addScaledVector(fw(),.45+.06*Math.sin(P.ph*.5)).setY(.11),Math.min(1,dt*14));ball.rotation.x+=spd*dt*4;
           if((crs||act)&&P.kick<0){P.kick=0;D.own=false;const zq=P.pos.z,xq=Math.abs(P.pos.x);const q=Math.max(0,1-Math.max(0,8.5-zq)*.13-Math.max(0,3-xq)*.25);D.q=q;
@@ -1381,7 +1420,7 @@ function sceneTrain(L,variant){
         if(D.stolen){bp.addScaledVector(bv,dt);bv.multiplyScalar(1-dt*1.5)}}
       ball.position.copy(bp);if(variant!=='centro'||!D.own)ball.rotation.x+=bv.length()*dt*3;
       // ---- cámara detrás de ti ----
-      const foc=P.pos.clone().lerp(V(bp.x,0,bp.z),variant==='fisico'?0:.3);const cp=foc.clone().add(V(foc.x*.12,5.6,-7)),lk=foc.clone().add(V(0,.3,4.2));
+      const foc=P.pos.clone().lerp(V(bp.x,0,bp.z),variant==='fisico'?0:.3);const WIDE=variant==='contra';const cp=WIDE?V(foc.x*.3,foc.y+10,foc.z-10):foc.clone().add(V(foc.x*.12,5.6,-7))||foc.clone().add(WIDE?V(foc.x*.08,9.5,-9.5):V(foc.x*.12,5.6,-7)),lk=WIDE?V(foc.x*.3,0,foc.z+6.5):foc.clone().add(V(0,.3,4.2));
       camPos.lerp(cp,Math.min(1,dt*3));look.lerp(lk,Math.min(1,dt*3.5));cam.position.copy(camPos);cam.lookAt(look)}
     window.__drl={P,D:()=>D,bp};
     camPos.set(0,5.6,-7);look.set(0,.3,4.2);
@@ -1794,6 +1833,32 @@ const TEAMS=[
  ['Perú','PER',76,'#ffffff','#D91023','#D91023','#D91023','plain'],['Venezuela','VEN',75,'#7A1F2B','#FFCC00','#FFCC00','#FFCC00','plain']
 ].map(([n,a,r,c1,c2,num,trim,pat])=>({n,a,r,c1,c2,num,trim,pat}));
 const team=n=>TEAMS.find(t=>t.n===n)||TEAMS[0];
+/* banderas reales de cada país (dibujadas en SVG) */
+const FSTAR=(cx,cy,r,c)=>`<polygon fill="${c}" points="${Array.from({length:10},(_,i)=>{const a=-Math.PI/2+i*Math.PI/5,q=i%2?r*.4:r;return(cx+q*Math.cos(a)).toFixed(2)+','+(cy+q*Math.sin(a)).toFixed(2)}).join(' ')}"/>`;
+const FH=(...c)=>{const h=20/c.length;return c.map((x,i)=>`<rect y="${i*h}" width="30" height="${h+.05}" fill="${x}"/>`).join('')};
+const FV=(...c)=>{const w=30/c.length;return c.map((x,i)=>`<rect x="${i*w}" width="${w+.05}" height="20" fill="${x}"/>`).join('')};
+const FLAG_SVG={
+ Colombia:`<rect width="30" height="10" fill="#FCD116"/><rect y="10" width="30" height="5" fill="#003893"/><rect y="15" width="30" height="5" fill="#CE1126"/>`,
+ Argentina:FH('#74ACDF','#fff','#74ACDF')+`<circle cx="15" cy="10" r="2" fill="#F6B40E"/>`,
+ Brasil:`<rect width="30" height="20" fill="#009C3B"/><polygon points="15,2.2 27.4,10 15,17.8 2.6,10" fill="#FFDF00"/><circle cx="15" cy="10" r="4.4" fill="#002776"/><path d="M10.8 9.2 Q15 7.6 19.2 10.6" stroke="#fff" stroke-width=".9" fill="none"/>`,
+ Uruguay:Array.from({length:9},(_,i)=>`<rect y="${i*20/9}" width="30" height="${20/9+.05}" fill="${i%2?'#0038A8':'#fff'}"/>`).join('')+`<rect width="11.1" height="11.1" fill="#fff"/><circle cx="5.55" cy="5.55" r="2.6" fill="#FCD116"/>`,
+ Ecuador:`<rect width="30" height="10" fill="#FFDD00"/><rect y="10" width="30" height="5" fill="#034EA2"/><rect y="15" width="30" height="5" fill="#ED1C24"/><ellipse cx="15" cy="10" rx="2.2" ry="2.8" fill="#6b4f1d" opacity=".85"/>`,
+ Paraguay:FH('#D52B1E','#fff','#0038A8')+`<circle cx="15" cy="10" r="2.2" fill="none" stroke="#0038A8" stroke-width=".6"/><circle cx="15" cy="10" r=".9" fill="#FCD116"/>`,
+ Venezuela:FH('#FFCC00','#00247D','#CF142B')+Array.from({length:8},(_,i)=>{const a=Math.PI*(1.15+i*.1);return FSTAR(15+5.2*Math.cos(a),11.6+5.2*Math.sin(a),.75,'#fff')}).join(''),
+ Chile:`<rect width="30" height="10" fill="#fff"/><rect y="10" width="30" height="10" fill="#D52B1E"/><rect width="10" height="10" fill="#0039A6"/>`+FSTAR(5,5,2.6,'#fff'),
+ 'Perú':FV('#D91023','#fff','#D91023'),
+ 'México':FV('#006847','#fff','#CE1126')+`<circle cx="15" cy="10" r="2.4" fill="#8B5A2B"/><path d="M12.8 11.6 Q15 13.4 17.2 11.6" stroke="#006847" stroke-width=".7" fill="none"/>`,
+ 'Estados Unidos':Array.from({length:13},(_,i)=>`<rect y="${i*20/13}" width="30" height="${20/13+.05}" fill="${i%2?'#fff':'#B22234'}"/>`).join('')+`<rect width="12" height="${20*7/13}" fill="#3C3B6E"/>`+Array.from({length:20},(_,i)=>`<circle cx="${1.3+(i%5)*2.35+((i/5|0)%2)*1.1}" cy="${1.4+(i/5|0)*2.5}" r=".45" fill="#fff"/>`).join(''),
+ 'España':`<rect width="30" height="5" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/><rect y="15" width="30" height="5" fill="#AA151B"/><rect x="7.5" y="7.2" width="3.4" height="5" rx=".6" fill="#AA151B"/>`,
+ Portugal:`<rect width="12" height="20" fill="#006600"/><rect x="12" width="18" height="20" fill="#FF0000"/><circle cx="12" cy="10" r="3.6" fill="#FFCC00"/><circle cx="12" cy="10" r="2.2" fill="#fff" stroke="#FF0000" stroke-width=".7"/>`,
+ Inglaterra:`<rect width="30" height="20" fill="#fff"/><rect x="13" width="4" height="20" fill="#CE1124"/><rect y="8" width="30" height="4" fill="#CE1124"/>`,
+ Francia:FV('#0055A4','#fff','#EF4135'),
+ Italia:FV('#009246','#fff','#CE2B37'),
+ Alemania:FH('#000','#DD0000','#FFCE00'),
+ 'Países Bajos':FH('#AE1C28','#fff','#21468B'),
+ 'Bélgica':FV('#000','#FAE042','#ED2939'),
+ 'Turquía':`<rect width="30" height="20" fill="#E30A17"/><circle cx="11" cy="10" r="5" fill="#fff"/><circle cx="12.3" cy="10" r="4" fill="#E30A17"/>`+FSTAR(17.6,10,2.1,'#fff')};
+const flag=t=>`<svg class="fl" viewBox="0 0 30 20" aria-hidden="true" preserveAspectRatio="none">${FLAG_SVG[t.n]||''}</svg>`;
 const lum=h=>{const n=parseInt(h.slice(1),16);return(.299*(n>>16&255)+.587*(n>>8&255)+.114*(n&255))/255};
 const cdist=(a,b)=>{const x=parseInt(a.slice(1),16),y=parseInt(b.slice(1),16);return Math.hypot((x>>16&255)-(y>>16&255),(x>>8&255)-(y>>8&255),(x&255)-(y&255))};
 function kitOf(t){return{shirt:t.c1,sleeve:t.c1,shorts:t.c2,socks:t.c1,num:t.num,tie:t.trim}}
@@ -1801,9 +1866,10 @@ function kitOf(t){return{shirt:t.c1,sleeve:t.c1,shorts:t.c2,socks:t.c1,num:t.num
 function rivalKit(me,rv){const k=kitOf(rv);if(cdist(me.c1,rv.c1)<120){const alt=lum(rv.c1)>.6?'#1b2a4a':'#f4f4f4';return{shirt:alt,sleeve:alt,shorts:rv.c1,socks:alt,num:lum(alt)>.6?'#111318':'#ffffff',tie:rv.c1}}return k}
 
 /* ---------- ajustes del jugador ---------- */
-const POS={DC:{n:'Delantero',w:{chance:.62,pen:.13,fk:.25}},MC:{n:'Mediocampista',w:{chance:.45,pen:.15,fk:.4}},DF:{n:'Defensa',w:{chance:.3,pen:.15,fk:.55}},POR:{n:'Portero',w:{save:.45,danger:.35,kfk:.2}}};
+const POS={DC:{n:'Delantero',w:{chance:.62,pen:.13,fk:.25}},MC:{n:'Mediocampista',w:{recibe:.35,chance:.3,fk:.25,pen:.1}},MCD:{n:'Mediocentro defensivo',w:{contra:.45,recibe:.25,fk:.2,chance:.1}},DF:{n:'Defensa',w:{contra:.55,fk:.2,chance:.15,pen:.1}},POR:{n:'Portero',w:{save:.2,danger:.5,kfk:.3}}};
+const KEEP=['save','danger','kfk'];
 const DIFF=[{n:'Fácil',f:.75,hard:false},{n:'Normal',f:1,hard:false},{n:'Difícil',f:1.25,hard:true}];
-const LEN=[{n:'Corto',m:4},{n:'Normal',m:6},{n:'Largo',m:8}];
+const LEN=[{n:'Corto',m:3},{n:'Normal',m:4},{n:'Largo',m:6}];
 const CUP_ROUNDS=['Octavos de final','Cuartos de final','Semifinal','Final'];
 let CFG=Object.assign({name:'',num:10,pos:'DC',team:'Colombia',rival:'Argentina',diff:1,len:1,mode:'amistoso'},store.get('tfcp-cfg',{}));
 const REC=()=>Object.assign({pj:0,g:0,e:0,p:0,goles:0,atajadas:0,copas:0},store.get('tfcp-rec',{}));
@@ -1815,7 +1881,7 @@ let M=null,CUP=null,timer=0;
 
 function menu(){clearInterval(timer);M=null;
  const rec=REC();
- const tbtn=(t,sel,k)=>`<button class="tm" data-k="${k}" data-v="${esc(t.n)}" aria-pressed="${t.n===sel}"><i class="sw" style="--a:${t.c1};--b:${t.c2}"></i><span>${esc(t.n)}<small>Nivel ${t.r}</small></span></button>`;
+ const tbtn=(t,sel,k)=>`<button class="tm" data-k="${k}" data-v="${esc(t.n)}" aria-pressed="${t.n===sel}">${flag(t)}<span>${esc(t.n)}<small>Nivel ${t.r}</small></span></button>`;
  const chips=(k,arr,cur)=>`<div class="chips">${arr.map(([v,t])=>`<button class="chip" data-k="${k}" data-v="${v}" aria-pressed="${String(cur)===String(v)}">${t}</button>`).join('')}</div>`;
  app.innerHTML=`<header class="brand"><h1>Trayectoria <span>FC</span></h1><p>Juega partidos: tú decides las jugadas clave en 3D</p></header>
  <section class="card"><h2>Tu jugador</h2><div class="row"><label class="f">Nombre<input class="in" id="nm" maxlength="18" placeholder="Tu nombre" value="${esc(CFG.name)}"></label><label class="f" style="max-width:110px;min-width:90px">Dorsal<input class="in" id="nu" type="number" min="1" max="99" value="${CFG.num}"></label></div>
@@ -1823,12 +1889,14 @@ function menu(){clearInterval(timer);M=null;
  <section class="card"><h2>Tu selección</h2><div class="teams">${TEAMS.map(t=>tbtn(t,CFG.team,'team')).join('')}</div></section>
  <section class="card"><h2>Modo</h2>${chips('mode',[['amistoso','Amistoso'],['copa','Copa del mundo (4 partidos)']],CFG.mode)}
   <div id="rivbox" ${CFG.mode==='copa'?'hidden':''}><p class="note" style="margin-bottom:8px">Rival</p><div class="teams">${TEAMS.filter(t=>t.n!==CFG.team).map(t=>tbtn(t,CFG.rival,'rival')).join('')}</div></div></section>
- <section class="card"><h2>Partido</h2><p class="note" style="margin:0 0 8px">Dificultad</p>${chips('diff',DIFF.map((d,i)=>[i,d.n]),CFG.diff)}<p class="note" style="margin:12px 0 8px">Jugadas por partido</p>${chips('len',LEN.map((d,i)=>[i,`${d.n} · ${d.m}`]),CFG.len)}</section>
+ <section class="card"><h2>Partido</h2><p class="note" style="margin:0 0 8px">Dificultad</p>${chips('diff',DIFF.map((d,i)=>[i,d.n]),CFG.diff)}<p class="note" style="margin:12px 0 8px">Jugadas tuyas por partido</p>${chips('len',LEN.map((d,i)=>[i,`${d.n} · ${d.m}`]),CFG.len)}</section>
  <button class="go" id="go">${CFG.mode==='copa'?'Empezar la copa':'Jugar partido'}</button>
  <p class="rec">${rec.pj?`${rec.pj} partidos · ${rec.g} ganados · ${rec.e} empatados · ${rec.p} perdidos · ${rec.goles} goles tuyos${rec.atajadas?` · ${rec.atajadas} atajadas`:''}${rec.copas?` · ${rec.copas} copa${rec.copas>1?'s':''} 🏆`:''}`:'Todavía no jugaste ningún partido.'}</p>
  <details class="help"><summary>Cómo se juega</summary><ul>
   <li>El partido corre solo minuto a minuto. Cuando llega una jugada importante para ti, se para el reloj y la juegas en 3D.</li>
-  <li>Delantero, mediocampista o defensa: ocasiones de gol, penales y tiros libres. Portero: atajar penales, tiros libres y jugadas peligrosas.</li>
+  <li>Delantero: ocasiones de gol, penales y tiros libres. Mediocampista: recibir el balón y pasar al 9, además de ocasiones y tiros libres. Defensa y mediocentro defensivo: cortar contraataques de 3 contra 2. Portero: atajar penales, tiros libres y jugadas peligrosas.</li>
+  <li>Paradinha en un penal: el árbitro lo anula, te saca amarilla y da penal al rival. Al defender un 3 contra 2 hay un 20% de amarilla. Dos amarillas son roja.</li>
+  <li>Si el balón pega en el palo, sigue en juego: te toca el rebote.</li>
   <li>En las jugadas mueves con el joystick y usas los botones de la pantalla (también con el ratón).</li>
   <li>En la copa, si hay empate se va a la tanda de penales.</li></ul></details>`;
  const fix=()=>{CFG.name=$('#nm').value.trim().slice(0,18);CFG.num=clamp(Math.round(+$('#nu').value||10),1,99);saveCfg()};
@@ -1840,62 +1908,91 @@ function menu(){clearInterval(timer);M=null;
 
 /* ---------- partido ---------- */
 function startMatch(me,rv,label){
- const nM=LEN[CFG.len].m,mins=[];
- // minutos de tus jugadas, repartidos en el partido
- for(let i=0;i<nM;i++){const a=5+i*(84/nM),b=a+84/nM-4;mins.push(Math.round(a+R()*(b-a)))}
- M={me,rv,label,min:0,us:0,them:0,moments:mins,done:0,feed:[],my:{goles:0,atajadas:0,jugadas:0,acierto:0},shots:[0,0],poss:50+Math.round((me.r-rv.r)*1.2+(R()-.5)*8),waiting:null,speed:1,over:false,knock:CFG.mode==='copa'};
- M.poss=clamp(M.poss,30,70);
+ const nM=CFG.pos==='POR'?Math.max(2,Math.round(LEN[CFG.len].m*.65)):LEN[CFG.len].m,mins=[];
+ // minutos de tus jugadas, repartidos en el partido (nunca en el descuento); el portero tiene menos jugadas, como en la realidad
+ for(let i=0;i<nM;i++){const a=4+i*(84/nM),b=a+84/nM-4;mins.push(Math.round(a+R()*(b-a)))}
+ const f=DIFF[CFG.diff].f,W=POS[CFG.pos].w;
+ // goles esperados de cada equipo según el nivel (como en un partido real: ~1,3 por equipo entre iguales)
+ const lu=1.3*Math.exp((me.r-rv.r)/25)/f,lt=1.3*Math.exp((rv.r-me.r)/25)*f;
+ // lo que ya aportan tus jugadas se descuenta de lo que pasa «de fondo»
+ const AT={chance:.38,pen:.75,fk:.2,recibe:.27},DE={save:.72,danger:.55,kfk:.3,contra:.42};
+ let ea=0,ed=0;for(const k in W){ea+=(AT[k]||0)*W[k]*nM;ed+=(DE[k]||0)*W[k]*nM}
+ M={me,rv,label,min:0,half:1,add1:1+Math.floor(R()*3),add2:2+Math.floor(R()*5),us:0,them:0,moments:mins,feed:[],my:{goles:0,atajadas:0,jugadas:0,acierto:0,asist:0,robos:0},yel:0,red:false,
+  shots:[0,0],ot:[0,0],co:[0,0],fo:[0,0],yc:[0,0],of:[0,0],bg:[Math.max(.08,lu-ea)/90,Math.max(.08,lt-ed)/90],poss:clamp(50+Math.round((me.r-rv.r)*1.4+(R()-.5)*8),30,70),pl:[0,0],
+  waiting:null,speed:1,over:false,knock:CFG.mode==='copa'};
  log(`${label}: ${me.n} vs ${rv.n}. ¡Rueda el balón!`,'big');
  render();tick()}
 
 function tick(){clearInterval(timer);timer=setInterval(()=>{if(!M||M.waiting||M.over)return;minute()},Math.round(480/M.speed))}
 
-// probabilidad de que un equipo marque en un minuto «de fondo» (lo que no juegas tú)
-function bgGoal(att,def,mine){const d=(att.r-def.r)/10,base=.0105*Math.exp(d*.55);return base*(mine?1/DIFF[CFG.diff].f:DIFF[CFG.diff].f)}
+const clockTxt=()=>M.half===1&&M.min>45?`45+${M.min-45}`:M.half===2&&M.min>90?`90+${M.min-90}`:String(M.min);
+const NUMS=['9','7','11','10','8','el lateral','el central','el 6'];
+function goalTxt(t){const tm=t?M.rv:M.me,who=pick(NUMS),as=pick(['tras pase de','con asistencia de','después de una pared con']),as2=pick(NUMS.filter(x=>x!==who));
+ return pick([`Remate cruzado del ${who} ${as} ${as2}`,`Cabezazo del ${who} tras un córner`,`Zurdazo del ${who} desde fuera del área`,`Definición del ${who} mano a mano`,`Contragolpe y gol del ${who} ${as} ${as2}`,`Tiro del ${who} que se desvía en un defensa`]).replace(/del el /g,'de el ').replace(/de el /g,'del ')}
 
-function minute(){M.min++;const mn=M.min;
- if(mn===46)log('Arranca el segundo tiempo.');
- if(mn===45){log(`Descanso: ${M.me.a} ${M.us}-${M.them} ${M.rv.a}.`,'big')}
- if(M.moments.includes(mn)){M.moments=M.moments.filter(x=>x!==mn);moment();render();return}
- const keeper=CFG.pos==='POR';
- if(R()<bgGoal(M.me,M.rv,true)*(keeper?1.35:.75)){M.us++;M.shots[0]++;log(`¡Gol de ${M.me.n}! ${pick(['Remate cruzado de','Cabezazo de','Zurdazo de','Definición de'])} ${pick(['tu compañero','el 9','el 11','el 7','el capitán'])}. ${M.us}-${M.them}`,'gol')}
- else if(R()<bgGoal(M.rv,M.me,false)*(keeper?.55:1)){M.them++;M.shots[1]++;log(`Gol de ${M.rv.n}. ${pick(['Contragolpe letal.','Cabezazo tras un córner.','Disparo desde fuera del área.','Error en la salida.'])} ${M.us}-${M.them}`,'gol them')}
- else if(R()<.06){const ours=R()<M.poss/100;M.shots[ours?0:1]++;log(ours?pick([`Disparo de ${M.me.a} que se va desviado.`,`Atajada del portero rival.`,`Remate de ${M.me.a} al palo.`]):pick([`${M.rv.a} avisa con un tiro alto.`,`Buena atajada de nuestro portero.`,`${M.rv.a} llega pero no remata.`]))}
- if(mn>=90){finish();return}
+function minute(){M.min++;const mn=M.min,reg=(M.half===1&&mn<=45)||(M.half===2&&mn<=90);
+ if(M.half===1&&mn===45)log(`El cuarto árbitro marca ${M.add1} minuto${M.add1>1?'s':''} de descuento.`);
+ if(M.half===2&&mn===90)log(`Se juegan ${M.add2} minutos de descuento.`);
+ if(M.half===1&&mn>45+M.add1){M.half=2;M.min=45;log(`Descanso: ${M.me.a} ${M.us}-${M.them} ${M.rv.a} · Remates ${M.shots[0]}-${M.shots[1]} · Posesión ${M.poss}%-${100-M.poss}%`,'big');render();return}
+ if(M.half===2&&mn===46)log('Arranca el segundo tiempo.');
+ if(M.half===2&&mn>90+M.add2){finish();return}
+ if(reg&&M.moments.includes(mn)&&!M.red){M.moments=M.moments.filter(x=>x!==mn);moment();render();return}
+ // posesión que se mueve con el partido
+ const p=clamp(M.poss/100+(R()-.5)*.1,.25,.75);const att=R()<p?0:1;M.pl[att]++;
+ // goles «de fondo» (más presión de quien va perdiendo y menos si te expulsaron)
+ const late=M.half===2&&mn>75?1.25:1,chase=t=>(t===0?M.us<M.them:M.them<M.us)?1.2:1,redF=t=>M.red?(t===0?.75:1.3):1;
+ for(const t of [0,1]){if(R()<M.bg[t]*late*chase(t)*redF(t)){if(t===0)M.us++;else M.them++;M.shots[t]++;M.ot[t]++;log(`${t?'Gol de '+M.rv.n:'¡Gol de '+M.me.n+'!'} ${goalTxt(t)}. ${M.us}-${M.them}`,t?'gol them':'gol');render();return}}
+ // remates, córners, faltas, tarjetas y fuera de juego con frecuencias de un partido real
+ if(R()<.15){M.shots[att]++;const on=R()<.33,tm=att?M.rv.a:M.me.a;if(on){M.ot[att]++;if(R()<.6)log(pick([`Remate de ${tm} y atajada del portero.`,`Disparo a puerta de ${tm}: el arquero la manda al córner.`,`Cabezazo de ${tm} que ataja el portero.`]));if(R()<.4)M.co[att]++}
+  else if(R()<.06)log(`¡${tm} estrella el balón en el palo!`,'big');else if(R()<.25)log(pick([`Tiro de ${tm} que se va desviado.`,`Remate alto de ${tm}.`]))}
+ if(R()<.075)M.co[att]++;
+ if(R()<.22){const fo=R()<p?1:0;M.fo[fo]++;if(R()<.14){M.yc[fo]++;log(`🟨 Amarilla para un jugador de ${fo?M.rv.n:M.me.n}.`)}}
+ if(R()<.035)M.of[att]++;
  render()}
 
-function moment(){const w=POS[CFG.pos].w,keys=Object.keys(w);let r=R(),k=keys[keys.length-1];for(const x of keys){if(r<w[x]){k=x;break}r-=w[x]}
+function moment(force){const w=POS[CFG.pos].w,keys=Object.keys(w);let r=R(),k=keys[keys.length-1];for(const x of keys){if(r<w[x]){k=x;break}r-=w[x]}if(force)k=force;
  const T={chance:['Ocasión de gol','Te queda el balón cerca del área. Encara, pasa o remata.'],pen:['¡Penal a favor!','Te toca patear a ti.'],fk:['Tiro libre','Falta en la frontal: tú le pegas.'],
-  save:['¡Penal en contra!','Te toca atajar.'],danger:['Jugada peligrosa','Un delantero rival se va solo hacia tu arco.'],kfk:['Tiro libre en contra','Falta peligrosa: arma la barrera y ataja.']}[k];
+  save:['¡Penal en contra!','Te toca atajar.'],contra:['Contraataque 3 contra 2','Vienen tres rivales y solo están tú y un compañero. Corta el pase o bárrete al balón.'],recibe:['Recibes el balón','Tu compañero te la pasa con un rival encima. Llega primero y pásala al 9.'],rebote:['¡Rebote!','El balón pegó en el palo y sigue en juego. ¡Remata!'],reboteg:['¡Rebote en tu área!','El tiro pegó en el palo y el balón sigue vivo. ¡Ataja el remate!'],danger:['Jugada peligrosa','Un delantero rival se va solo hacia tu arco.'],kfk:['Tiro libre en contra','Falta peligrosa: arma la barrera y ataja.']}[k];
  M.waiting={k,t:T[0],d:T[1]};log(`${T[0]}: ${T[1]}`,'big')}
 
-function playMoment(){const W=M.waiting;if(!W)return;M.my.jugadas++;const k=W.k,keeper=['save','danger','kfk'].includes(k);
+function playMoment(){const W=M.waiting;if(!W)return;M.my.jugadas++;const k=W.k==='rebote'?'chance':W.k==='reboteg'?'danger':W.k,keeper=KEEP.includes(k);
  const base={name:CFG.name,num:CFG.num,year:2027,kit:kitOf(M.me),rkit:rivalKit(M.me,M.rv),title:`${M.me.a} ${M.us}-${M.them} ${M.rv.a} · ${M.min}'`};
- let fired=false;const done=(ok)=>{if(fired)return;fired=true;resolve(k,ok)};
+ let fired=false;const done=(ok,res)=>{if(fired)return;fired=true;resolve(k,ok,false,res)};
  const hard=DIFF[CFG.diff].hard;
- const P=k==='chance'?['chance',null,{play:{hard,onDone:(g,res)=>done(!!g&&res!=='cancel')}}]
-  :k==='pen'?['penplay','pen',{play:{hard,onDone:(g,why)=>done(!!g&&why!=='cancel')}}]
-  :k==='fk'?['penplay','fk',{play:{fk:true,hard,onDone:(g,why)=>done(!!g&&why!=='cancel')}}]
-  :k==='save'?['penplay','kp',{play:{keeper:true,hard,onDone:(sv,why)=>done(!!sv&&why!=='cancel')}}]
-  :k==='danger'?['penplay','dg',{play:{keeper:true,danger:true,hard,onDone:(sv,why)=>done(!!sv&&why!=='cancel')}}]
-  :['penplay','kpfk',{play:{fk:true,keeper:true,hard,onDone:(sv,why)=>done(!!sv&&why!=='cancel')}}];
+ const P=k==='chance'?['chance',null,{play:{hard,onDone:(g,res)=>done(!!g&&res!=='cancel',res)}}]
+  :k==='contra'?['train','contra',{play:true,onDone:h=>done(h>0)}]
+  :k==='recibe'?['train','recibe',{play:true,onDone:h=>done(h>0)}]
+  :k==='pen'?['penplay','pen',{play:{hard,onDone:(g,why)=>done(!!g&&why!=='cancel',why)}}]
+  :k==='fk'?['penplay','fk',{play:{fk:true,hard,onDone:(g,why)=>done(!!g&&why!=='cancel',why)}}]
+  :k==='save'?['penplay','kp',{play:{keeper:true,hard,onDone:(sv,why)=>done(!!sv&&why!=='cancel',why)}}]
+  :k==='danger'?['penplay','dg',{play:{keeper:true,danger:true,hard,onDone:(sv,why)=>done(!!sv&&why!=='cancel',why)}}]
+  :['penplay','kpfk',{play:{fk:true,keeper:true,hard,onDone:(sv,why)=>done(!!sv&&why!=='cancel',why)}}];
  const ok=play3d(P[0],P[1],Object.assign(base,P[2]));
- if(!ok){toast(window.THREE?'Tu dispositivo no muestra 3D: la jugada se simula.':'Cargando el 3D… esta jugada se simula.');done(R()<(keeper?.45:.42)/DIFF[CFG.diff].f*1.1);return}
+ if(!ok){toast(window.THREE?'Tu dispositivo no muestra 3D: la jugada se simula.':'Cargando el 3D… esta jugada se simula.');done(R()<(keeper?.45:k==='contra'?.5:k==='recibe'?.55:.42)/DIFF[CFG.diff].f*1.1);return}
  // si se cierra la jugada sin terminar, cuenta como fallada
  const ov=document.querySelector('.a3d');const iv=setInterval(()=>{if(!ov||ov.hidden){clearInterval(iv);setTimeout(()=>done(false),120)}},300)}
 
-function simMoment(){const W=M.waiting;if(!W)return;const keeper=['save','danger','kfk'].includes(W.k);M.my.jugadas++;resolve(W.k,R()<(keeper?.42:.38)/DIFF[CFG.diff].f,true)}
+function simMoment(){const W=M.waiting;if(!W)return;const k=W.k==='rebote'?'chance':W.k==='reboteg'?'danger':W.k,keeper=KEEP.includes(k);M.my.jugadas++;resolve(k,R()<(keeper?.42:k==='contra'?.5:k==='recibe'?.55:.38)/DIFF[CFG.diff].f,true)}
 
-function resolve(k,ok,sim){const keeper=['save','danger','kfk'].includes(k);M.waiting=null;
- if(keeper){M.shots[1]++;if(ok){M.my.atajadas++;M.my.acierto++;log(`¡ATAJADA de ${CFG.name}!${sim?' (simulada)':''} Mantienes el ${M.us}-${M.them}.`,'gol')}else{M.them++;log(`Gol de ${M.rv.n}. No llegaste${sim?' (simulada)':''}. ${M.us}-${M.them}`,'gol them')}}
- else{M.shots[0]++;if(ok){M.us++;M.my.goles++;M.my.acierto++;log(`¡GOOOL de ${CFG.name}! (${k==='pen'?'de penal':k==='fk'?'de tiro libre':'jugada'}${sim?', simulada':''}) ${M.us}-${M.them}`,'gol');confetti()}else{log(`${k==='pen'?'Fallaste el penal':k==='fk'?'El tiro libre no entró':'Se perdió la ocasión'}${sim?' (simulada)':''}. Sigue ${M.us}-${M.them}.`)}}
- if(M.min>=90)finish();else render()}
+function card(why){if(M.red)return;M.yel++;M.yc[0]++;if(M.yel>=2){M.red=true;M.moments=[];log(`🟥 ¡Roja para ${CFG.name}! Segunda amarilla (${why}). Te vas a la ducha y tu equipo sigue sin ti.`,'gol them')}else log(`🟨 Amarilla para ${CFG.name} (${why}).`,'big')}
+function rivalPen(){M.ot[1]++;if(R()<.78){M.them++;M.shots[1]++;log(`Penal para ${M.rv.n}… ¡y gol! ${M.us}-${M.them}`,'gol them')}else{M.shots[1]++;log(`Penal para ${M.rv.n}… ¡lo ataja nuestro portero! Sigue ${M.us}-${M.them}.`,'gol')}}
+function resolve(k,ok,sim,res){const keeper=KEEP.includes(k);M.waiting=null;res=res||'';
+ if(['pen','fk'].includes(k)&&/^para/.test(res)){M.shots[0]++;log(`¡Paradinha ilegal! El árbitro anula el penal.`,'big');card('paradinha');rivalPen();return after()}
+ if(res==='palo'&&!M.red){if(keeper){M.shots[1]++;log(`¡Al palo! El tiro de ${M.rv.a} pegó en el poste y el balón sigue en juego…`,'big');moment('reboteg');return after()}
+  M.shots[0]++;log(`¡Al palo! El balón sigue en juego…`,'big');moment('rebote');return after()}
+ if(k==='contra'){if(ok){M.my.robos++;M.my.acierto++;log(`¡${CFG.name} corta el contraataque!${sim?' (simulada)':''} Sigue ${M.us}-${M.them}.`,'gol')}else if(R()<.7){M.them++;M.shots[1]++;M.ot[1]++;log(`El 3 contra 2 termina en gol de ${M.rv.n}${sim?' (simulada)':''}. ${M.us}-${M.them}`,'gol them')}else{M.shots[1]++;log(`El rival remata solo pero la tira afuera. Sigue ${M.us}-${M.them}.`)}
+  if(R()<.2)card('falta táctica');return after()}
+ if(k==='recibe'){if(ok){M.my.acierto++;M.ot[0]++;if(R()<.5){M.us++;M.my.asist++;M.shots[0]++;log(`¡Pase de ${CFG.name} y gol de ${M.me.n}! Asistencia tuya. ${M.us}-${M.them}`,'gol');confetti()}else{M.shots[0]++;log(`Buen pase de ${CFG.name}; el 9 remata y el portero ataja.`)}}else log(`Perdiste el balón en la salida${sim?' (simulada)':''}.`);return after()}
+ if(keeper){M.shots[1]++;M.ot[1]++;if(ok){M.my.atajadas++;M.my.acierto++;log(`¡ATAJADA de ${CFG.name}!${sim?' (simulada)':''} Mantienes el ${M.us}-${M.them}.`,'gol')}else{M.them++;log(`Gol de ${M.rv.n}. No llegaste${sim?' (simulada)':''}. ${M.us}-${M.them}`,'gol them')}}
+ else{M.shots[0]++;if(ok){M.ot[0]++;M.us++;M.my.goles++;M.my.acierto++;log(`¡GOOOL de ${CFG.name}! (${k==='pen'?'de penal':k==='fk'?'de tiro libre':'jugada'}${sim?', simulada':''}) ${M.us}-${M.them}`,'gol');confetti()}else{log(`${k==='pen'?'Fallaste el penal':k==='fk'?'El tiro libre no entró':'Se perdió la ocasión'}${sim?' (simulada)':''}. Sigue ${M.us}-${M.them}.`)}}
+ return after()}
+function after(){render()}
 
-function log(t,c){M.feed.unshift({m:M.min,t,c:c||''})}
+function log(t,c){M.feed.unshift({m:clockTxt(),t,c:c||''})}
 
 function render(){if(!M)return;const W=M.waiting;
- app.innerHTML=`<div class="sb"><div class="sbin"><div class="sbt"><i class="sw" style="--a:${M.me.c1};--b:${M.me.c2}"></i>${M.me.a}</div><div><div class="sbs">${M.us} - ${M.them}</div><div class="sbm">${M.over?'Final':M.min+"'"}</div></div><div class="sbt r">${M.rv.a}<i class="sw" style="--a:${M.rv.c1};--b:${M.rv.c2}"></i></div></div></div>
- <div class="stage">${W?`<div class="moment"><div class="k">${M.min}' · ${esc(M.label)}</div><h3>${esc(W.t)}</h3><p>${esc(W.d)}</p><button class="go" id="pl">¡Jugar!</button><div class="row" style="margin-top:10px"><button class="ghost" id="sim">Simular esta jugada</button></div></div>`:''}
+ app.innerHTML=`<div class="sb"><div class="sbin"><div class="sbt">${flag(M.me)}${M.me.a}</div><div><div class="sbs">${M.us} - ${M.them}</div><div class="sbm">${M.over?'Final':M.half===2&&M.min===45?'Descanso':clockTxt()+"'"}</div></div><div class="sbt r">${M.rv.a}${flag(M.rv)}</div></div><div class="lst"><span><b>${M.shots[0]}-${M.shots[1]}</b>Remates</span><span><b>${M.ot[0]}-${M.ot[1]}</b>A puerta</span><span><b>${M.co[0]}-${M.co[1]}</b>Córners</span><span><b>${M.poss}%</b>Posesión</span></div></div>
+ <div class="stage">${W?`<div class="moment"><div class="k">${clockTxt()}' · ${esc(M.label)}</div><h3>${esc(W.t)}</h3><p>${esc(W.d)}</p><button class="go" id="pl">¡Jugar!</button><div class="row" style="margin-top:10px"><button class="ghost" id="sim">Simular esta jugada</button></div></div>`:''}
  <div class="ctl">${M.over?'':`<button class="chip" id="sp" aria-pressed="${M.speed>1}">${M.speed>1?'Velocidad x3':'Velocidad x1'}</button><button class="chip" id="qt">Abandonar</button>`}</div>
  <ul class="feed">${M.feed.slice(0,40).map(f=>`<li class="${f.c}"><b class="min">${f.m}'</b><span>${esc(f.t)}</span></li>`).join('')}</ul></div>`;
  const pl=$('#pl');if(pl)pl.onclick=playMoment;const sm=$('#sim');if(sm)sm.onclick=simMoment;
@@ -1917,7 +2014,7 @@ function shootout(){const keeper=CFG.pos==='POR';const T={us:[],them:[]};
   const base={name:CFG.name,num:CFG.num,year:2027,kit:kitOf(M.me),rkit:rivalKit(M.me,M.rv),title};
   let fired=false;const done=v=>{if(fired)return;fired=true;if(our)T.us.push(v);else T.them.push(!v);setTimeout(next,350)};
   // tú pateas los penales de tu equipo y atajas los del rival
-  const ok=our?play3d('penplay','pen',Object.assign(base,{play:{hard:DIFF[CFG.diff].hard,title,onDone:(g,w)=>done(!!g&&w!=='cancel')}}))
+  const ok=our?play3d('penplay','pen',Object.assign(base,{play:{hard:DIFF[CFG.diff].hard,title,onDone:(g,w)=>{if(/^para/.test(w||'')){log('¡Paradinha ilegal en la tanda! Penal anulado.','big');card('paradinha');done(false);return}done(!!g&&w!=='cancel')}}}))
    :play3d('penplay','kp',Object.assign(base,{play:{keeper:true,hard:DIFF[CFG.diff].hard,title,onDone:(sv,w)=>done(!!sv&&w!=='cancel')}}));
   if(!ok){done(our?R()<.75:R()<.28);return}
   const ov=document.querySelector('.a3d');const iv=setInterval(()=>{if(!ov||ov.hidden){clearInterval(iv);setTimeout(()=>done(false),120)}},300)};
@@ -1932,12 +2029,12 @@ function endScreen(){const win=M.pens?M.pens[0]>M.pens[1]:M.us>M.them,draw=!M.pe
  const title=champ?'¡Campeón del mundo!':win?'¡Victoria!':draw?'Empate':'Derrota';
  const tot=M.my.jugadas;
  app.innerHTML=`<div class="res"><div class="k">${esc(M.label)}</div><h2>${title}</h2>
-  <div class="row" style="justify-content:center;gap:18px"><div class="sbt"><i class="sw" style="--a:${M.me.c1};--b:${M.me.c2}"></i>${M.me.a}</div><div class="score">${M.us} - ${M.them}</div><div class="sbt">${M.rv.a}<i class="sw" style="--a:${M.rv.c1};--b:${M.rv.c2}"></i></div></div>
+  <div class="row" style="justify-content:center;gap:18px"><div class="sbt">${flag(M.me)}${M.me.a}</div><div class="score">${M.us} - ${M.them}</div><div class="sbt">${M.rv.a}${flag(M.rv)}</div></div>
   ${M.pens?`<p class="note">Penales: ${M.pens[0]}-${M.pens[1]}</p>`:''}
   ${CUP?`<div class="path">${CUP_ROUNDS.map((r,i)=>`<span class="${i<CUP.res.length?(CUP.res[i]?'ok':'ko'):i===CUP.round?'now':''}">${r}${i<CUP.res.length?` · ${esc(CUP.opp[i].a)}`:''}</span>`).join('')}</div>`:''}
   <section class="card" style="text-align:left"><h2>${esc(CFG.name)} · ${CFG.num}</h2><table class="st">
-   <tr><td>${M.me.a}</td><td>Tiros</td><td>${M.rv.a}</td></tr><tr><td>${M.shots[0]}</td><td>Remates</td><td>${M.shots[1]}</td></tr><tr><td>${M.poss}%</td><td>Posesión</td><td>${100-M.poss}%</td></tr></table>
-   <p class="note">${keeper?`Atajaste ${M.my.atajadas} de ${tot} jugadas.`:`Marcaste ${M.my.goles} gol${M.my.goles===1?'':'es'} en ${tot} jugada${tot===1?'':'s'}.`}</p></section>
+   <tr><td><b>${M.me.a}</b></td><td>Estadísticas</td><td><b>${M.rv.a}</b></td></tr><tr><td>${M.poss}%</td><td>Posesión</td><td>${100-M.poss}%</td></tr><tr><td>${M.shots[0]}</td><td>Remates</td><td>${M.shots[1]}</td></tr><tr><td>${M.ot[0]}</td><td>Remates a puerta</td><td>${M.ot[1]}</td></tr><tr><td>${M.co[0]}</td><td>Córners</td><td>${M.co[1]}</td></tr><tr><td>${M.fo[0]}</td><td>Faltas</td><td>${M.fo[1]}</td></tr><tr><td>${M.yc[0]}</td><td>Amarillas</td><td>${M.yc[1]}</td></tr><tr><td>${M.of[0]}</td><td>Fueras de juego</td><td>${M.of[1]}</td></tr></table>
+   <p class="note">${keeper?`Atajaste ${M.my.atajadas} de ${tot} jugadas.`:`${M.my.goles} gol${M.my.goles===1?'':'es'}${M.my.asist?` · ${M.my.asist} asistencia${M.my.asist>1?'s':''}`:''}${M.my.robos?` · ${M.my.robos} contraataque${M.my.robos>1?'s':''} cortado${M.my.robos>1?'s':''}`:''} en ${tot} jugada${tot===1?'':'s'}.`}${M.red?' 🟥 Expulsado.':M.yel?' 🟨 Amonestado.':''}</p></section>
   <div id="btns"></div></div>`;
  const B=$('#btns'),btn=(t,f,cls)=>{const b=document.createElement('button');b.className=cls||'go';b.textContent=t;b.onclick=f;B.appendChild(b)};
  if(CUP){if(win&&CUP.round<3){btn(`Siguiente: ${CUP_ROUNDS[CUP.round+1]}`,()=>{CUP.round++;startMatch(M.me,CUP.opp[CUP.round],`Copa · ${CUP_ROUNDS[CUP.round]}`)})}
