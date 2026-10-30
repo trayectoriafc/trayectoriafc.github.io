@@ -38,6 +38,14 @@ h1,h2,h3,.disp{font-family:var(--f-display);text-transform:uppercase;letter-spac
 .fl{width:33px;height:22px;flex:none;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.28)}
 .sbt .fl{width:36px;height:24px}
 .lst{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px;text-align:center;font-size:13px;color:var(--muted)}.lst b{display:block;color:var(--ink);font-size:16px;font-variant-numeric:tabular-nums}
+.car{display:flex;gap:14px;align-items:center}
+.ovrb{width:72px;height:80px;border-radius:12px;background:linear-gradient(160deg,#f7d24a,#c9920a);color:#1d1500;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.ovrb b{font-family:var(--f-display);font-size:38px;line-height:1}.ovrb span{font-size:11px;font-weight:800;text-transform:uppercase}
+.xpb{height:8px;border-radius:5px;background:var(--card2);overflow:hidden}.xpb i{display:block;height:100%;background:var(--gold)}
+.tab{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;margin-top:6px}.tab th{color:var(--muted);font-weight:700;font-size:12px;text-align:center;padding:4px 2px}
+.tab td{text-align:center;padding:7px 2px;border-top:1px solid var(--line)}.tab td:nth-child(2){text-align:left;font-weight:700}.tab tr.me td{color:var(--gold)}.tab tr.q td:first-child{box-shadow:inset 3px 0 var(--good)}
+.tab .fl{width:24px;height:16px;vertical-align:-3px;margin-right:6px}
+.up{color:var(--good);font-weight:800}
 .sw{width:26px;height:26px;border-radius:50%;flex:none;border:2px solid rgba(255,255,255,.35);background:linear-gradient(135deg,var(--a) 50%,var(--b) 50%)}
 label.f{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:14px;color:var(--muted);flex:1;min-width:140px}
 input.in{background:var(--card2);border:1.5px solid var(--line);border-radius:10px;color:var(--ink);padding:11px 12px;font:inherit;font-size:17px;font-weight:700}
@@ -1832,7 +1840,28 @@ const TEAMS=[
  ['Paraguay','PAR',77,'#ffffff','#D52B1E','#0038A8','#0038A8','stripes'],['Chile','CHI',77,'#D52B1E','#0039A6','#ffffff','#0039A6','plain'],
  ['Perú','PER',76,'#ffffff','#D91023','#D91023','#D91023','plain'],['Venezuela','VEN',75,'#7A1F2B','#FFCC00','#FFCC00','#FFCC00','plain']
 ].map(([n,a,r,c1,c2,num,trim,pat])=>({n,a,r,c1,c2,num,trim,pat}));
-const team=n=>TEAMS.find(t=>t.n===n)||TEAMS[0];
+// clubes: solo nombre y colores de la camiseta (sin escudos, que son marcas registradas)
+const CLUBS=[
+ ['Real Madrid','RMA',90,'#f4f4f4','#1d2a5c','#1d2a5c','#c9a227','plain'],['Manchester City','MCI',90,'#6cabdd','#ffffff','#1c2c5b','#1c2c5b','plain'],
+ ['Barcelona','BAR',89,'#a50044','#004d98','#f2c500','#004d98','stripes'],['Liverpool','LIV',89,'#c8102e','#c8102e','#ffffff','#f6eb61','plain'],
+ ['Bayern Múnich','BAY',89,'#dc052d','#ffffff','#ffffff','#0066b2','plain'],['Arsenal','ARS',88,'#ef0107','#ffffff','#ffffff','#ffffff','plain'],
+ ['PSG','PSG',88,'#004170','#da291c','#ffffff','#da291c','vband'],['Inter','INT',87,'#0068a8','#111111','#ffffff','#111111','stripes'],
+ ['Atlético de Madrid','ATM',86,'#cb3524','#ffffff','#262f61','#262f61','stripes'],['Chelsea','CHE',86,'#034694','#034694','#ffffff','#ffffff','plain'],
+ ['Manchester United','MUN',85,'#da291c','#ffffff','#ffffff','#111111','plain'],['Borussia Dortmund','BVB',85,'#fde100','#111111','#111111','#111111','plain'],
+ ['Bayer Leverkusen','B04',85,'#e32221','#111111','#ffffff','#111111','plain'],['Milan','MIL',85,'#fb090b','#111111','#ffffff','#111111','stripes'],
+ ['Juventus','JUV',85,'#ffffff','#111111','#111111','#111111','stripes'],['Napoli','NAP',84,'#12a0d7','#ffffff','#ffffff','#ffffff','plain'],
+ ['Benfica','SLB',83,'#e83030','#ffffff','#ffffff','#ffffff','plain'],['Porto','FCP',82,'#003893','#ffffff','#ffffff','#ffffff','stripes'],
+ ['Sporting','SCP',82,'#008057','#ffffff','#111111','#ffffff','hoops'],['Ajax','AJA',81,'#ffffff','#d2122e','#111111','#d2122e','vband'],
+ ['Flamengo','FLA',81,'#c8102e','#111111','#ffffff','#111111','hoops'],['PSV','PSV',80,'#e2001a','#ffffff','#ffffff','#ffffff','stripes'],
+ ['Boca Juniors','BOC',80,'#0b2a6b','#f2c500','#f2c500','#f2c500','hband'],['River Plate','RIV',80,'#ffffff','#e2001a','#111111','#e2001a','band'],
+ ['Palmeiras','PAL',80,'#006437','#ffffff','#ffffff','#ffffff','plain'],['Al-Hilal','HIL',80,'#0047ab','#ffffff','#ffffff','#ffffff','plain'],
+ ['América','AME',78,'#f7d417','#0a2a6b','#0a2a6b','#0a2a6b','plain'],['Inter Miami','MIA',78,'#f7b5cd','#111111','#111111','#111111','plain'],
+ ['Atlético Nacional','NAC',77,'#0b8a3a','#ffffff','#ffffff','#ffffff','stripes'],['Chivas','GDL',77,'#d81e2c','#ffffff','#0a2a6b','#0a2a6b','stripes'],
+ ['Millonarios','MLL',75,'#0a3d91','#ffffff','#ffffff','#ffffff','plain']
+].map(([n,a,r,c1,c2,num,trim,pat])=>({n,a,r,c1,c2,num,trim,pat,club:true}));
+const ALL=TEAMS.concat(CLUBS);
+const team=n=>ALL.find(t=>t.n===n)||TEAMS[0];
+const ofKind=k=>k==='club'?CLUBS:TEAMS;
 /* banderas reales de cada país (dibujadas en SVG) */
 const FSTAR=(cx,cy,r,c)=>`<polygon fill="${c}" points="${Array.from({length:10},(_,i)=>{const a=-Math.PI/2+i*Math.PI/5,q=i%2?r*.4:r;return(cx+q*Math.cos(a)).toFixed(2)+','+(cy+q*Math.sin(a)).toFixed(2)}).join(' ')}"/>`;
 const FH=(...c)=>{const h=20/c.length;return c.map((x,i)=>`<rect y="${i*h}" width="30" height="${h+.05}" fill="${x}"/>`).join('')};
@@ -1858,7 +1887,9 @@ const FLAG_SVG={
  'Países Bajos':FH('#AE1C28','#fff','#21468B'),
  'Bélgica':FV('#000','#FAE042','#ED2939'),
  'Turquía':`<rect width="30" height="20" fill="#E30A17"/><circle cx="11" cy="10" r="5" fill="#fff"/><circle cx="12.3" cy="10" r="4" fill="#E30A17"/>`+FSTAR(17.6,10,2.1,'#fff')};
-const flag=t=>`<svg class="fl" viewBox="0 0 30 20" aria-hidden="true" preserveAspectRatio="none">${FLAG_SVG[t.n]||''}</svg>`;
+// clubes: los colores de su camiseta (rayas, franjas o liso), no el escudo
+function kitSVG(t){const a=t.c1,b=t.c2;return {stripes:FV(a,b,a,b,a),hoops:FH(a,b,a,b,a),vband:FV(a,a,b,a,a),hband:FH(a,b,a),band:`<rect width="30" height="20" fill="${a}"/><polygon points="0,13 0,20 4,20 30,4 30,-3 26,0 26,0" fill="${b}"/>`,plain:`<rect width="30" height="20" fill="${a}"/><rect y="14" width="30" height="6" fill="${b}"/>`}[t.pat]||FV(a,b)}
+const flag=t=>`<svg class="fl" viewBox="0 0 30 20" aria-hidden="true" preserveAspectRatio="none">${t.club?kitSVG(t):(FLAG_SVG[t.n]||'')}</svg>`;
 const lum=h=>{const n=parseInt(h.slice(1),16);return(.299*(n>>16&255)+.587*(n>>8&255)+.114*(n&255))/255};
 const cdist=(a,b)=>{const x=parseInt(a.slice(1),16),y=parseInt(b.slice(1),16);return Math.hypot((x>>16&255)-(y>>16&255),(x>>8&255)-(y>>8&255),(x&255)-(y&255))};
 function kitOf(t){return{shirt:t.c1,sleeve:t.c1,shorts:t.c2,socks:t.c1,num:t.num,tie:t.trim}}
@@ -1870,56 +1901,73 @@ const POS={DC:{n:'Delantero',w:{chance:.62,pen:.13,fk:.25}},MC:{n:'Mediocampista
 const KEEP=['save','danger','kfk'];
 const DIFF=[{n:'Fácil',f:.75,hard:false},{n:'Normal',f:1,hard:false},{n:'Difícil',f:1.25,hard:true}];
 const LEN=[{n:'Corto',m:3},{n:'Normal',m:4},{n:'Largo',m:6}];
-const CUP_ROUNDS=['Octavos de final','Cuartos de final','Semifinal','Final'];
-let CFG=Object.assign({name:'',num:10,pos:'DC',team:'Colombia',rival:'Argentina',diff:1,len:1,mode:'amistoso'},store.get('tfcp-cfg',{}));
-const REC=()=>Object.assign({pj:0,g:0,e:0,p:0,goles:0,atajadas:0,copas:0},store.get('tfcp-rec',{}));
+const KO_R=['Octavos de final','Cuartos de final','Semifinal','Final'];
+let CFG=Object.assign({name:'',num:10,pos:'DC',kind:'sel',team:'Colombia',rival:'Argentina',diff:1,len:1,mode:'amistoso'},store.get('tfcp-cfg',{}));
+if(CFG.mode==='copa')CFG.mode='torneo';
+const REC=()=>Object.assign({pj:0,g:0,e:0,p:0,goles:0,atajadas:0,mundiales:0,champions:0},store.get('tfcp-rec',{}));
+/* ---------- carrera: tu media sube con lo que haces en tus jugadas ---------- */
+const CAR0={ovr:65,xp:0,pj:0,goles:0,asist:0,atajadas:0,robos:0,titulos:0,best:65};
+let CAR=Object.assign({},CAR0,store.get('tfcp-car',{}));
+const xpNeed=o=>4+Math.floor(Math.max(0,o-60)/5)*2; // cada punto cuesta más a medida que subes
+const ovrBoost=()=>(CAR.ovr-75); // + mejor que un jugador promedio de 75
+function careerAdd(xp){const before=CAR.ovr;CAR.xp+=Math.max(0,xp);while(CAR.ovr<99&&CAR.xp>=xpNeed(CAR.ovr)){CAR.xp-=xpNeed(CAR.ovr);CAR.ovr++}CAR.best=Math.max(CAR.best,CAR.ovr);store.set('tfcp-car',CAR);return CAR.ovr-before}
+const tierName=o=>o>=90?'Leyenda':o>=85?'Estrella':o>=80?'Titular indiscutible':o>=75?'Titular':o>=70?'Promesa':'Debutante';
 const saveCfg=()=>store.set('tfcp-cfg',CFG);
 
 /* ---------- pantallas ---------- */
 const app=$('#app');
-let M=null,CUP=null,timer=0;
+let M=null,TOR=null,timer=0;
 
 function menu(){clearInterval(timer);M=null;
  const rec=REC();
  const tbtn=(t,sel,k)=>`<button class="tm" data-k="${k}" data-v="${esc(t.n)}" aria-pressed="${t.n===sel}">${flag(t)}<span>${esc(t.n)}<small>Nivel ${t.r}</small></span></button>`;
  const chips=(k,arr,cur)=>`<div class="chips">${arr.map(([v,t])=>`<button class="chip" data-k="${k}" data-v="${v}" aria-pressed="${String(cur)===String(v)}">${t}</button>`).join('')}</div>`;
+ const K=CFG.kind,list=ofKind(K),tname=K==='club'?'Copa de Campeones':'Mundial',need=xpNeed(CAR.ovr);
  app.innerHTML=`<header class="brand"><h1>Trayectoria <span>FC</span></h1><p>Juega partidos: tú decides las jugadas clave en 3D</p></header>
- <section class="card"><h2>Tu jugador</h2><div class="row"><label class="f">Nombre<input class="in" id="nm" maxlength="18" placeholder="Tu nombre" value="${esc(CFG.name)}"></label><label class="f" style="max-width:110px;min-width:90px">Dorsal<input class="in" id="nu" type="number" min="1" max="99" value="${CFG.num}"></label></div>
-  <p class="note" style="margin-bottom:8px">Posición</p>${chips('pos',Object.entries(POS).map(([k,v])=>[k,v.n]),CFG.pos)}</section>
- <section class="card"><h2>Tu selección</h2><div class="teams">${TEAMS.map(t=>tbtn(t,CFG.team,'team')).join('')}</div></section>
- <section class="card"><h2>Modo</h2>${chips('mode',[['amistoso','Amistoso'],['copa','Copa del mundo (4 partidos)']],CFG.mode)}
-  <div id="rivbox" ${CFG.mode==='copa'?'hidden':''}><p class="note" style="margin-bottom:8px">Rival</p><div class="teams">${TEAMS.filter(t=>t.n!==CFG.team).map(t=>tbtn(t,CFG.rival,'rival')).join('')}</div></div></section>
+ <section class="card"><h2>Tu jugador</h2>
+  <div class="car"><div class="ovrb"><b>${CAR.ovr}</b><span>media</span></div><div style="flex:1"><div class="disp" style="font-size:20px">${esc(CFG.name||'Tu jugador')} · ${CFG.num}</div><div class="note" style="margin:2px 0 6px">${tierName(CAR.ovr)} · ${CAR.pj} partidos · ${CAR.goles} goles · ${CAR.asist} asist.${CAR.atajadas?` · ${CAR.atajadas} atajadas`:''}${CAR.robos?` · ${CAR.robos} recuperaciones`:''}${CAR.titulos?` · ${CAR.titulos} título${CAR.titulos>1?'s':''} 🏆`:''}</div>
+  <div class="xpb"><i style="width:${CAR.ovr>=99?100:Math.round(CAR.xp/need*100)}%"></i></div><div class="note" style="margin-top:4px;font-size:12px">${CAR.ovr>=99?'Media máxima':`Próximo punto de media: ${CAR.xp}/${need}`}</div></div></div>
+  <div class="row" style="margin-top:12px"><label class="f">Nombre<input class="in" id="nm" maxlength="18" placeholder="Tu nombre" value="${esc(CFG.name)}"></label><label class="f" style="max-width:110px;min-width:90px">Dorsal<input class="in" id="nu" type="number" min="1" max="99" value="${CFG.num}"></label></div>
+  <p class="note" style="margin-bottom:8px">Posición</p>${chips('pos',Object.entries(POS).map(([k,v])=>[k,v.n]),CFG.pos)}
+  ${CAR.pj?'<button class="ghost" id="newcar" style="margin-top:12px;font-size:14px">Empezar una carrera nueva</button>':''}</section>
+ <section class="card"><h2>Tu equipo</h2>${chips('kind',[['sel','Selecciones'],['club','Clubes']],K)}<div class="teams" style="margin-top:10px">${list.map(t=>tbtn(t,CFG.team,'team')).join('')}</div>${K==='club'?'<p class="note">Clubes con sus colores; sin escudos oficiales.</p>':''}</section>
+ <section class="card"><h2>Modo</h2>${chips('mode',[['amistoso','Amistoso'],['torneo',`${tname}: grupos + eliminatorias`]],CFG.mode)}
+  <div id="rivbox" ${CFG.mode==='torneo'?'hidden':''}><p class="note" style="margin-bottom:8px">Rival</p><div class="teams">${list.filter(t=>t.n!==CFG.team).map(t=>tbtn(t,CFG.rival,'rival')).join('')}</div></div></section>
  <section class="card"><h2>Partido</h2><p class="note" style="margin:0 0 8px">Dificultad</p>${chips('diff',DIFF.map((d,i)=>[i,d.n]),CFG.diff)}<p class="note" style="margin:12px 0 8px">Jugadas tuyas por partido</p>${chips('len',LEN.map((d,i)=>[i,`${d.n} · ${d.m}`]),CFG.len)}</section>
- <button class="go" id="go">${CFG.mode==='copa'?'Empezar la copa':'Jugar partido'}</button>
- <p class="rec">${rec.pj?`${rec.pj} partidos · ${rec.g} ganados · ${rec.e} empatados · ${rec.p} perdidos · ${rec.goles} goles tuyos${rec.atajadas?` · ${rec.atajadas} atajadas`:''}${rec.copas?` · ${rec.copas} copa${rec.copas>1?'s':''} 🏆`:''}`:'Todavía no jugaste ningún partido.'}</p>
+ <button class="go" id="go">${CFG.mode==='torneo'?(K==='club'?'Empezar la Copa de Campeones':'Empezar el Mundial'):'Jugar partido'}</button>
+ <p class="rec">${rec.pj?`${rec.pj} partido${rec.pj===1?'':'s'} · ${rec.g} ganado${rec.g===1?'':'s'} · ${rec.e} empatado${rec.e===1?'':'s'} · ${rec.p} perdido${rec.p===1?'':'s'}${rec.mundiales?` · ${rec.mundiales} Mundial${rec.mundiales>1?'es':''} 🏆`:''}${rec.champions?` · ${rec.champions} Copa${rec.champions>1?'s':''} de Campeones 🏆`:''}`:'Todavía no jugaste ningún partido.'}</p>
  <details class="help"><summary>Cómo se juega</summary><ul>
   <li>El partido corre solo minuto a minuto. Cuando llega una jugada importante para ti, se para el reloj y la juegas en 3D.</li>
   <li>Delantero: ocasiones de gol, penales y tiros libres. Mediocampista: recibir el balón y pasar al 9, además de ocasiones y tiros libres. Defensa y mediocentro defensivo: cortar contraataques de 3 contra 2. Portero: atajar penales, tiros libres y jugadas peligrosas.</li>
   <li>Paradinha en un penal: el árbitro lo anula, te saca amarilla y da penal al rival. Al defender un 3 contra 2 hay un 20% de amarilla. Dos amarillas son roja.</li>
   <li>Si el balón pega en el palo, sigue en juego: te toca el rebote.</li>
   <li>En las jugadas mueves con el joystick y usas los botones de la pantalla (también con el ratón).</li>
-  <li>En la copa, si hay empate se va a la tanda de penales.</li></ul></details>`;
+  <li>Tu media sube con lo que haces: goles, asistencias, atajadas, recuperaciones y victorias. Con más media tus jugadas simuladas salen mejor, tu equipo rinde más y, desde 85, te buscan con una jugada más por partido.</li>
+  <li>Mundial y Copa de Campeones: grupo de 4 (pasan los dos primeros) y después octavos, cuartos, semifinal y final. En eliminatorias, el empate se define por penales.</li></ul></details>`;
  const fix=()=>{CFG.name=$('#nm').value.trim().slice(0,18);CFG.num=clamp(Math.round(+$('#nu').value||10),1,99);saveCfg()};
  $('#nm').oninput=fix;$('#nu').onchange=fix;
- app.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{fix();const k=b.dataset.k,v=b.dataset.v;CFG[k]=['diff','len'].includes(k)?+v:v;if(k==='team'&&CFG.rival===v)CFG.rival=TEAMS.find(t=>t.n!==v).n;saveCfg();const y=scrollY;menu();scrollTo(0,y)});
+ app.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{fix();const k=b.dataset.k,v=b.dataset.v;CFG[k]=['diff','len'].includes(k)?+v:v;
+  if(k==='kind'){const l=ofKind(v);if(!l.some(t=>t.n===CFG.team))CFG.team=l[Math.min(l.length-1,8)].n;if(!l.some(t=>t.n===CFG.rival)||CFG.rival===CFG.team)CFG.rival=l.find(t=>t.n!==CFG.team).n}
+  if(k==='team'&&CFG.rival===v)CFG.rival=ofKind(CFG.kind).find(t=>t.n!==v).n;saveCfg();const y=scrollY;menu();scrollTo(0,y)});
+ const nc=$('#newcar');if(nc)nc.onclick=()=>{if(confirm('¿Empezar una carrera nueva? Tu media vuelve a 65 y se borran tus números.')){CAR=Object.assign({},CAR0);store.set('tfcp-car',CAR);menu()}};
  $('#go').onclick=()=>{fix();if(!CFG.name){const n=$('#nm');n.focus();n.style.outline='2px solid #e5533d';toast('Escribe el nombre de tu jugador');return}
-  ensureThree();if(CFG.mode==='copa')startCup();else startMatch(team(CFG.team),team(CFG.rival),'Amistoso')};
+  ensureThree();if(CFG.mode==='torneo')startTour();else startMatch(team(CFG.team),team(CFG.rival),'Amistoso')};
  ensureThree()}
 
 /* ---------- partido ---------- */
-function startMatch(me,rv,label){
- const nM=CFG.pos==='POR'?Math.max(2,Math.round(LEN[CFG.len].m*.65)):LEN[CFG.len].m,mins=[];
+function startMatch(me,rv,label,knock){
+ const nM=(CFG.pos==='POR'?Math.max(2,Math.round(LEN[CFG.len].m*.65)):LEN[CFG.len].m)+(CAR.ovr>=85?1:0),mins=[];
  // minutos de tus jugadas, repartidos en el partido (nunca en el descuento); el portero tiene menos jugadas, como en la realidad
  for(let i=0;i<nM;i++){const a=4+i*(84/nM),b=a+84/nM-4;mins.push(Math.round(a+R()*(b-a)))}
  const f=DIFF[CFG.diff].f,W=POS[CFG.pos].w;
  // goles esperados de cada equipo según el nivel (como en un partido real: ~1,3 por equipo entre iguales)
- const lu=1.3*Math.exp((me.r-rv.r)/25)/f,lt=1.3*Math.exp((rv.r-me.r)/25)*f;
+ const er=me.r+ovrBoost()*.15,lu=1.3*Math.exp((er-rv.r)/25)/f,lt=1.3*Math.exp((rv.r-er)/25)*f;
  // lo que ya aportan tus jugadas se descuenta de lo que pasa «de fondo»
  const AT={chance:.38,pen:.75,fk:.2,recibe:.27},DE={save:.72,danger:.55,kfk:.3,contra:.42};
  let ea=0,ed=0;for(const k in W){ea+=(AT[k]||0)*W[k]*nM;ed+=(DE[k]||0)*W[k]*nM}
  M={me,rv,label,min:0,half:1,add1:1+Math.floor(R()*3),add2:2+Math.floor(R()*5),us:0,them:0,moments:mins,feed:[],my:{goles:0,atajadas:0,jugadas:0,acierto:0,asist:0,robos:0},yel:0,red:false,
   shots:[0,0],ot:[0,0],co:[0,0],fo:[0,0],yc:[0,0],of:[0,0],bg:[Math.max(.08,lu-ea)/90,Math.max(.08,lt-ed)/90],poss:clamp(50+Math.round((me.r-rv.r)*1.4+(R()-.5)*8),30,70),pl:[0,0],
-  waiting:null,speed:1,over:false,knock:CFG.mode==='copa'};
+  waiting:null,speed:1,over:false,knock:!!knock};
  log(`${label}: ${me.n} vs ${rv.n}. ¡Rueda el balón!`,'big');
  render();tick()}
 
@@ -1972,7 +2020,7 @@ function playMoment(){const W=M.waiting;if(!W)return;M.my.jugadas++;const k=W.k=
  // si se cierra la jugada sin terminar, cuenta como fallada
  const ov=document.querySelector('.a3d');const iv=setInterval(()=>{if(!ov||ov.hidden){clearInterval(iv);setTimeout(()=>done(false),120)}},300)}
 
-function simMoment(){const W=M.waiting;if(!W)return;const k=W.k==='rebote'?'chance':W.k==='reboteg'?'danger':W.k,keeper=KEEP.includes(k);M.my.jugadas++;resolve(k,R()<(keeper?.42:k==='contra'?.5:k==='recibe'?.55:.38)/DIFF[CFG.diff].f,true)}
+function simMoment(){const W=M.waiting;if(!W)return;const k=W.k==='rebote'?'chance':W.k==='reboteg'?'danger':W.k,keeper=KEEP.includes(k);M.my.jugadas++;resolve(k,R()<(keeper?.42:k==='contra'?.5:k==='recibe'?.55:.38)/DIFF[CFG.diff].f*(1+ovrBoost()*.012),true)}
 
 function card(why){if(M.red)return;M.yel++;M.yc[0]++;if(M.yel>=2){M.red=true;M.moments=[];log(`🟥 ¡Roja para ${CFG.name}! Segunda amarilla (${why}). Te vas a la ducha y tu equipo sigue sin ti.`,'gol them')}else log(`🟨 Amarilla para ${CFG.name} (${why}).`,'big')}
 function rivalPen(){M.ot[1]++;if(R()<.78){M.them++;M.shots[1]++;log(`Penal para ${M.rv.n}… ¡y gol! ${M.us}-${M.them}`,'gol them')}else{M.shots[1]++;log(`Penal para ${M.rv.n}… ¡lo ataja nuestro portero! Sigue ${M.us}-${M.them}.`,'gol')}}
@@ -1992,7 +2040,7 @@ function log(t,c){M.feed.unshift({m:clockTxt(),t,c:c||''})}
 
 function render(){if(!M)return;const W=M.waiting;
  app.innerHTML=`<div class="sb"><div class="sbin"><div class="sbt">${flag(M.me)}${M.me.a}</div><div><div class="sbs">${M.us} - ${M.them}</div><div class="sbm">${M.over?'Final':M.half===2&&M.min===45?'Descanso':clockTxt()+"'"}</div></div><div class="sbt r">${M.rv.a}${flag(M.rv)}</div></div><div class="lst"><span><b>${M.shots[0]}-${M.shots[1]}</b>Remates</span><span><b>${M.ot[0]}-${M.ot[1]}</b>A puerta</span><span><b>${M.co[0]}-${M.co[1]}</b>Córners</span><span><b>${M.poss}%</b>Posesión</span></div></div>
- <div class="stage">${W?`<div class="moment"><div class="k">${clockTxt()}' · ${esc(M.label)}</div><h3>${esc(W.t)}</h3><p>${esc(W.d)}</p><button class="go" id="pl">¡Jugar!</button><div class="row" style="margin-top:10px"><button class="ghost" id="sim">Simular esta jugada</button></div></div>`:''}
+ <div class="stage">${W?`<div class="moment"><div class="k">${clockTxt()}' · ${esc(M.label)} · tu media ${CAR.ovr}</div><h3>${esc(W.t)}</h3><p>${esc(W.d)}</p><button class="go" id="pl">¡Jugar!</button><div class="row" style="margin-top:10px"><button class="ghost" id="sim">Simular esta jugada</button></div></div>`:''}
  <div class="ctl">${M.over?'':`<button class="chip" id="sp" aria-pressed="${M.speed>1}">${M.speed>1?'Velocidad x3':'Velocidad x1'}</button><button class="chip" id="qt">Abandonar</button>`}</div>
  <ul class="feed">${M.feed.slice(0,40).map(f=>`<li class="${f.c}"><b class="min">${f.m}'</b><span>${esc(f.t)}</span></li>`).join('')}</ul></div>`;
  const pl=$('#pl');if(pl)pl.onclick=playMoment;const sm=$('#sim');if(sm)sm.onclick=simMoment;
@@ -2023,32 +2071,62 @@ function shootout(){const keeper=CFG.pos==='POR';const T={us:[],them:[]};
 /* ---------- final del partido ---------- */
 function endScreen(){const win=M.pens?M.pens[0]>M.pens[1]:M.us>M.them,draw=!M.pens&&M.us===M.them;
  const rec=REC();rec.pj++;if(win)rec.g++;else if(draw)rec.e++;else rec.p++;rec.goles+=M.my.goles;rec.atajadas+=M.my.atajadas;
- let champ=false;if(CUP){CUP.res.push(win);if(win&&CUP.round===3){champ=true;rec.copas++}}
- store.set('tfcp-rec',rec);if(win)confetti();
- const keeper=CFG.pos==='POR';
- const title=champ?'¡Campeón del mundo!':win?'¡Victoria!':draw?'Empate':'Derrota';
- const tot=M.my.jugadas;
+ // carrera: puntos por lo que hiciste tú
+ const o0=CAR.ovr;CAR.pj++;CAR.goles+=M.my.goles;CAR.asist+=M.my.asist;CAR.atajadas+=M.my.atajadas;CAR.robos+=M.my.robos;
+ const xp=M.my.acierto*3+M.my.goles+(win?2:draw?1:0)-(M.red?2:0);
+ // torneo
+ let tourTxt='',champ=false,out=false;
+ if(TOR){const T=TOR;
+  if(T.stage==='grupo'){const [a,b]=T.fix[T.md][0];addRes(a,b,M.us,M.them);const [c,d]=T.fix[T.md][1];const [x,y]=quickSim(T.teams[c],T.teams[d]);addRes(c,d,x,y);
+   T.last=`${T.teams[c].a} ${x}-${y} ${T.teams[d].a}`;T.md++;
+   if(T.md===3){const st=standings();const pos=st.findIndex(r=>r.i===0)+1;if(pos<=2){T.stage='ko';T.ko=0;T.koOpp=[];tourTxt=`¡Clasificado como ${pos}º del grupo!`}else{out=true;tourTxt=`Eliminado en la fase de grupos (${pos}º).`}}}
+  else{if(win){T.ko++;if(T.ko===4){champ=true;tourTxt=`¡Campeón ${T.del} ${T.name}!`}}else{out=true;tourTxt=`Eliminado en ${KO_R[T.ko].toLowerCase()}.`}}
+  if(champ){CAR.titulos++;if(T.kind==='club')rec.champions++;else rec.mundiales++}}
+ store.set('tfcp-rec',rec);const up=careerAdd(xp+(champ?4:0));if(win||champ)confetti();
+ const keeper=CFG.pos==='POR',tot=M.my.jugadas;
+ const title=champ?`¡Campeón ${TOR.del} ${TOR.name}!`:win?'¡Victoria!':draw?'Empate':'Derrota';
  app.innerHTML=`<div class="res"><div class="k">${esc(M.label)}</div><h2>${title}</h2>
   <div class="row" style="justify-content:center;gap:18px"><div class="sbt">${flag(M.me)}${M.me.a}</div><div class="score">${M.us} - ${M.them}</div><div class="sbt">${M.rv.a}${flag(M.rv)}</div></div>
   ${M.pens?`<p class="note">Penales: ${M.pens[0]}-${M.pens[1]}</p>`:''}
-  ${CUP?`<div class="path">${CUP_ROUNDS.map((r,i)=>`<span class="${i<CUP.res.length?(CUP.res[i]?'ok':'ko'):i===CUP.round?'now':''}">${r}${i<CUP.res.length?` · ${esc(CUP.opp[i].a)}`:''}</span>`).join('')}</div>`:''}
-  <section class="card" style="text-align:left"><h2>${esc(CFG.name)} · ${CFG.num}</h2><table class="st">
-   <tr><td><b>${M.me.a}</b></td><td>Estadísticas</td><td><b>${M.rv.a}</b></td></tr><tr><td>${M.poss}%</td><td>Posesión</td><td>${100-M.poss}%</td></tr><tr><td>${M.shots[0]}</td><td>Remates</td><td>${M.shots[1]}</td></tr><tr><td>${M.ot[0]}</td><td>Remates a puerta</td><td>${M.ot[1]}</td></tr><tr><td>${M.co[0]}</td><td>Córners</td><td>${M.co[1]}</td></tr><tr><td>${M.fo[0]}</td><td>Faltas</td><td>${M.fo[1]}</td></tr><tr><td>${M.yc[0]}</td><td>Amarillas</td><td>${M.yc[1]}</td></tr><tr><td>${M.of[0]}</td><td>Fueras de juego</td><td>${M.of[1]}</td></tr></table>
-   <p class="note">${keeper?`Atajaste ${M.my.atajadas} de ${tot} jugadas.`:`${M.my.goles} gol${M.my.goles===1?'':'es'}${M.my.asist?` · ${M.my.asist} asistencia${M.my.asist>1?'s':''}`:''}${M.my.robos?` · ${M.my.robos} contraataque${M.my.robos>1?'s':''} cortado${M.my.robos>1?'s':''}`:''} en ${tot} jugada${tot===1?'':'s'}.`}${M.red?' 🟥 Expulsado.':M.yel?' 🟨 Amonestado.':''}</p></section>
+  ${tourTxt?`<p class="disp" style="font-size:22px;margin-top:10px;color:${out?'var(--bad)':'var(--gold)'}">${esc(tourTxt)}</p>`:''}
+  ${TOR?tourBlock():''}
+  <section class="card" style="text-align:left"><div class="car"><div class="ovrb"><b>${CAR.ovr}</b><span>media</span></div><div><h2>${esc(CFG.name)} · ${CFG.num}</h2>
+   <p class="note" style="margin:4px 0 0">${up>0?`<span class="up">¡Tu media sube! ${o0} → ${CAR.ovr}</span>`:`+${xp} punto${xp===1?'':'s'} de experiencia · próximo punto ${CAR.xp}/${xpNeed(CAR.ovr)}`}</p>
+   <p class="note" style="margin:4px 0 0">${keeper?`Atajaste ${M.my.atajadas} de ${tot} jugadas.`:`${M.my.goles} gol${M.my.goles===1?'':'es'}${M.my.asist?` · ${M.my.asist} asistencia${M.my.asist>1?'s':''}`:''}${M.my.robos?` · ${M.my.robos} contraataque${M.my.robos>1?'s':''} cortado${M.my.robos>1?'s':''}`:''} en ${tot} jugada${tot===1?'':'s'}.`}${M.red?' 🟥 Expulsado.':M.yel?' 🟨 Amonestado.':''}</p></div></div>
+  <table class="st">
+   <tr><td><b>${M.me.a}</b></td><td>Estadísticas</td><td><b>${M.rv.a}</b></td></tr><tr><td>${M.poss}%</td><td>Posesión</td><td>${100-M.poss}%</td></tr><tr><td>${M.shots[0]}</td><td>Remates</td><td>${M.shots[1]}</td></tr><tr><td>${M.ot[0]}</td><td>Remates a puerta</td><td>${M.ot[1]}</td></tr><tr><td>${M.co[0]}</td><td>Córners</td><td>${M.co[1]}</td></tr><tr><td>${M.fo[0]}</td><td>Faltas</td><td>${M.fo[1]}</td></tr><tr><td>${M.yc[0]}</td><td>Amarillas</td><td>${M.yc[1]}</td></tr><tr><td>${M.of[0]}</td><td>Fueras de juego</td><td>${M.of[1]}</td></tr></table></section>
   <div id="btns"></div></div>`;
  const B=$('#btns'),btn=(t,f,cls)=>{const b=document.createElement('button');b.className=cls||'go';b.textContent=t;b.onclick=f;B.appendChild(b)};
- if(CUP){if(win&&CUP.round<3){btn(`Siguiente: ${CUP_ROUNDS[CUP.round+1]}`,()=>{CUP.round++;startMatch(M.me,CUP.opp[CUP.round],`Copa · ${CUP_ROUNDS[CUP.round]}`)})}
-  else{btn(champ?'Jugar otra copa':'Intentar otra copa',startCup);CUP=null}}
+ if(TOR){if(!out&&!champ){btn(`Siguiente: ${nextLabel()}`,tourNext)}else{btn(champ?`Jugar ${TOR.otro} ${TOR.name}`:`Intentar ${TOR.otro} ${TOR.name}`,startTour);TOR=null}}
  else btn('Revancha',()=>startMatch(M.me,M.rv,'Amistoso'));
- btn('Menú',()=>{CUP=null;menu()},'go ghost');
- const last=B.lastChild;if(last){last.style.cssText='width:100%;margin-top:10px;background:transparent;color:var(--ink);border:1.5px solid var(--line)'}}
+ btn('Menú',()=>{TOR=null;menu()},'go ghost');
+ const last=B.lastChild;if(last){last.style.cssText='width:100%;margin-top:10px;background:transparent;color:var(--ink);border:1.5px solid var(--line)'}
+ scrollTo(0,0)}
 
-/* ---------- copa ---------- */
-function startCup(){const me=team(CFG.team);const others=TEAMS.filter(t=>t.n!==me.n).sort((a,b)=>a.r-b.r);
- // rivales cada vez más fuertes: octavos flojo, final de los mejores
- const tier=[others.slice(0,7),others.slice(5,12),others.slice(10,16),others.slice(-5)];const used=new Set();
- const opp=tier.map(t=>{const c=t.filter(x=>!used.has(x.n));const o=pick(c.length?c:t);used.add(o.n);return o});
- CUP={opp,round:0,res:[]};startMatch(me,opp[0],`Copa · ${CUP_ROUNDS[0]}`)}
+/* ---------- torneo: grupo de 4 + eliminatorias ---------- */
+function poisson(l){let k=0,p=1;const L=Math.exp(-l);do{k++;p*=R()}while(p>L);return k-1}
+function quickSim(a,b){return[poisson(1.3*Math.exp((a.r-b.r)/25)),poisson(1.3*Math.exp((b.r-a.r)/25))]}
+function addRes(i,j,x,y){const t=TOR.tab;const A=t[i],B=t[j];A.pj++;B.pj++;A.gf+=x;A.gc+=y;B.gf+=y;B.gc+=x;if(x>y){A.g++;B.p++}else if(x<y){B.g++;A.p++}else{A.e++;B.e++}}
+function standings(){return TOR.teams.map((t,i)=>Object.assign({i,t},TOR.tab[i])).map(r=>Object.assign(r,{pts:r.g*3+r.e,dg:r.gf-r.gc})).sort((a,b)=>b.pts-a.pts||b.dg-a.dg||b.gf-a.gf||a.i-b.i)}
+function nextLabel(){const T=TOR;return T.stage==='grupo'?`Grupo · Fecha ${T.md+1}`:KO_R[T.ko]}
+function tourBlock(){const T=TOR,st=standings(),done3=T.md>=3;
+ const path=['Grupo'].concat(KO_R).map((r,i)=>{const cls=i===0?(T.stage==='ko'?'ok':done3?'ko':'now'):(T.stage!=='ko'?'':i-1<T.ko?'ok':i-1===T.ko?'now':'');return `<span class="${cls}">${r}</span>`}).join('');
+ return `<div class="path">${path}</div><section class="card" style="text-align:left"><h2>${esc(T.name)} · Grupo</h2>
+  <table class="tab"><tr><th>#</th><th style="text-align:left">Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr>
+  ${st.map((r,k)=>`<tr class="${r.i===0?'me':''} ${k<2?'q':''}"><td>${k+1}</td><td>${flag(r.t)}${esc(r.t.a)}</td><td>${r.pj}</td><td>${r.g}</td><td>${r.e}</td><td>${r.p}</td><td>${r.gf}</td><td>${r.gc}</td><td>${r.dg>0?'+':''}${r.dg}</td><td><b>${r.pts}</b></td></tr>`).join('')}</table>
+  ${T.last?`<p class="note">Otro partido del grupo: ${esc(T.last)}</p>`:''}<p class="note">Pasan los dos primeros.</p></section>`}
+function startTour(){const me=team(CFG.team),kind=me.club?'club':'sel',pool=ofKind(kind).filter(t=>t.n!==me.n).sort((a,b)=>b.r-a.r);
+ // bombos como en un sorteo real: un rival fuerte, uno medio y uno flojo
+ const n=pool.length,pot=k=>pool.slice(Math.floor(k*n/3),Math.floor((k+1)*n/3)),g=[pick(pot(0)),pick(pot(1)),pick(pot(2))];
+ TOR={kind,name:kind==='club'?'Copa de Campeones':'Mundial',del:kind==='club'?'de la':'del',otro:kind==='club'?'otra':'otro',teams:[me].concat(g),tab:[0,1,2,3].map(()=>({pj:0,g:0,e:0,p:0,gf:0,gc:0})),md:0,stage:'grupo',ko:0,koOpp:[],
+  fix:[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]]};
+ tourNext()}
+function tourNext(){const T=TOR,me=T.teams[0];
+ if(T.stage==='grupo'){const opp=T.teams[T.fix[T.md][0][1]];startMatch(me,opp,`${T.name} · Grupo · Fecha ${T.md+1}`,false);return}
+ // eliminatorias: rivales de fuera del grupo, cada vez más fuertes
+ const used=new Set(T.teams.map(t=>t.n).concat(T.koOpp.map(t=>t.n))),pool=ofKind(T.kind).filter(t=>!used.has(t.n)).sort((a,b)=>a.r-b.r),n=pool.length;
+ const lo=[0,.3,.55,.7][T.ko],hi=[.7,.85,1,1][T.ko],c=pool.slice(Math.floor(lo*n),Math.max(Math.floor(lo*n)+1,Math.ceil(hi*n)));
+ const opp=pick(c.length?c:pool);T.koOpp.push(opp);startMatch(me,opp,`${T.name} · ${KO_R[T.ko]}`,true)}
 
 addEventListener('visibilitychange',()=>{if(document.hidden&&M&&!M.over&&!M.waiting){clearInterval(timer)}else if(!document.hidden&&M&&!M.over)tick()});
 menu();
