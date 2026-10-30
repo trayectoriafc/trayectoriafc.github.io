@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Trayectoria FC · Juega partidos</title>
-<meta name="description" content="Trayectoria FC: juego de fútbol gratis y sin anuncios. Elige tu selección, crea a tu jugador y juega las jugadas clave de cada partido en 3D: ocasiones de gol, penales, tiros libres y atajadas.">
+<title>Mundialito: juega partidos</title>
+<meta name="description" content="Mundialito: juego de fútbol gratis y sin anuncios. Elige tu selección, crea a tu jugador y juega las jugadas clave de cada partido en 3D: ocasiones de gol, penales, tiros libres y atajadas.">
 <link rel="canonical" href="https://trayectoriafc.github.io/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Trayectoria FC · Juega partidos">
+<meta property="og:title" content="Mundialito: juega partidos">
 <meta property="og:description" content="Elige tu selección y juega las jugadas clave de cada partido en 3D. Gratis y sin anuncios.">
 <meta property="og:url" content="https://trayectoriafc.github.io/">
 <meta property="og:image" content="https://trayectoriafc.github.io/og.png">
@@ -1923,7 +1923,7 @@ function menu(){clearInterval(timer);M=null;
  const tbtn=(t,sel,k)=>`<button class="tm" data-k="${k}" data-v="${esc(t.n)}" aria-pressed="${t.n===sel}">${flag(t)}<span>${esc(t.n)}<small>Nivel ${t.r}</small></span></button>`;
  const chips=(k,arr,cur)=>`<div class="chips">${arr.map(([v,t])=>`<button class="chip" data-k="${k}" data-v="${v}" aria-pressed="${String(cur)===String(v)}">${t}</button>`).join('')}</div>`;
  const K=CFG.kind,list=ofKind(K),tname=K==='club'?'Copa de Campeones':'Mundial',need=xpNeed(CAR.ovr);
- app.innerHTML=`<header class="brand"><h1>Trayectoria <span>FC</span></h1><p>Juega partidos: tú decides las jugadas clave en 3D</p></header>
+ app.innerHTML=`<header class="brand"><h1>Mundiali<span>to</span></h1><p>Juega partidos: tú decides las jugadas clave en 3D</p></header>
  <section class="card"><h2>Tu jugador</h2>
   <div class="car"><div class="ovrb"><b>${CAR.ovr}</b><span>media</span></div><div style="flex:1"><div class="disp" style="font-size:20px">${esc(CFG.name||'Tu jugador')} · ${CFG.num}</div><div class="note" style="margin:2px 0 6px">${tierName(CAR.ovr)} · ${CAR.pj} partidos · ${CAR.goles} goles · ${CAR.asist} asist.${CAR.atajadas?` · ${CAR.atajadas} atajadas`:''}${CAR.robos?` · ${CAR.robos} recuperaciones`:''}${CAR.titulos?` · ${CAR.titulos} título${CAR.titulos>1?'s':''} 🏆`:''}</div>
   <div class="xpb"><i style="width:${CAR.ovr>=99?100:Math.round(CAR.xp/need*100)}%"></i></div><div class="note" style="margin-top:4px;font-size:12px">${CAR.ovr>=99?'Media máxima':`Próximo punto de media: ${CAR.xp}/${need}`}</div></div></div>
